@@ -11,6 +11,7 @@ const connection = require('./model/connection');
 const app = express();
 
 const categoryRoutes = require('./routes/categories');
+const lotRoutes = require('./routes/lots');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -23,6 +24,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', categoryRoutes);
+app.use('/api', lotRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

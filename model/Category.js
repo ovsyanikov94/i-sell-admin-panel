@@ -3,15 +3,20 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const lots = require('./Lot');
-
 const categorySchema = new Schema({
-    id: Schema.ObjectId,
-    title: String,
-    lots: [ lots.Model ]
+    title: {
+        type: String,
+        validate:{
+            validator: ( title )=>{
+                return /^[a-zа-я0-9]{1,50}$/i.test( title )
+            },//validator
+            message: props => `Название категории не корректно: "${props.value}"`
+        },
+    },
+    lots: [ {
+        type: Schema.Types.ObjectId,
+        ref: 'lots'
+    } ]
 });
 
-module.exports = {
-    Model: mongoose.model('categories' , categorySchema),
-    Schema: categorySchema
-};
+module.exports = mongoose.model('categories' , categorySchema);
