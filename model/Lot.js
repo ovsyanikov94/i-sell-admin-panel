@@ -15,6 +15,27 @@ const lotSchema = new Schema({
             message: props => `Название лота не корректно: "${props.value}"`
         },
     },
+    customer:{
+        type: Schema.Types.ObjectId,
+        ref: 'users'
+    },
+    seller:{
+        type: Schema.Types.ObjectId,
+        ref: 'users'
+    },
+    lotDescription:{
+        type: String,
+        required: [true, 'Описание лота обязательно'],
+        minlength: 10,
+        maxlength:500
+    },
+
+    lotImagePath:[
+        {
+        type: Schema.Types.ObjectId,
+        ref: 'lotImages'
+    }
+    ],
     startPrice: {
         type: Number,
         validate:{
@@ -24,6 +45,52 @@ const lotSchema = new Schema({
             message: props => `Начальная цена задана неверно: "${props.value}"`
         },
     },
+
+    mapLot:{
+        type: Schema.Types.ObjectId,
+        ref: 'coordMaps'
+    },
+    currentRate:{
+        type: Number,
+        validate:{
+            validator: ( rate )=>{
+                return rate >= 0;
+            },//validator
+            message: props => `Рейтинг задан неверно: "${props.value}"`
+        },
+    },
+
+    dateAdminAnswer:{
+        type: Date,
+    },
+
+    datePlacement:{
+        type: Date,
+    },
+
+    dateStartTrade:{
+        type: Date,
+    },
+
+    dateEndTrade:{
+        type: Date,
+    },
+
+    typeLot:{
+        type: Schema.Types.ObjectId,
+        ref: 'lotTypes'
+    },
+
+    statusLot:{
+        type: Schema.Types.ObjectId,
+        ref: 'lotStatuses'
+    },
+    comments: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'comments'
+        }
+    ],
     categories: [
         {
             type: Schema.Types.ObjectId,
