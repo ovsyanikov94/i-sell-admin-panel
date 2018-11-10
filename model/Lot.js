@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const categories = require('./Category');
 
 const lotSchema = new Schema({
-    title: {
+    lotTitle: {
         type: String,
         validate:{
             validator: ( title )=>{
