@@ -12,7 +12,8 @@ const app = express();
 
 const categoryRoutes = require('./routes/categories');
 const lotRoutes = require('./routes/lots');
-
+const dealRouter = require('./routes/deals');
+const statusDealRouter = require('./routes/statusDeal');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -25,6 +26,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', categoryRoutes);
 app.use('/api', lotRoutes);
+app.use('/api', dealRouter);
+app.use('/api', statusDealRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
