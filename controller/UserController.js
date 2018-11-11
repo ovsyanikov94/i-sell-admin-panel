@@ -21,7 +21,6 @@ module.exports.AddUser = async( req , res ) => {
         let userStatus = req.body.userStatus;
         let lots = req.body.lots;
 
-
         let newUser = null;
 
         try {
