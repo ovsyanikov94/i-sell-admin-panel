@@ -1,0 +1,10 @@
+module.exports = {
+
+    COMMENT_MIN_LENGTH: 5,
+    COMMENT_MAX_LENGTH: 500,
+    COMMENT_DEFAULT_SKIP:0,
+    COMMENT_DEFAULT_LIMIT:10,
+    COMMENT_TYPE_PERSONAL: "personal",
+    COMMENT_TYPE_LOT: "lot"
+
+};
