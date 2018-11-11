@@ -2,10 +2,12 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
+const constValidator = require('./validatorConstatn');
+/*
 const roles = require('./Role');
 const userStatus = require('./UserStatus');
 const lots = require('./Lot');
+*/
 
 
 const userSchema = new Schema({
@@ -14,7 +16,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( login )=>{
-                return  /^[a-z\d]{4,16}$/i.test(login)
+                return  constValidator.USET_LOGIN_VALIDATOR.test(login)
             }, // Validator Login
             message: props => `Введите корректный логин с 4 до 16 букв и цифр \n"${props.value}"`
         },
@@ -24,7 +26,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( password )=>{
-                return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,25}$/i.test(password)
+                return constValidator.USER_PASSWORD_VALIDATOR.test(password)
             }, // Validator Password
             message: props => `Пароль должен содержать хотя-бы одну заглавную букву, и иметь не менее 6 символов \n"${props.value}"`
         },
@@ -34,7 +36,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( email )=>{
-                return /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/i.test(email)
+                return constValidator.USER_EMAIL_VALIDATOR.test(email)
             }, // Validator Email
             message: props => `Введен некоректный E-Mail, пример: test@example.com \n "${props.value}"`
         },
@@ -44,7 +46,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( fName )=>{
-                return /^[a-zа-я]{1,12}$/i.test(fName)
+                return constValidator.USER_FERSNAME_VALIDATRO.test(fName)
             }, // Validator FirstName
             message: props => `Ошибка. Имя не должно содержать цифр, пробелов, символов и не превышать 12 строк \n "${props.value}"`
         },
@@ -54,7 +56,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( lName )=>{
-                return /^[a-zа-я]{1,20}$/i.test(lName)
+                return constValidator.USER_LASTNAME_VALIDATOR.test(lName)
             }, // Validator FirstName
             message: props => `Ошибка. Фамилия не должна содержать цифр, пробелов, символов и не превышать 12 строк \n "${props.value}"`
         },
@@ -91,7 +93,7 @@ const userSchema = new Schema({
         type: String, // Не Number, потому что имеет символы
         validate:{
             validator: ( phone )=>{
-                return [/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/i, /^\+\d{2}\(\d{3}\)\d{3}-\d{2}-\d{2}$/i].test(phone);
+                return constValidator.USER_PHONE_VALIDATOR.test(phone);
             }, // Validator Phone - Можно ли тут использовать массив, хз. 1 - номер Рус, 2 - номер Укр.
             message: props => `Ошибка. Неккоректный номер! "${props.value}"`
         },
@@ -104,6 +106,10 @@ const userSchema = new Schema({
         }
     ],
 
+    blackList:{
+        type: Schema.Types.ObjectId,
+        ref: 'blackList'
+    },
     lots: [
         {
             type: Schema.Types.ObjectId,

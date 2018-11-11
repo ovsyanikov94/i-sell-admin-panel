@@ -7,7 +7,7 @@ const DealsStatus = require('../model/DealsStatus');
 const validator = require('validator');
 const evaluation = require('../model/evaluationDeals');
 const constValidator = require('../model/validatorConstatn');
-const User = require();
+const User = require('../model/User');
 module.exports.createDeals=async(req,res)=>{
 
     let validSellerUser =  validator.isMongoId( req.body.sellerUserID);

@@ -19,7 +19,18 @@ module.exports.createStatus = async(req,res)=>{
         return;
     }//if
     try {
+        let existStatus= await DealsStatus.findOne({
+            titleStatus:title
+        });//existStatus
 
+        if(existStatus){
+            res.send( {
+                code: 400,
+                message: "значение уже существует!",
+                data: title
+            } );
+            return;
+        }//if
         let newStatus = null;
         try{
             let newStatus = DealsStatus({
@@ -38,18 +49,7 @@ module.exports.createStatus = async(req,res)=>{
             return;
         }//catch
 
-        let existStatus= await DealsStatus.findOne({
-            titleStatus:title
-        });//existStatus
 
-        if(existStatus){
-            res.send( {
-                code: 400,
-                message: "значение уже существует!",
-                data: title
-            } );
-            return;
-        }//if
 
        let Status = await newStatus.send();
 
