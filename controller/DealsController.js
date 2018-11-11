@@ -90,7 +90,7 @@ module.exports.createDeals=async(req,res)=>{
 
 },
 
-module.exports.listDealDyUserId = async(req,res)=>{
+module.exports.listDealByUserId = async(req,res)=>{
     let validUserId = validator.isMongoId( req.body.userId);
     let validStatusId =validator.isMongoId( req.body.statusId);
 
