@@ -12,6 +12,9 @@ const app = express();
 
 const categoryRoutes = require('./routes/categories');
 const lotRoutes = require('./routes/lots');
+const lotStatusRoutes = require('./routes/lotStatus');
+const lotTypeRoutes = require('./routes/lotType');
+const userRoutes = require('./routes/users');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,6 +28,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', categoryRoutes);
 app.use('/api', lotRoutes);
+app.use('/api', lotStatusRoutes);
+app.use('/api', lotTypeRoutes);
+app.use('/api', userRoutes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

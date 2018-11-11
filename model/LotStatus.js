@@ -6,6 +6,8 @@ const Schema = mongoose.Schema;
 const lots = require('./Lot');
 
 const lotStatusSchema = new Schema({
+    id: Schema.Types.ObjectId,
+
     statusTitle: {
         type: String,
         validate:{

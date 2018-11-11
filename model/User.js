@@ -10,7 +10,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( name )=>{
-                return /^[a-zа-я0-9]{1,20}$/i.test( name )
+                return /^[a-zа-я0-9\s]{1,20}$/i.test( name )
             },//validator
             message: props => `Имя введенно не корректно: "${props.value}"`
         },
