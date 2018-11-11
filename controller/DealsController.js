@@ -100,7 +100,6 @@ module.exports.listDealByUserId = async(req,res)=>{
         res.send( {
             code: 400,
             message: "не корректное значени!",
-            data: idStatusDeal
         } );
         return;
     }
@@ -113,7 +112,7 @@ module.exports.listDealByUserId = async(req,res)=>{
         res.send( {
             code: 400,
             message: "не корректное значени!",
-            data: title
+            data: req.body.statusId
         } );
         return;
     }//if
@@ -125,7 +124,7 @@ module.exports.listDealByUserId = async(req,res)=>{
         res.send( {
             code: 400,
             message: "не корректное значени!",
-            data: title
+            data: req.body.userId
         } );
         return;
     }//if
