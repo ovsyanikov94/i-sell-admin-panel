@@ -11,7 +11,6 @@ module.exports.AddUserToBlockList=async(req,res)=>{
     let validUser =  validator.isMongoId( req.body.UserID);
     let validUserInBlackList =  validator.isMongoId( req.body.UserIDInBlackList);
 
-
     if(!validUser||
         !validUserInBlackList
     ){
