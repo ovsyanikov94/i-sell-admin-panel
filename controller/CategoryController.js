@@ -66,18 +66,19 @@ module.exports = {
 
     try {
 
-        let categories = await Category.find().populate('lots', {
-            select: [
-                'id',
-                'lotTitle'
-            ]
+        let limit = +req.query.limit || 5;
+        let offset = +req.query.offset || 0;
+
+        let categories = await Category.find( null , 'id title' , {
+            limit: limit,
+            skip: offset
         });
 
 
         //console.log('categories' , categories);
 
         res.send({
-            statusCode: 200,
+            status: 200,
             data: categories,
             message: 'Success!'
         });
@@ -96,7 +97,7 @@ module.exports = {
 
         try{
 
-            let categoryID = req.params.id || '';
+            let categoryID = req.body.id || '';
 
             if(!await Category.findOne({id: categoryID})){
                 return res.send({
@@ -144,18 +145,25 @@ module.exports = {
 
         try{
 
-            let categoryID = req.params.id;
+            let categoryID = req.body.id;
 
-            if(!await Category.findById({categoryID})){
+            let category = await Category.findById(categoryID);
+
+            console.log(req);
+            console.log('BODY: ' , req.body);
+
+            if(!category){
+
                 return res.send({
                     code:400,
                     message:'Категория с таким ID не найдена!',
                     data:categoryID
                 });
+
             }//if
 
             let deletedCategory = await Category.remove({id: categoryID});
-            console.log( deletedCategory );
+
             res.send({
                 code:200,
                 message:'Категория удалена!',

@@ -3,8 +3,8 @@
 const ValidatorConst = {
 
     //STATUS_DEAL
-    TITLE_VALIDATOR : /^[a-zа-я0-9\s]{1-50}$/i,
-    TEXT_VALIDATOR : /^[a-zа-я0-9\s]{1-500}$/i,
+    TITLE_VALIDATOR : /^[a-zа-я0-9\s]{1,50}$/i,
+    TEXT_VALIDATOR : /^[a-zа-я0-9\s]{1,500}$/i,
     STATUS_EVALUATION_VALUE_VALIDATOR : /^[0-5]$/,
 
     //USER
