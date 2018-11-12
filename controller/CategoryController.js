@@ -3,6 +3,10 @@
 const Category = require('../model/Category');
 const Lot = require('../model/Lot');
 
+const Logger = require('../model/Logger');
+const ValidatorConstants = require('../model/Validation');
+const Response = require('../model/Response');
+
 function GetClearMessage( validationError ){
 
     console.log( validationError );
@@ -24,13 +28,24 @@ function GetClearMessage( validationError ){
 }//GetClearMessage
 
 module.exports = {
+
     AddCategory: async (req, res) => {
 
         try {
 
-            let title = req.body.categoryTitle;
+            let title = req.body.categoryTitle || '';
 
-            //console.log( title );
+            if( !title.match( ValidatorConstants.TITLE_VALIDATOR ) ){
+
+                Response.status = 400;
+                Response.message = 'Название категории не верно!';
+                Response.data = title;
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+            }//if
 
             let newCategory = new Category({
                 title: title
@@ -38,18 +53,30 @@ module.exports = {
 
             let result = await newCategory.save();
 
-            //console.log( newCategory );
-
-            res.send({
-                'category': result
-            });
+            Response.status = 200;
+            Response.message = 'Категория добавлена!';
+            Response.data = result;
 
         }//try
         catch (ex) {
 
-            res.send(ex.message);
+            Response.status = 500;
+            Response.message = 'Внутренняя ошибка сервера!';
+            Response.data = ex.message;
+
+            Logger.error({
+                time: new Date().toISOString(),
+                status: 500,
+                data: {
+                    message: ex.message,
+                    stack: ex.stack
+                },
+            });
 
         }//catch
+
+        res.status(Response.status);
+        res.send(Response);
 
     },
 
@@ -89,7 +116,7 @@ module.exports = {
 
         try{
 
-            let categoryID = req.params.id;
+            let categoryID = req.params.id || '';
 
             if(!await Category.findOne({id: categoryID})){
                 return res.send({
