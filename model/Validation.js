@@ -20,8 +20,8 @@ const ValidatorConst = {
     COMMENT_MAX_LENGTH: 500,
     COMMENT_DEFAULT_SKIP:0,
     COMMENT_DEFAULT_LIMIT:10,
-    COMMENT_TYPE_PERSONAL: "personal",
-    COMMENT_TYPE_LOT: "lot"
+    COMMENT_STATUS_AND_TYPE_VALIDATOR: /^[a-z\s]{1,20}$/i,
+    COMMENT_DATE_VALIDATOR:/^\d{1,2}\/\d{1,2}\/\d{4}$/i
 
 };
 

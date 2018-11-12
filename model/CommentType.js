@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const commentTypeSchema = new Schema({
+
     commentTypeTitle: {
         type: String,
     },

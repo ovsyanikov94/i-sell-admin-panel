@@ -4,17 +4,71 @@ const Lot = require('../model/Lot');
 const User = require('../model/User')
 const Logger = require('../model/Logger');
 
-const UtilsController = require('../controller/UtilsController');
-const Validation = require('../model/Validation')
+const ValidatorConstants = require('../model/Validation')
+const Response = require('../model/Response');
 
 module.exports.AddComment = async( req , res ) => {
 
     try{
 
         let commentText = req.body.commentText && req.body.commentText.trim();
+
+        if(!commentText || commentText.length < ValidatorConstants.COMMENT_MIN_LENGTH || commentText.length > ValidatorConstants.COMMENT_MAX_LENGTH){
+
+            Response.status = 400;
+            Response.message = 'Несоответствующая длина комментария !';
+            Response.data = commentText;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
+
         let commentStatus = req.body.commentStatus;
+
+        if( !commentStatus.match( ValidatorConstants.COMMENT_STATUS_AND_TYPE_VALIDATOR ) ){
+
+            Response.status = 400;
+            Response.message = 'Название статуса комментария неверно!';
+            Response.data = commentStatus;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
+
         let commentType = req.body.commentType;
+
+        if( !commentType.match( ValidatorConstants.COMMENT_STATUS_AND_TYPE_VALIDATOR ) ){
+
+            Response.status = 400;
+            Response.message = 'Название типа комментария неверно!';
+            Response.data = commentType;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
         let commentSendDate = req.body.commentSendDate;
+
+        if( !commentSendDate.match( ValidatorConstants.COMMENT_DATE_VALIDATOR ) ){
+
+            Response.status = 400;
+            Response.message = 'Неверный формат даты !';
+            Response.data = commentSendDate;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
 
         let newComment = null;
 
@@ -32,32 +86,31 @@ module.exports.AddComment = async( req , res ) => {
         }//try
         catch(ex){
 
-            let message = UtilsController.MakeMongooseMessageFromError(ex);
+            Response.status = 400;
+            Response.message = 'Ошибка при создании комментария!';
+            Response.data = newComment;
 
-            res.status(400);
-            res.send( {
-                code: 400,
-                message: message
-            } );
+            res.status(Response.status);
+            res.send(Response);
 
             return;
 
+
         }//catch
 
-        if(commentType === Validation.COMMENT_TYPE_PERSONAL ){
+        if(commentType === ValidatorConstants.COMMENT_TYPE_PERSONAL ){
 
             try{
 
             }//try
             catch(ex){
 
-                let message = UtilsController.MakeMongooseMessageFromError(ex);
+                Response.status = 400;
+                Response.message = '!';
+                Response.data = commentType;
 
-                res.status(400);
-                res.send( {
-                    code: 400,
-                    message: message
-                } );
+                res.status(Response.status);
+                res.send(Response);
 
                 return;
 
@@ -69,21 +122,19 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        else if (commentType === Validation.COMMENT_TYPE_LOT){
-
+        else if (commentType === ValidatorConstants.COMMENT_TYPE_LOT){
 
             try{
 
             }//try
             catch(ex){
 
-                let message = UtilsController.MakeMongooseMessageFromError(ex);
+                Response.status = 400;
+                Response.message = '!';
+                Response.data = commentType;
 
-                res.status(400);
-                res.send( {
-                    code: 400,
-                    message: message
-                } );
+                res.status(Response.status);
+                res.send(Response);
 
                 return;
 
@@ -97,18 +148,18 @@ module.exports.AddComment = async( req , res ) => {
 
         let createResult = await newComment.save();
 
-        res.status(200);
-        res.send({
-            code: 200,
-            data: createResult,
-            message:  'Комментарий успешно добавлен!'
-        });
+        Response.status = 200;
+        Response.message = 'Комментарий успещно добавлен!';
+        Response.data = createResult;
+
 
 
     }//try
     catch(ex){
 
-        console.log(ex);
+        Response.status = 500;
+        Response.message = 'Ошибка сервера!';
+        Response.data = ex;
 
         Logger.error({
             time: new Date().toISOString(),
@@ -119,15 +170,10 @@ module.exports.AddComment = async( req , res ) => {
             },
         });
 
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
-
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
 
 };
 
@@ -135,8 +181,35 @@ module.exports.UpdateComment = async( req , res ) => {
 
     try{
 
-        let commentID = req.body.commentID;
-        let commentText = req.body.commentText;
+        let commentID = req.body.id || '';
+
+        if(!await Comment.findOne({id: commentID})){
+
+            Response.status = 400;
+            Response.message = 'Комментарий с таким ID не был найден!';
+            Response.data = commentID;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
+
+        let commentText = req.body.commentText && req.body.commentText.trim();
+
+        if(commentText || commentText.length < ValidatorConstants.COMMENT_MIN_LENGTH || commentText.length > ValidatorConstants.COMMENT_MAX_LENGTH){
+
+            Response.status = 400;
+            Response.message = 'Некорректная длина комментария!';
+            Response.data = commentText;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
 
         let updateComment = null;
 
@@ -147,13 +220,12 @@ module.exports.UpdateComment = async( req , res ) => {
         }//try
         catch(ex){
 
-            let message = UtilsController.MakeMongooseMessageFromError(ex);
+            Response.status = 400;
+            Response.message = 'Комментарий не был обновлен!';
+            Response.data = updateComment;
 
-            res.status(400);
-            res.send( {
-                code: 400,
-                message: message
-            } );
+            res.status(Response.status);
+            res.send(Response);
 
             return;
 
@@ -161,18 +233,16 @@ module.exports.UpdateComment = async( req , res ) => {
 
         let updateResult = await updateComment.save();
 
-        res.status(200);
-        res.send({
-            code: 200,
-            data: updateResult,
-            message:  'Комментарий успешно обновлен'
-        });
-
+        Response.status = 200;
+        Response.message = 'Комментарий успещно обновлен!';
+        Response.data = updateResult;
 
     }//try
     catch(ex){
 
-        console.log(ex);
+        Response.status = 500;
+        Response.message = 'Ошибка сервера!';
+        Response.data = ex;
 
         Logger.error({
             time: new Date().toISOString(),
@@ -183,15 +253,10 @@ module.exports.UpdateComment = async( req , res ) => {
             },
         });
 
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
-
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
 
 };
 
@@ -200,6 +265,19 @@ module.exports.DeleteComment = async( req , res ) => {
     try{
 
         let commentID = req.body.commentID;
+
+        if(!await Comment.findOne({id: commentID})){
+
+            Response.status = 400;
+            Response.message = 'Комментарий с таким ID не был найден!';
+            Response.data = commentID;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
 
         let deleteComment = null;
 
@@ -210,13 +288,12 @@ module.exports.DeleteComment = async( req , res ) => {
         }//try
         catch(ex){
 
-            let message = UtilsController.MakeMongooseMessageFromError(ex);
+            Response.status = 400;
+            Response.message = 'Комментарий не был удален!';
+            Response.data = deleteComment;
 
-            res.status(400);
-            res.send( {
-                code: 400,
-                message: message
-            } );
+            res.status(Response.status);
+            res.send(Response);
 
             return;
 
@@ -224,18 +301,17 @@ module.exports.DeleteComment = async( req , res ) => {
 
         let deleteResult = await deleteComment.save();
 
-        res.status(200);
-        res.send({
-            code: 200,
-            data: deleteResult,
-            message:  'Комментарий успешно удален'
-        });
+        Response.status = 200;
+        Response.message = 'Комментарий успещно удален!';
+        Response.data = deleteResult;
 
 
     }//try
     catch(ex){
 
-        console.log(ex);
+        Response.status = 500;
+        Response.message = 'Ошибка сервера!';
+        Response.data = ex;
 
         Logger.error({
             time: new Date().toISOString(),
@@ -246,15 +322,10 @@ module.exports.DeleteComment = async( req , res ) => {
             },
         });
 
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
-
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
 
 };
 
@@ -262,21 +333,22 @@ module.exports.GetComments = async( req , res ) => {
 
     try{
 
-        let comments = await Comment.find({
-            skip: req.query.limit || Validation.COMMENT_DEFAULT_SKIP,
-            limit: req.query.offset || Validation.COMMENT_DEFAULT_LIMIT
+        let comments = await Comment.find(null , 'id commentText' , {
+            limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
+            skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
         });
 
-        res.status(200);
-        res.send({
-            code: 200,
-            data: comments,
-        });
+        Response.status = 200;
+        Response.message = 'Список комментариев: ';
+        Response.data = comments;
+
 
     }//try
     catch(ex){
 
-        console.log(ex);
+        Response.status = 500;
+        Response.message = 'Ошибка сервера!';
+        Response.data = ex;
 
         Logger.error({
             time: new Date().toISOString(),
@@ -287,15 +359,10 @@ module.exports.GetComments = async( req , res ) => {
             },
         });
 
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
-
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
 
 
 };
