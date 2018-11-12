@@ -5,6 +5,7 @@ const User = require('../model/User');
 const Lot = require('../model/Lot');
 
 const Logger = require('../model/Logger');
+const Response = require('../model/Response');
 const UtilsController = require('../controller/UtilsController');
 
 const LotMarkConstants = require('../model/LotMarkConstants');
@@ -24,20 +25,22 @@ module.exports.AddLotMark = async( req, res ) =>{
 
         if(!user){
 
-            res.status(400);
-            res.send({
-               code: 400,
-               message: 'Пользователь не найден!'
-            });
+            Response.status(400);
+            Response.message = 'Пользователь не найден!';
+            Response.data = user;
+
+            res.status(Response.status);
+            res.send(Response);
 
         }//if
         if(!lot){
-            
-            res.status(400);
-            res.send({
-                code: 400,
-                message: 'Лот не найден!'
-            });
+
+            Response.status(400);
+            Response.message = 'Лот не найден!';
+            Response.data = lot;
+
+            res.status(Response.status);
+            res.send(Response);
             
         }//if
 
@@ -59,11 +62,11 @@ module.exports.AddLotMark = async( req, res ) =>{
 
             let message = UtilsController.MakeMongooseMessageFromError(ex);
 
-            res.status(400);
-            res.send( {
-                code: 400,
-                message: message
-            } );
+            Response.status = 400;
+            Response.message = message;
+
+            res.status(Response.status);
+            res.send(Response);
 
             return;
 
@@ -72,12 +75,12 @@ module.exports.AddLotMark = async( req, res ) =>{
         //сохраняем документ в коллекцию базы данных
         let createLotMarkResult = await newLotMark.save();
 
-        res.status(200);
-        res.send({
-           code: 200,
-           data: createLotMarkResult,
-           message: 'Новая оценка добавлена'
-        });
+        Response.status = 200;
+        Response.message = 'Новая оценка добавлена';
+        Response.data = createLotMarkResult;
+
+        res.status(Response.status);
+        res.send(Response);
 
     }//try
     catch(ex){
@@ -91,13 +94,12 @@ module.exports.AddLotMark = async( req, res ) =>{
             },
         });
 
-        res.status(500);
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex;
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
+        res.status(Response.status);
+        res.send(Response);
 
     }//catch
 
@@ -117,12 +119,12 @@ module.exports.UpdateLotMark = async ( req, res ) => {
 
            let updateResult = await LotMark.findByIdAndUpdate(lotMarkID, { mark: mark });
 
-            res.status(200);
-            res.send({
-                code: 200,
-                data: updateResult,
-                message:  'Оценка успешно изменена'
-            });
+            Response.status = 200;
+            Response.message = 'Оценка успешно изменена';
+            Response.data = updateResult;
+
+            res.status(Response.status);
+            res.send(Response);
 
         }//if
 
@@ -138,13 +140,12 @@ module.exports.UpdateLotMark = async ( req, res ) => {
             },
         });
 
-        res.status(500);
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex;
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
+        res.status(Response.status);
+        res.send(Response);
 
     }//catch
 
@@ -164,12 +165,12 @@ module.exports.RemoveLotMark = async( req, res ) => {
 
             removedMark = await LotMark.findByIdAndRemove(lotMarkID);
 
-            res.status(200);
-            res.send({
-                code: 200,
-                data: removedMark,
-                message: 'Оценка удалена'
-            });
+            Response.status = 200;
+            Response.message = 'Оценка удалена';
+            Response.data = removedMark;
+
+            res.status(Response.status);
+            res.send(Response);
 
         }//if
 
@@ -185,13 +186,12 @@ module.exports.RemoveLotMark = async( req, res ) => {
             },
         });
 
-        res.status(500);
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex;
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
+        res.status(Response.status);
+        res.send(Response);
 
     }//catch
 
@@ -209,11 +209,12 @@ module.exports.GetLotMarkList = async ( req, res ) => {
             .skip(offset)
             .populate('sender');
 
-        res.send( {
-            statusCode: 200,
-            data: lotMarks,
-            message: "Список лотов"
-        });
+        Response.status = 200;
+        Response.message = 'Список лотов';
+        Response.data = lotMarks;
+
+        res.status(Response.status);
+        res.send(Response);
 
     }//try
     catch(ex){
@@ -227,13 +228,12 @@ module.exports.GetLotMarkList = async ( req, res ) => {
             },
         });
 
-        res.status(500);
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex;
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
+        res.status(Response.status);
+        res.send(Response);
 
     }//catch
 

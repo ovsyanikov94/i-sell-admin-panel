@@ -11,12 +11,12 @@ const lotMarkSchema = new Schema({
 
    sender:{
      type: Schema.Types.ObjectId,
-     ref: 'user'
+     ref: 'users'
    },//sender
 
    receiver:{
     type: Schema.Types.ObjectId,
-    ref: 'lot'
+    ref: 'lots'
    },//receiver
 
    mark:{
@@ -26,6 +26,7 @@ const lotMarkSchema = new Schema({
           validator: (mark)=>{
               return /^[0-1]+$/.test(mark)
           },//validator
+          message: props => `Не коректное значение "${props.value}". Значение может быть только "0" или "1".`
       }//validate
    },//mark
 
