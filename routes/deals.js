@@ -7,6 +7,6 @@ const dealsController = require('../controller/DealsController');
 
 router.post('/newDeal', dealsController.createDeals);
 router.post('/closeDeal', dealsController.closeDeals);
-router.post('/dealByUser', dealsController.listDealDyUserId);
+router.post('/dealByUser', dealsController.listDealByUserId);
 
 module.exports = router;

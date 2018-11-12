@@ -2,7 +2,7 @@
 
 const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
-const blackList = require('./blackListUser');
+const blackList = require('../model/blackListUser');
 const User = require('../model/User');
 const validator = require('validator');
 

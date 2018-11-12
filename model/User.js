@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const constValidator = require('./validatorConstatn');
+const constValidator = require('./Validation');
 /*
 const roles = require('./Role');
 const userStatus = require('./UserStatus');

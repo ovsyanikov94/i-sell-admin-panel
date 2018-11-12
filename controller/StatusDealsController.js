@@ -4,7 +4,7 @@ const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
 const validator = require('validator');
 const DealsStatus = require('../model/DealsStatus');
-const constValidator = require('../model/validatorConstatn');
+const constValidator = require('../model/Validation');
 
 module.exports.createStatus = async(req,res)=>{
     let title = req.body.statusTitle;

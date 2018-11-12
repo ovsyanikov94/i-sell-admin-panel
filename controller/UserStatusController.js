@@ -2,7 +2,7 @@
 
 const UserStatus = require('../model/UserStatus');
 const Logger = require('../model/Logger');
-const constValidator = require('../model/validatorConstatn');
+const constValidator = require('../model/Validation');
 const UtilsController = require('../controller/UtilsController');
 
 module.exports.AddUserStatus = async( req , res ) => {

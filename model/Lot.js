@@ -4,13 +4,14 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const categories = require('./Category');
+const ValidatorConstants = require('../model/Validation');
 
 const lotSchema = new Schema({
     lotTitle: {
         type: String,
         validate:{
             validator: ( title )=>{
-                return /^[a-zа-я0-9\s]{1,100}$/i.test( title )
+                return ValidatorConstants.TITLE_VALIDATOR.test( title )
             },//validator
             message: props => `Название лота не корректно: "${props.value}"`
         },
@@ -26,8 +27,12 @@ const lotSchema = new Schema({
     lotDescription:{
         type: String,
         required: [true, 'Описание лота обязательно'],
-        minlength: 10,
-        maxlength:500
+        validate:{
+            validator: ( lotDescription )=>{
+                return ValidatorConstants.LOT_DESCRIPTION_VALIDATOR.test( lotDescription )
+            },//validator
+            message: props => `Название лота не корректно: "${props.value}"`
+        },
     },
 
     lotImagePath:[
@@ -40,7 +45,7 @@ const lotSchema = new Schema({
         type: Number,
         validate:{
             validator: ( price )=>{
-                return price >= 0;
+                return price >= ValidatorConstants.LOT_START_PRICE;
             },//validator
             message: props => `Начальная цена задана неверно: "${props.value}"`
         },
@@ -54,7 +59,7 @@ const lotSchema = new Schema({
         type: Number,
         validate:{
             validator: ( rate )=>{
-                return rate >= 0;
+                return rate >= ValidatorConstants.LOT_RATE;
             },//validator
             message: props => `Рейтинг задан неверно: "${props.value}"`
         },
