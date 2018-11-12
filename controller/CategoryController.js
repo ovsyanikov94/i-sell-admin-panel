@@ -7,26 +7,6 @@ const Logger = require('../model/Logger');
 const ValidatorConstants = require('../model/Validation');
 const Response = require('../model/Response');
 
-function GetClearMessage( validationError ){
-
-    console.log( validationError );
-
-    let errors = Object.keys(validationError);
-
-    let result = [];
-
-    for(let i = 0 ; errors.length ; i++){
-
-        let key = errors[i];
-
-        result.push( validationError[key].message );
-
-    }//for i
-
-    return result;
-
-}//GetClearMessage
-
 module.exports = {
 
     AddCategory: async (req, res) => {
