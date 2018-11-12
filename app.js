@@ -15,6 +15,12 @@ const lotRoutes = require('./routes/lots');
 const lotStatusRoutes = require('./routes/lotStatus');
 const lotTypeRoutes = require('./routes/lotType');
 const userRoutes = require('./routes/users');
+const dealRouter = require('./routes/deals');
+const statusDealRouter = require('./routes/statusDeal');
+const statusUserRouter = require('./routes/statusUsers');
+const subscribersRouter = require('./routes/subscribers');
+const blackListRoutr = require('./routes/blackList');
+const blockListRoutr = require('./routes/blockList');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -31,6 +37,12 @@ app.use('/api', lotRoutes);
 app.use('/api', lotStatusRoutes);
 app.use('/api', lotTypeRoutes);
 app.use('/api', userRoutes);
+app.use('/api', dealRouter);
+app.use('/api', statusDealRouter);
+app.use('/api', statusUserRouter);
+app.use('/api', subscribersRouter);
+app.use('/api', blackListRoutr);
+app.use('/api', blockListRoutr);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
