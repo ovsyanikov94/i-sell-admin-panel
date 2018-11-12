@@ -63,12 +63,11 @@ module.exports.createDeals=async(req,res)=>{
 
             let Daels = await newDeals.save();
 
-       res.status(200);
-       res.send({
-           code: 200,
-           data:Daels ,
-           message:  'сделка успешно долбавлена!'
-       });// res.send
+       Response.status = 200;
+       Response.message = 'сделка успешно долбавлена!';
+       Response.data = Daels;
+       res.status(Response.status)
+       res.send(Response);
 
    }//try
    catch (ex){

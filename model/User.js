@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const constValidator = require('./validatorConstatn');
+const constValidator = require('./Validation');
 /*
 const roles = require('./Role');
 const userStatus = require('./UserStatus');
@@ -21,12 +21,20 @@ const userSchema = new Schema({
             message: props => `Введите корректный логин с 4 до 16 букв и цифр \n"${props.value}"`
         },
     },
-
-    password: {
+    saltStr:{
         type: String,
         validate:{
             validator: ( password )=>{
                 return constValidator.USER_PASSWORD_VALIDATOR.test(password)
+            }, // Validator Password
+            message: props => `Пароль должен содержать хотя-бы одну заглавную букву, и иметь не менее 6 символов \n"${props.value}"`
+        },
+    },
+    password: {
+        type: String,
+        validate:{
+            validator: ( password )=>{
+                return constValidator.USER_HASH_PASSWORD_VALIDATOR.test(password)
             }, // Validator Password
             message: props => `Пароль должен содержать хотя-бы одну заглавную букву, и иметь не менее 6 символов \n"${props.value}"`
         },
@@ -46,7 +54,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( fName )=>{
-                return constValidator.USER_FERSNAME_VALIDATRO.test(fName)
+                return constValidator.USER_FIRSTNAME_VALIDATOR.test(fName)
             }, // Validator FirstName
             message: props => `Ошибка. Имя не должно содержать цифр, пробелов, символов и не превышать 12 строк \n "${props.value}"`
         },
@@ -99,16 +107,24 @@ const userSchema = new Schema({
         },
     },
 
-    userStatus: [
+    userStatus:
         {
             type: Schema.Types.ObjectId,
             ref: 'userStatus'
         }
-    ],
+    ,
 
     blackList:{
         type: Schema.Types.ObjectId,
         ref: 'blackList'
+    },
+    blockList:{
+        type: Schema.Types.ObjectId,
+        ref: 'blockList'
+    },
+    subscribersList:{
+        type: Schema.Types.ObjectId,
+        ref: 'subscribers'
     },
     lots: [
         {
