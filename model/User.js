@@ -16,7 +16,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( login )=>{
-                return  constValidator.USET_LOGIN_VALIDATOR.test(login)
+                return  constValidator.USER_LOGIN_VALIDATOR.test(login)
             }, // Validator Login
             message: props => `Введите корректный логин с 4 до 16 букв и цифр \n"${props.value}"`
         },
