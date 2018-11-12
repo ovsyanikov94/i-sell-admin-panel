@@ -139,7 +139,7 @@ module.exports.updateUser = async(req,res)=>{
             Response.message = 'не корректное значени!';
             res.status(Response.status)
             res.send(Response);
-            returnж
+            return;
         }//if
 
         let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(req.body.email)||'';
