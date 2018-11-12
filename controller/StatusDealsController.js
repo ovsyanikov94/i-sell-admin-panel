@@ -4,11 +4,13 @@ const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
 const validator = require('validator');
 const DealsStatus = require('../model/DealsStatus');
-const constValidator = require('../model/validatorConstatn');
+const constValidator = require('../model/Validation');
+const Response = require('../model/Response');
+
 
 module.exports.createStatus = async(req,res)=>{
     let title = req.body.statusTitle;
-    let validTitle = constValidator.STATUS_TITLE_VALIDATOR.test(title);
+    let validTitle = constValidator.TITLE_VALIDATOR.test(title);
 
     if(!validTitle){
         res.send( {
@@ -24,11 +26,11 @@ module.exports.createStatus = async(req,res)=>{
         });//existStatus
 
         if(existStatus){
-            res.send( {
-                code: 400,
-                message: "значение уже существует!",
-                data: title
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
         let newStatus = null;
@@ -73,11 +75,11 @@ module.exports.createStatus = async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }//catch
 }//createStatus
 
@@ -88,11 +90,11 @@ module.exports.removeStatusDeal = async(req,res)=>{
     let validIdStatus = validator.isMongoId(idStatusDeal);
 
     if(!validIdStatus){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: idStatusDeal
-        } );
+        Response.status = 400;
+        Response.message = 'значение уже существует!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
     try{
@@ -101,11 +103,11 @@ module.exports.removeStatusDeal = async(req,res)=>{
         }).populate('deals');//existStatus
 
         if(!existStatus){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: idStatusDeal
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
 
@@ -138,11 +140,11 @@ module.exports.removeStatusDeal = async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }//catch
 }//removeStatusDeal
 
@@ -150,7 +152,7 @@ module.exports.updateStatusDeal = async (req,res)=>{
     let idStatusDeal = req.body.StatusID;
     let newTitle = req.body.newStatusTitle;
     let validIdStatus = validator.isMongoId(idStatusDeal);
-    let validTitle = constValidator.STATUS_TITLE_VALIDATOR.test(newTitle);
+    let validTitle = constValidator.TITLE_VALIDATOR.test(newTitle);
 
     if(!validIdStatus||!validTitle){
         res.send( {
@@ -165,11 +167,11 @@ module.exports.updateStatusDeal = async (req,res)=>{
             id:idStatusDeal
         });//existStatus
         if(!existStatus){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: title
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
         existStatus.set({
@@ -195,11 +197,11 @@ module.exports.updateStatusDeal = async (req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }//catch
 
 }//updateStatusDeal
@@ -225,11 +227,11 @@ module.exports.ListStatus = async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }
 }
 
@@ -237,11 +239,11 @@ module.exports.ListStatusByID = async(req,res)=>{
     let idStatusDeal = req.body.StatusID;
     let validIdStatus = validator.isMongoId(idStatusDeal);
     if(!validIdStatus){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: idStatusDeal
-        } );
+        Response.status = 400;
+        Response.message = 'значение уже существует!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
     try{
@@ -266,10 +268,10 @@ module.exports.ListStatusByID = async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }
 }
