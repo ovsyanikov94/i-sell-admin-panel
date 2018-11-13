@@ -20,6 +20,7 @@ module.exports.AddUser = async( req , res ) => {
     let validRole =validator.isMongoId(req.body.role)||'';
     let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
 
+
     if(!validLogin||
         !validEmail||
         !validFirstName||
