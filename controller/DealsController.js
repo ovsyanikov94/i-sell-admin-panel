@@ -8,6 +8,8 @@ const validator = require('validator');
 const evaluation = require('../model/evaluationDeals');
 const constValidator = require('../model/validatorConstatn');
 const User = require('../model/User');
+const Response = require('../model/Response');
+
 module.exports.createDeals=async(req,res)=>{
 
     let validSellerUser =  validator.isMongoId( req.body.sellerUserID);
@@ -16,14 +18,13 @@ module.exports.createDeals=async(req,res)=>{
        if(!validSellerUser||
            !validCustomerUser||
            !validLot){
-           res.send( {
-               code: 400,
-               message: "не корректное значени!",
-               data: idStatusDeal
-           } );
+           Response.status = 400;
+           Response.message = 'не корректное значени!';
+           res.status(Response.status)
+           res.send(Response);
            return;
        }//if
-    let lotInDeal = await Daels.find().populate({
+    let lotInDeal = await Deals.find().populate({
         lot: req.body.lotID
     });
 
@@ -41,7 +42,7 @@ module.exports.createDeals=async(req,res)=>{
    try {
         let newDeals=null
            try {
-                newDeals =new Daels({
+                newDeals =new Deals({
                    sellerUser:req.body.sellerUserID,
                    customerUser:req.body.customerUserID,
                    lot:req.body.lotID
@@ -62,12 +63,11 @@ module.exports.createDeals=async(req,res)=>{
 
             let Daels = await newDeals.save();
 
-       res.status(200);
-       res.send({
-           code: 200,
-           data:Daels ,
-           message:  'сделка успешно долбавлена!'
-       });// res.send
+       Response.status = 200;
+       Response.message = 'сделка успешно долбавлена!';
+       Response.data = Daels;
+       res.status(Response.status)
+       res.send(Response);
 
    }//try
    catch (ex){
@@ -81,11 +81,11 @@ module.exports.createDeals=async(req,res)=>{
        });//Logger.error
        res.status(500);
 
-       res.send( {
-           code: 500,
-           message: "Внутренняя ошибка сервера!",
-           data: ex
-       } );// res.send
+       Response.status = 500;
+       Response.message = 'Внутренняя ошибка сервера!';
+       Response.data = null;
+       res.status(Response.status)
+       res.send(Response);
    }//catch
 
 },
@@ -97,10 +97,10 @@ module.exports.listDealByUserId = async(req,res)=>{
     if(!validUserId||
         !validStatusId
     ){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status)
+        res.send(Response);
         return;
     }
     try {
@@ -109,11 +109,10 @@ module.exports.listDealByUserId = async(req,res)=>{
         id:req.body.statusId
     });
     if(!existStatus){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: req.body.statusId
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
 
@@ -121,11 +120,10 @@ module.exports.listDealByUserId = async(req,res)=>{
         id:req.body.userId
     });
     if(!existUser){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: req.body.userId
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
 
@@ -153,11 +151,11 @@ module.exports.listDealByUserId = async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }
 
 }
@@ -165,17 +163,17 @@ module.exports.closeDeals=async(req,res)=>{
 
     let validDealsId = validator.isMongoId( req.body.dealsId);
     let validStatusId =validator.isMongoId( req.body.statusId);
-    let validEvoluationText = constValidator.STATUS_EVALUATION_TEXT_VALIDATOR.test(req.body.textEvaluation);
+    let validEvoluationText = constValidator.TEXT_VALIDATOR.test(req.body.textEvaluation);
     let validEvaluationValue = constValidator.STATUS_EVALUATION_VALUE_VALIDATOR.test(req.body.valueEvaluation);
     if(!validDealsId||
         !validStatusId||
         !validEvoluationText||
         !validEvaluationValue
     ){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status)
+        res.send(Response);
         return;
     }
 
@@ -183,11 +181,10 @@ module.exports.closeDeals=async(req,res)=>{
         id:req.body.statusId
     });
     if(!existStatus){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: req.body.statusId
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
 
@@ -195,11 +192,10 @@ module.exports.closeDeals=async(req,res)=>{
         id:req.body.dealsId
     });
     if(!existDeal){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: req.body.dealsId
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
     try {
@@ -255,11 +251,11 @@ module.exports.closeDeals=async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }
 
 }

@@ -3,12 +3,15 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const ValidationConstants = require('./Validation');
+
 const categorySchema = new Schema({
+    id: Schema.ObjectId,
     title: {
         type: String,
         validate:{
             validator: ( title )=>{
-                return /^[a-zа-я0-9]{1,50}$/i.test( title )
+                return ValidationConstants.TITLE_VALIDATOR.test( title )
             },//validator
             message: props => `Название категории не корректно: "${props.value}"`
         },
