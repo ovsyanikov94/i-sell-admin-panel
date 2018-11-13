@@ -4,19 +4,21 @@ const UserStatus = require('../model/UserStatus');
 const Logger = require('../model/Logger');
 const constValidator = require('../model/validatorConstatn');
 const UtilsController = require('../controller/UtilsController');
+const Response = require('../model/Response');
 
 module.exports.AddUserStatus = async( req , res ) => {
 
     try{
 
-        let statusTitleValid = constValidator.STATUS_TITLE_VALIDATOR.test(req.body.statusTitle);
+        let statusTitleValid = constValidator.TITLE_VALIDATOR.test(req.body.statusTitle);
 
         if(!statusTitleValid){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: idStatusDeal
-            } );
+
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }
 
@@ -25,11 +27,12 @@ module.exports.AddUserStatus = async( req , res ) => {
         });//existStatus
 
         if(existStatus){
-            res.send( {
-                code: 400,
-                message: "значение уже существует!",
-                data: req.body.statusTitle
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
+
             return;
         }//if
 
@@ -58,13 +61,12 @@ module.exports.AddUserStatus = async( req , res ) => {
 
         let createUserStatusResult = await newStatus.save();
 
+        Response.status = 200;
+        Response.message = 'Добавление статуса успешно!';
+        Response.data = createUserStatusResult;
+        res.status(Response.status)
+        res.send(Response);
 
-        res.status(200);
-        res.send({
-            code: 200,
-            data: createUserStatusResult,
-            message:  'Добавление статуса успешно!'
-        });
 
     } // Try
     catch (ex) {
@@ -80,13 +82,11 @@ module.exports.AddUserStatus = async( req , res ) => {
             },
         });
 
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
 
     } // Catch
 
@@ -99,11 +99,11 @@ module.exports.removeUserStatus = async(req,res)=>{
     let validIdStatus = validator.isMongoId(idStatusDeal);
 
     if(!validIdStatus){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: idStatusDeal
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        Response.data = idStatusDeal;
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
     try{
@@ -112,31 +112,34 @@ module.exports.removeUserStatus = async(req,res)=>{
         }).populate('users');//existStatus
 
         if(!existStatus){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: idStatusDeal
-            } );
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            Response.data = idStatusDeal;
+            res.status(Response.status)
+            res.send(Response);
+
             return;
         }//if
 
         if(!existStatus.users.length===0){
-            res.send( {
-                code: 401,
-                message: "статус задействован в работе, выведите статус из работы и повторите попытку",
-                data: existStatus
-            } );
+            Response.status = 400;
+            Response.message = 'статус задействован в работе, выведите статус из работы и повторите попытку';
+            Response.data = existStatus;
+            res.status(Response.status)
+            res.send(Response);
+
             return;
         }//if
         let removeStatus = await existStatus.remove({
             id:idStatusDeal
         });
-        res.status(200);
-        res.send({
-            code: 200,
-            data: removeStatus.titleStatus,
-            message:  'Удаление статуса успешно!'
-        });// res.send
+
+        Response.status = 200;
+        Response.message = 'Удаление статуса успешно!';
+        Response.data = existStatus;
+        res.status(Response.status)
+        res.send(Response);
+
     }//try
     catch (ex){
         Logger.error({
@@ -147,13 +150,14 @@ module.exports.removeUserStatus = async(req,res)=>{
                 stack: ex.stack
             },
         });//Logger.error
-        res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
+
     }//catch
 }//removeUserStatus
 
@@ -162,14 +166,14 @@ module.exports.updateStatusDeal = async (req,res)=>{
     let idStatusDeal = req.body.StatusID;
     let newTitle = req.body.newStatusTitle;
     let validIdStatus = validator.isMongoId(idStatusDeal);
-    let validTitle = constValidator.STATUS_TITLE_VALIDATOR.test(newTitle);
+    let validTitle = constValidator.TITLE_VALIDATOR.test(newTitle);
 
     if(!validIdStatus||!validTitle){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: idStatusDeal
-        } );
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+
+        res.status(Response.status)
+        res.send(Response);
         return;
     }
     try {
@@ -177,11 +181,10 @@ module.exports.updateStatusDeal = async (req,res)=>{
             id:idStatusDeal
         });//existStatus
         if(!existStatus){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: title
-            } );
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
         existStatus.set({
@@ -189,12 +192,10 @@ module.exports.updateStatusDeal = async (req,res)=>{
         });
 
         let updateTitle = await existStatus.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data:updateTitle.titleStatus ,
-            message:  'Обновление статуса успешно!'
-        });// res.send
+        Response.status = 200;
+        Response.message = 'Обновление статуса успешно!';
+        res.status(Response.status)
+        res.send(Response);
     }//try
     catch (ex){
         Logger.error({
@@ -205,25 +206,25 @@ module.exports.updateStatusDeal = async (req,res)=>{
                 stack: ex.stack
             },
         });//Logger.error
-        res.status(500);
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
     }//catch
 
 }//updateUserStatus
 module.exports.ListStatus = async(req,res)=>{
     try{
         let listStatus = UserStatus.find().populate('statusTitle');
-        res.status(200);
-        res.send({
-            code: 200,
-            data:listStatus ,
-            message:  'OK'
-        });// res.send
+
+        Response.status = 200;
+        Response.message = 'OK';
+        Response.data=listStatus
+        res.status(Response.status)
+        res.send(Response);
+
     }
     catch (ex){
         Logger.error({
@@ -234,12 +235,11 @@ module.exports.ListStatus = async(req,res)=>{
                 stack: ex.stack
             },
         });//Logger.error
-        res.status(500);
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
     }
 }//ListStatus
