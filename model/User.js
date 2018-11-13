@@ -106,10 +106,12 @@ const userSchema = new Schema({
         }
     ],
 
-    blackList:{
-        type: Schema.Types.ObjectId,
-        ref: 'blackList'
-    },
+    blackList:[
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'users'
+        }
+    ],
     lots: [
         {
             type: Schema.Types.ObjectId,
