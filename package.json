@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "bulk-insert": "gulp"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
@@ -19,6 +20,9 @@
     "winston-daily-rotate-file": "^3.5.0"
   },
   "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cli": "^2.0.1",
+    "gulp-sync": "^0.1.4",
     "nodemon": "^1.18.6"
   }
 }
