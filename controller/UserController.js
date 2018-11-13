@@ -40,9 +40,10 @@ module.exports.AddUser = async( req , res ) => {
 
     try{
 
-        let number = Math.floor(Math.random() * (19 - 9+1) ) + 5 //генерируем случайное число символов от 9 до 19
-        let saltStr = bcrypt.genSaltSync(number);// создаем соль
-        let hexPassword = bcrypt.hashSync(req.body.password, saltStr); // получаем закодированный пароль
+
+        let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
+        let saltStr = await bcrypt.genSalt(number);// создаем соль
+        let hexPassword = await bcrypt.hash(req.body.password, saltStr); // получаем закодированный пароль
 
         let newUser = null;
 
@@ -50,7 +51,6 @@ module.exports.AddUser = async( req , res ) => {
 
             newUser = new User({
                 login: req.body.login,
-                saltStr:saltStr,
                 password: hexPassword,
                 email: req.body.email,
                 firstName: req.body.firstName,
@@ -58,7 +58,6 @@ module.exports.AddUser = async( req , res ) => {
                 phone: req.body.phone,
                 role:req.body.role,
                 userStatus:req.body.userStatus,
-
             });
 
         } // Try
@@ -76,24 +75,13 @@ module.exports.AddUser = async( req , res ) => {
 
         } // Catch
 
-       /* role.forEach( r => {
-            newUser.role.push( r );
-        } );
-
-        userStatus.forEach( us => {
-            newUser.userStatus.push( us );
-        } );
-
-        lots.forEach( l => {
-            newUser.lots.push( l );
-        } );*/
-
         let createUserResult = await newUser.save();
 
         Response.status = 200;
-        Response.message = 'пользователь успешно долбавлен!';
-        Response.data = createUserResult;
-        res.status(Response.status)
+        Response.message = `Регистрация успешна, проверьте email: ${createUserResult.email}`;
+        Response.data = null;
+
+        res.status(Response.status);
         res.send(Response);
 
     } // Try
@@ -111,7 +99,7 @@ module.exports.AddUser = async( req , res ) => {
         Response.status = 500;
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = null;
-        res.status(Response.status)
+        res.status(Response.status);
         res.send(Response);
 
     } // Catch

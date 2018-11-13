@@ -21,20 +21,11 @@ const userSchema = new Schema({
             message: props => `Введите корректный логин с 4 до 16 букв и цифр \n"${props.value}"`
         },
     },
-    saltStr:{
-        type: String,
-        validate:{
-            validator: ( password )=>{
-                return constValidator.USER_PASSWORD_VALIDATOR.test(password)
-            }, // Validator Password
-            message: props => `Пароль должен содержать хотя-бы одну заглавную букву, и иметь не менее 6 символов \n"${props.value}"`
-        },
-    },
     password: {
         type: String,
         validate:{
             validator: ( password )=>{
-                return constValidator.USER_HASH_PASSWORD_VALIDATOR.test(password)
+                return password.length > 0;
             }, // Validator Password
             message: props => `Пароль должен содержать хотя-бы одну заглавную букву, и иметь не менее 6 символов \n"${props.value}"`
         },
@@ -90,12 +81,10 @@ const userSchema = new Schema({
         },
     },
 
-    role: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'roles'
-        }
-    ],
+    role: {
+        type: Schema.Types.ObjectId,
+        ref: 'roles'
+    },
 
     phone: {
         type: String, // Не Number, потому что имеет символы
@@ -107,11 +96,10 @@ const userSchema = new Schema({
         },
     },
 
-    userStatus:
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'userStatus'
-        },
+    userStatus: {
+        type: Schema.Types.ObjectId,
+        ref: 'userStatus'
+    },
 
     blackList:{
         type: Schema.Types.ObjectId,
