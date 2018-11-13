@@ -75,19 +75,11 @@ module.exports.AddLot = async( req , res ) => {
 
             return;
         }//if
-        // let customerLotID = req.body.customerID;
-        // let customerLot = await User.findById(customerLotID);
-        //
-        // if(!customerLot){
-        //     return {
-        //         code: 400,
-        //         data: customerLotID,
-        //         message:  'покупатель не найден!'
-        //     }
-        // }//if
+
 
         let sellerLotID = req.body.sellerID;
         let sellerLot = await User.findById(sellerLotID);
+
         if(!sellerLot){
             Response.status = 400;
             Response.message = 'Продавец  не найден!';
@@ -102,7 +94,7 @@ module.exports.AddLot = async( req , res ) => {
 
         let lotDescription = req.body.lotDescription;
 
-        if( !lotDescription.match( ValidatorConstants.LOT_DESCRIPTION_VALIDATOR ) ){
+        if( !lotDescription.match( ValidatorConstants.TEXT_VALIDATOR ) ){
 
             Response.status = 400;
             Response.message = 'Описание лота не верно!';
@@ -154,7 +146,7 @@ module.exports.AddLot = async( req , res ) => {
             return;
         }//if
 
-        let dateAdminAnswer = req.body.dateAdminAnswer;
+        //let dateAdminAnswer = req.body.dateAdminAnswer;
 
         let datePlacement = req.body.datePlacement;
 
@@ -164,7 +156,9 @@ module.exports.AddLot = async( req , res ) => {
         let typeLot = req.body.typeLot;
 
         let lotType =  await LotType.findById(typeLot);
+
         if ( !lotType){
+
             Response.status = 400;
             Response.message = 'Тип лота не найден!';
             Response.data = typeLot;
@@ -178,6 +172,7 @@ module.exports.AddLot = async( req , res ) => {
         let statusLot = req.body.statusLot;
 
         let lotStatus =  await LotStatus.findById(statusLot);
+
         if ( !lotStatus){
 
             Response.status = 400;

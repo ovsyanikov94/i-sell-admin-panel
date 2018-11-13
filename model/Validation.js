@@ -4,7 +4,7 @@ const ValidatorConst = {
 
     //STATUS_DEAL
     TITLE_VALIDATOR : /^[a-zа-я0-9\s]{1,50}$/i,
-    TEXT_VALIDATOR : /^[a-zа-я0-9\s]{1,500}$/i,
+    TEXT_VALIDATOR : /^[a-zа-я0-9\s.?!&\-+:;*%@#_№'"()\]\[]{1,1500}$/i,
     STATUS_EVALUATION_VALUE_VALIDATOR : /^[0-5]$/,
 
     //USER
@@ -15,6 +15,7 @@ const ValidatorConst = {
     USER_LASTNAME_VALIDATOR: /^[a-zа-я\s\-.]{1,20}$/i,
     USER_PHONE_VALIDATOR: /^\+\d{2}\(\d{3}\)\d{3}-\d{2}-\d{2}$/i,
 
+    //LOT
     LOT_DESCRIPTION_VALIDATOR: /^.*$/i,
     LOT_START_PRICE: 0,
     LOT_RATE: 0,
