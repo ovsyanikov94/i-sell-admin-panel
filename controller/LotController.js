@@ -234,7 +234,7 @@ module.exports.AddLot = async( req , res ) => {
 
         if(req.files){
 
-            let lotImages = req.files.image;
+            let lotImages = req.files.images;
             let path = `public/images/lots/${newLot._id}`;
 
 
