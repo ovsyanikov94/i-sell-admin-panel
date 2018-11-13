@@ -2,7 +2,7 @@
 
 const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
-const Deals = require('../model/Daels');
+const Deals = require('../model/Deals');
 const DealsStatus = require('../model/DealsStatus');
 const validator = require('validator');
 const evaluation = require('../model/evaluationDeals');
