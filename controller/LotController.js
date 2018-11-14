@@ -9,6 +9,7 @@ const LotStatus = require('../model/LotStatus');
 const LotImage = require('../model/LotImage');
 const Logger = require('../model/Logger');
 const ValidatorConstants = require('../model/Validation');
+const fs = require('fs');
 
 const Response = require('../model/Response');
 const UtilsController = require('../controller/UtilsController');
@@ -75,19 +76,11 @@ module.exports.AddLot = async( req , res ) => {
 
             return;
         }//if
-        // let customerLotID = req.body.customerID;
-        // let customerLot = await User.findById(customerLotID);
-        //
-        // if(!customerLot){
-        //     return {
-        //         code: 400,
-        //         data: customerLotID,
-        //         message:  'покупатель не найден!'
-        //     }
-        // }//if
+
 
         let sellerLotID = req.body.sellerID;
         let sellerLot = await User.findById(sellerLotID);
+
         if(!sellerLot){
             Response.status = 400;
             Response.message = 'Продавец  не найден!';
@@ -102,7 +95,7 @@ module.exports.AddLot = async( req , res ) => {
 
         let lotDescription = req.body.lotDescription;
 
-        if( !lotDescription.match( ValidatorConstants.LOT_DESCRIPTION_VALIDATOR ) ){
+        if( !lotDescription.match( ValidatorConstants.TEXT_VALIDATOR ) ){
 
             Response.status = 400;
             Response.message = 'Описание лота не верно!';
@@ -114,19 +107,6 @@ module.exports.AddLot = async( req , res ) => {
             return;
         }//if
 
-        let lotImagePath = req.body.lotImagePath;
-
-        if (lotImagePath&&lotImagePath.length===0) {
-
-            Response.status = 400;
-            Response.message = 'Картинки должны быть добавлены';
-            Response.data = lotImagePath;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return;
-        }//if
 
         let mapLot = req.body.mapLot;
 
@@ -154,7 +134,7 @@ module.exports.AddLot = async( req , res ) => {
             return;
         }//if
 
-        let dateAdminAnswer = req.body.dateAdminAnswer;
+        //let dateAdminAnswer = req.body.dateAdminAnswer;
 
         let datePlacement = req.body.datePlacement;
 
@@ -164,7 +144,9 @@ module.exports.AddLot = async( req , res ) => {
         let typeLot = req.body.typeLot;
 
         let lotType =  await LotType.findById(typeLot);
+
         if ( !lotType){
+
             Response.status = 400;
             Response.message = 'Тип лота не найден!';
             Response.data = typeLot;
@@ -178,6 +160,7 @@ module.exports.AddLot = async( req , res ) => {
         let statusLot = req.body.statusLot;
 
         let lotStatus =  await LotStatus.findById(statusLot);
+
         if ( !lotStatus){
 
             Response.status = 400;
@@ -244,16 +227,53 @@ module.exports.AddLot = async( req , res ) => {
 
         }//for
 
-        for(let i =0; i< lotImagePath.length; i++){
+        if(req.files){
 
-            let path = new LotImage({
-                'path':  lotImagePath[i]
-            });
+            let lotImages = req.files.images;
+            let path = `public/images/lots/${newLot._id}`;
 
-            let newImage = await path.save();
 
-            newLot.lotImagePath.push(newImage._id);
-        }//for
+            if(!fs.existsSync('public/images')){
+                fs.mkdirSync('public/images');
+            }//if
+
+            if(!fs.existsSync('public/images/lots')){
+                fs.mkdirSync('public/images/lots');
+            }//if
+
+            try{
+                fs.mkdirSync(path);
+            }//catch
+            catch(ex){
+                console.log(ex)
+            }//try
+
+            for (let i=0; i<lotImages.length; i++){
+
+                let lotImage = lotImages[i];
+
+                lotImage.mv( `${path}/${lotImage.name}`,async function(err){
+
+                    if (err){
+                        console.log('FILE UPLOAD ERROR:' , err);
+                        return;
+                    }//if
+
+                    let pathLot = `images/lots/${newLot._id}/${lotImage.name}`;
+
+                    let path = new LotImage({
+                        'path':  pathLot
+                    });
+
+                    let newImage = await path.save();
+
+                    newLot.lotImagePath.push(newImage._id);
+
+                })//lotImage.mv
+            } //for
+
+        }//if req.files
+
 
         let createLotResult = await newLot.save();
 

@@ -29,7 +29,7 @@ const lotSchema = new Schema({
         required: [true, 'Описание лота обязательно'],
         validate:{
             validator: ( lotDescription )=>{
-                return ValidatorConstants.LOT_DESCRIPTION_VALIDATOR.test( lotDescription )
+                return ValidatorConstants.TEXT_VALIDATOR.test( lotDescription )
             },//validator
             message: props => `Название лота не корректно: "${props.value}"`
         },
