@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "bulk-insert": "gulp"
   },
   "dependencies": {
     "cookie-parser": "~1.4.3",
@@ -12,12 +13,16 @@
     "http-errors": "~1.6.2",
     "mongoose": "^5.3.10",
     "morgan": "~1.9.0",
+    "bcrypt": "^2.0.1",
     "pug": "2.0.0-beta11",
     "validator": "^10.9.0",
     "winston": "^3.0.0",
     "winston-daily-rotate-file": "^3.5.0"
   },
   "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-cli": "^2.0.1",
+    "gulp-sync": "^0.1.4",
     "nodemon": "^1.18.6"
   }
 }
