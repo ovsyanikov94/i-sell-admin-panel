@@ -2,7 +2,7 @@
 
 const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
-const subscribers = require('./SubscribersController');
+const subscribers = require('../model/subscribersUser');
 const User = require('../model/User');
 const validator = require('validator');
 const Response = require('../model/Response');

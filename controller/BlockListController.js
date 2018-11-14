@@ -2,7 +2,7 @@
 
 const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
-const blockList = require('./blockList');
+const blockList = require('../model/blockList');
 const User = require('../model/User');
 const validator = require('validator');
 const Response = require('../model/Response');
