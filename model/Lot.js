@@ -82,12 +82,12 @@ const lotSchema = new Schema({
     },
 
     typeLot:{
-        type: Schema.Types.ObjectId,
+        type: Number,
         ref: 'lotTypes'
     },
 
     statusLot:{
-        type: Schema.Types.ObjectId,
+        type: Number,
         ref: 'lotStatuses'
     },
     comments: [
