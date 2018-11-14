@@ -8,6 +8,8 @@ const bcrypt = require('bcrypt');
 const Response = require('../model/Response');
 const constValidator = require('../model/Validation');
 const validator = require('validator');
+const fs = require('fs');
+const fe = require('fs-extra');
 
 module.exports.AddUser = async( req , res ) => {
 
@@ -315,4 +317,196 @@ module.exports.updateUser = async(req,res)=>{
 
 };//updateUser
 
+module.exports.addUserAvatar = async (req,res)=>{
 
+    let validIdUser = validator.isMongoId(req.body.userId)||'';
+
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+    try {
+        let existUser = await User.find({
+            id:req.body.userId
+        });
+
+        if(!existUser){
+
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+
+        if(req.files){
+
+            let userAvatar = req.files.image;
+            let path = `public/images/avatar/${existUser._id}`;
+
+
+            if(!fs.existsSync('public/images')){
+                fs.mkdirSync('public/images');
+            }
+
+            if(!fs.existsSync('public/images/avatar')){
+                fs.mkdirSync('public/images/avatar');
+            }
+
+            try{
+
+                if(!fs.existsSync(`public/images/avatar/${path}`)){
+                    fs.mkdirSync(`public/images/avatar/${path}`);
+                }
+                if(!fs.existsSync(existUser.image)) {
+                    userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
+                        if (error){
+                            let message = UtilsController.MakeMongooseMessageFromError(error);
+                            Response.status = 500;
+                            Response.message = message;
+                            res.status(Response.status)
+                            res.send(Response);
+                            return;
+                        }//if
+
+                        existUser.set({
+                            image:`${path}/${userAvatar.name}`
+                        });
+                        existUser.save();
+
+                    });
+
+                }//if
+                else{
+                    fe.remove(existUser.image, async function (err) {
+                        if (!err) {
+
+                            userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
+                                if (error){
+                                    let message = UtilsController.MakeMongooseMessageFromError(error);
+                                    Response.status = 500;
+                                    Response.message = message;
+                                    res.status(Response.status)
+                                    res.send(Response);
+                                    return;
+                                }//if
+
+                                existUser.image = `${path}/${userAvatar.name}`
+                                existUser.save();
+
+                            });
+                        }
+
+                    });
+                }//else
+
+                Response.status = 200;
+                Response.message = 'добавление прошли успешно!';
+                Response.data = `${path}/${userAvatar.name}`;
+            }catch(ex){
+                let message = UtilsController.MakeMongooseMessageFromError(ex);
+
+                Response.status = 500;
+                Response.message = message;
+                res.status(Response.status)
+                res.send(Response);
+                return;
+            }
+
+
+
+        }//if
+        else {
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//else
+    }//try
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+}//addUserAvatar
+
+module.exports.removeUserAvatar = async (req,res)=>{
+    let validIdUser = validator.isMongoId(req.body.userId)||'';
+
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+    try {
+
+        let existUser = await User.find({
+            id:req.body.userId
+        });
+
+        if(!existUser){
+
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+        if(!fs.existsSync(existUser.image)){
+            fe.remove(existUser.image, async function (err) {
+                if (!err) {
+
+                    existUser.image = null;
+                    existUser.save();
+                }//if
+
+            });
+        }//if
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
+        Response.data = null;
+    }//try
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+}
