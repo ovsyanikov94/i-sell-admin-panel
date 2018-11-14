@@ -11,11 +11,11 @@ gulp.task('InsertLotType' , async ( done )=> {
         let LotTypes = [
             new LotType({
                 "titleStatus": "Запланированный",
-                "dealID": "1"
+                "lotTypeID": "1"
             }),
             new LotType({
                 "titleStatus": "Немедленный",
-                "dealID": "2"
+                "lotTypeID": "2"
             }),
         ];
 

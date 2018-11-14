@@ -11,19 +11,19 @@ gulp.task('InsertDefaultLotStatuses' , async ( done )=> {
         let lotsStatuses = [
             new LotStatus({
                 "titleStatus": "Активный",
-                "dealID": "1"
+                "lotStatusID": "1"
             }),
             new LotStatus({
                 "titleStatus": "На проверке ",
-                "dealID": "2"
+                "lotStatusID": "2"
             }),
             new LotStatus({
                 "titleStatus": "Отклоненный",
-                "dealID": "3"
+                "lotStatusID": "3"
             }),
             new LotStatus({
                 "titleStatus": "Закрытый",
-                "dealID": "4"
+                "lotStatusID": "4"
             }),
         ];
 

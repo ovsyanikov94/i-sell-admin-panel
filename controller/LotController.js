@@ -8,6 +8,7 @@ const LotType = require('../model/LotType');
 const LotStatus = require('../model/LotStatus');
 const LotImage = require('../model/LotImage');
 const Logger = require('../model/Logger');
+const ValidatorConstants = require('../model/Validation');
 
 const UtilsController = require('../controller/UtilsController');
 
