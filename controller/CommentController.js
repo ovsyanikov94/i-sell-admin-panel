@@ -26,13 +26,13 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let commentStatus = req.body.commentStatus;
+        let commentStatusID = req.body.commentStatusID;
 
-        if( !commentStatus.match( ValidatorConstants.COMMENT_STATUS_AND_TYPE_VALIDATOR ) ){
+        if( !commentStatusID.match( ValidatorConstants.COMMENT_STATUS_ID ) ){
 
             Response.status = 400;
-            Response.message = 'Название статуса комментария неверно!';
-            Response.data = commentStatus;
+            Response.message = 'Неправильный id статуса комментария !';
+            Response.data = commentStatusID;
 
             res.status(Response.status);
             res.send(Response);
@@ -41,13 +41,13 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let commentType = req.body.commentType;
+        let commentTypeID = req.body.commentTypeID;
 
-        if( !commentType.match( ValidatorConstants.COMMENT_STATUS_AND_TYPE_VALIDATOR ) ){
+        if( !commentTypeID.match( ValidatorConstants.COMMENT_TYPE_ID ) ){
 
             Response.status = 400;
-            Response.message = 'Название типа комментария неверно!';
-            Response.data = commentType;
+            Response.message = 'Неправильный id типа комментария!';
+            Response.data = commentTypeID;
 
             res.status(Response.status);
             res.send(Response);
@@ -70,6 +70,21 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
+        let userSenderID = req.body.userSender;
+
+        if(!validator.isMongoId(userSenderID)){
+
+            Response.status = 400;
+            Response.message = 'Неверный ID оправителя !';
+            Response.data = userSenderID;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
+
         let newComment = null;
 
         try {
@@ -77,8 +92,8 @@ module.exports.AddComment = async( req , res ) => {
             newComment = new Comment({
 
                 commentText: commentText,
-                commentStatus: commentStatus,
-                commentType: commentType,
+                commentStatusID: commentStatusID,
+                commentTypeID: commentTypeID,
                 commentSendDate: commentSendDate
 
             });
@@ -98,16 +113,31 @@ module.exports.AddComment = async( req , res ) => {
 
         }//catch
 
-        if(commentType === ValidatorConstants.COMMENT_TYPE_PERSONAL ){
+        if(commentTypeID === ValidatorConstants.COMMENT_TYPE_PERSONAL ){
 
             try{
+
+                let userReceiverID = req.body.userReceiverID;
+
+                if(!validator.isMongoId(userReceiverID)){
+
+                    Response.status = 400;
+                    Response.message = 'Неверный ID получателя !';
+                    Response.data = userReceiverID;
+
+                    res.status(Response.status);
+                    res.send(Response);
+
+                    return;
+
+                }//if
 
             }//try
             catch(ex){
 
                 Response.status = 400;
                 Response.message = '!';
-                Response.data = commentType;
+                Response.data = ex;
 
                 res.status(Response.status);
                 res.send(Response);
@@ -116,22 +146,33 @@ module.exports.AddComment = async( req , res ) => {
 
             }//catch
 
-            newComment.addFields({
-
-            });
-
         }//if
 
-        else if (commentType === ValidatorConstants.COMMENT_TYPE_LOT){
+        else if (commentTypeID === ValidatorConstants.COMMENT_TYPE_LOT){
 
             try{
+
+                let lotID = req.body.lotID;
+
+                if(!validator.isMongoId(lotID)){
+
+                    Response.status = 400;
+                    Response.message = 'Неверный ID лота !';
+                    Response.data = lotID;
+
+                    res.status(Response.status);
+                    res.send(Response);
+
+                    return;
+
+                }//if
 
             }//try
             catch(ex){
 
                 Response.status = 400;
                 Response.message = '!';
-                Response.data = commentType;
+                Response.data = ex;
 
                 res.status(Response.status);
                 res.send(Response);

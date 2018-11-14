@@ -15,6 +15,9 @@ const commentStatusSchema = new Schema({
             message: props => `Название статуса комментария некорректно: "${props.value}"`
         }
     },
+    commentStatusID: {
+        type:Number
+    }
 
 });
 

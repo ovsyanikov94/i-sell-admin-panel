@@ -15,6 +15,9 @@ const commentTypeSchema = new Schema({
             message: props => `Название типа комментария некорректно: "${props.value}"`
         }
     },
+    commentTypeID:{
+        type:Number
+    }
 
 });
 
