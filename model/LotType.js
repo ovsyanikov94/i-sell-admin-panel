@@ -16,6 +16,7 @@ const lotTypeSchema = new Schema({
         },
     },
 
+    typeID: Number,
     lots: [
         {
             type: Schema.Types.ObjectId,
