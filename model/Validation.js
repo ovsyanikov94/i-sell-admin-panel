@@ -20,6 +20,9 @@ const ValidatorConst = {
     LOT_DESCRIPTION_VALIDATOR: /^.*$/i,
     LOT_START_PRICE: 0,
     LOT_RATE: 0,
+    LOT_COUNTHOUR_MIN_VALIDATOR: 0,
+    LOT_COUNTHOUR_MAX_VALIDATOR: 48,
+    LOT_DATE_VALIDATOR: 0
 };
 
 module.exports = ValidatorConst;

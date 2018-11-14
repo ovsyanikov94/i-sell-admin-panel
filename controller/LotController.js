@@ -11,6 +11,8 @@ const Logger = require('../model/Logger');
 const ValidatorConstants = require('../model/Validation');
 const fs = require('fs');
 
+var moment = require('moment');
+
 const Response = require('../model/Response');
 const UtilsController = require('../controller/UtilsController');
 
@@ -120,30 +122,42 @@ module.exports.AddLot = async( req , res ) => {
 
             return ;
         }//if
-        let currentRate = req.body.currentRate;
 
-        if( currentRate < ValidatorConstants.LOT_RATE  ){
-
+        if(mapLot.lat < 0 || mapLot.lon < 0){
             Response.status = 400;
-            Response.message = 'рейтинг некорректен!';
-            Response.data = startPrice;
+            Response.message = 'Значение коррдинат не может быть меньше 0';
+            Response.data = mapLot;
 
             res.status(Response.status);
             res.send(Response);
 
-            return;
+            return ;
         }//if
+
+        let currentRate = startPrice;
 
         //let dateAdminAnswer = req.body.dateAdminAnswer;
 
-        let datePlacement = req.body.datePlacement;
+        let datePlacement = moment(new Date()).unix();
 
-        let dateStartTrade = req.body.dateStartTrade;
-        let dateEndTrade = req.body.dateEndTrade;
+        let dateStartTrade = null;
+        let dateEndTrade = null;
 
-        let typeLot = req.body.typeLot;
+        let countHourTrade = req.body.countHourTrade;
 
-        let lotType =  await LotType.findById(typeLot);
+        if(countHourTrade < ValidatorConstants.LOT_COUNTHOUR_MIN_VALIDATOR || countHourTrade > ValidatorConstants.LOT_COUNTHOUR_MAX_VALIDATOR){
+            Response.status = 400;
+            Response.message = 'Длительность торгов указана неверно';
+            Response.data = countHourTrade;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }
+        let typeLotId = req.body.typeLot;
+
+        let lotType =  await LotType.find({typeID: typeLotId });
 
         if ( !lotType){
 
@@ -157,21 +171,27 @@ module.exports.AddLot = async( req , res ) => {
             return ;
         }//if
 
-        let statusLot = req.body.statusLot;
+        if(typeLotId===1){//запланированный
 
-        let lotStatus =  await LotStatus.findById(statusLot);
+            dateStartTrade = req.body.dateStartTrade;
 
-        if ( !lotStatus){
+            if(dateStartTrade < ValidatorConstants.LOT_DATE_VALIDATOR || moment.unix(dateStartTrade).isValid()===false){
+                Response.status = 400;
+                Response.message = 'Дата старта указана неверно';
+                Response.data = dateStartTrade;
 
-            Response.status = 400;
-            Response.message = 'Стaтус лота не найден!';
-            Response.data = lotStatus;
+                res.status(Response.status);
+                res.send(Response);
 
-            res.status(Response.status);
-            res.send(Response);
+                return ;
+            }//if
 
-            return ;
+
+            dateEndTrade = moment.unix(dateStartTrade).add(countHourTrade, 'h');
+
         }//if
+
+        let statusLotId = 2;
 
         let coord = new CoordMap({
             "lat": +mapLot.lat,
@@ -186,18 +206,17 @@ module.exports.AddLot = async( req , res ) => {
 
             newLot = new Lot({
                 'lotTitle': lotTitle,
-                //'customer': customerLot.id,
                 'seller': sellerLot._id,
                 'lotDescription': lotDescription,
                 'startPrice': startPrice,
                 'mapLot': newCoord._id,
                 'currentRate': currentRate,
-                'dateAdminAnswer': dateAdminAnswer,
                 'datePlacement': datePlacement,
                 'dateStartTrade': dateStartTrade,
                 'dateEndTrade': dateEndTrade,
-                'typeLot': lotType._id,
-                'statusLot': lotStatus._id
+                'typeLot': typeLotId,
+                'statusLot': statusLotId,
+                'countHourTrade': countHourTrade
             });
 
         }//try
