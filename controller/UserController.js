@@ -73,7 +73,7 @@ module.exports.AddUser = async( req , res ) => {
             res.status(Response.status);
             res.send(Response);
             return;
-        }
+        }//else
 
         if(!validLogin||
             !validEmail||
@@ -430,7 +430,7 @@ module.exports.addUserAvatar = async (req,res)=>{
                         existUser.set({
                             image:`${path}/${userAvatar.name}`
                         });
-                        existUser.save();
+                        await existUser.save();
 
                     });
 
@@ -450,7 +450,7 @@ module.exports.addUserAvatar = async (req,res)=>{
                                 }//if
 
                                 existUser.image = `${path}/${userAvatar.name}`
-                                existUser.save();
+                                await existUser.save();
 
                             });
                         }
@@ -535,7 +535,7 @@ module.exports.removeUserAvatar = async (req,res)=>{
                 if (!err) {
 
                     existUser.image = null;
-                    existUser.save();
+                   await existUser.save();
                 }//if
 
             });
