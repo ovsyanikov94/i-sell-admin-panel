@@ -69,14 +69,12 @@ module.exports.AddUserToBlackList=async(req,res)=>{
                 stack: ex.stack
             },
         });//Logger.error
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
     }//catch
+    res.status(Response.status)
+    res.send(Response);
 }
 
 module.exports.RemoveUserToBlackList=async(req,res)=>{
@@ -125,13 +123,8 @@ module.exports.RemoveUserToBlackList=async(req,res)=>{
        let idInBlackList =  blackListUser.List.remove(req.body.UserIDInBlackList);
 
         await blackListUser.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data: req.body.UserIDInBlackList,
-            message:  'пользователь удален из черного списа'
-        });// res.send
-
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
     }//try
     catch (ex){
         Logger.error({
@@ -144,12 +137,14 @@ module.exports.RemoveUserToBlackList=async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+
     }//catch
+
+    res.status(Response.status)
+    res.send(Response);
 }
 
 module.exports.getBlackListUser = async (req,res)=>{

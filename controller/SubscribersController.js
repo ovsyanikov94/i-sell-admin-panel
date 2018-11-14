@@ -53,13 +53,8 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         subscribersList.List.push(req.body.UserIDInSubscribersList);
 
         await subscribersList.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data: req.body.UserIDInBlackList,
-            message:  'пользователь добавлен в подписчики'
-        });// res.send
-
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
     }//try
     catch (ex){
         Logger.error({
@@ -125,12 +120,8 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
         let idInSubscribers =  subscribersList.List.remove(req.body.UserIDInSubscribersList);
 
         await subscribersList.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data: req.body.UserIDInBlackList,
-            message:  'пользователь удален из подписчиков'
-        });// res.send
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
 
     }//try
     catch (ex){
@@ -147,9 +138,10 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
         Response.status = 500;
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = null;
-        res.status(Response.status)
-        res.send(Response);
+
     }//catch
+    res.status(Response.status)
+    res.send(Response);
 }
 
 module.exports.getSubscribersUser = async (req,res)=>{

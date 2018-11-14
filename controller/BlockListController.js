@@ -198,7 +198,6 @@ module.exports.getBlackListUser = async (req,res)=>{
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = blockListUser;
 
     }//try
     catch (ex) {
