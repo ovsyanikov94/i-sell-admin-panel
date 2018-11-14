@@ -19,27 +19,79 @@ module.exports.AddUser = async( req , res ) => {
     let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
     let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
     let validPassword = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.password)||'';
+
     let validRole =validator.isMongoId(req.body.role)||'';
     let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
+    let isValidUserId = validator.isMongoId(req.body.userId)||'';
 
 
-    if(!validLogin||
-        !validEmail||
-        !validFirstName||
-        !validLastName||
-        !validPhone||
-        !validPassword||
-        !validRole||
-        !validUserStatus
-    ){
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status)
-        res.send(Response);
-        return;
-    }//if
 
     try{
+        if(isValidUserId){
+            let existUser = await User.find({
+                id:req.body.userId
+            });
+
+            if(!existUser){
+
+                Response.status = 400;
+                Response.message = 'не корректное значени!';
+                res.status(Response.status);
+                res.send(Response);
+                return;
+
+            }//if
+            if(validRole){
+                existUser.role = req.body.role
+
+                await existUser.save();
+            }//if
+            else{
+                Response.status = 400;
+                Response.message = 'не корректное значени!';
+                res.status(Response.status);
+                res.send(Response);
+                return;
+            }//else
+            if(validUserStatus){
+                existUser.userStatus=req.body.userStatus;
+                await existUser.save();
+            }
+            else{
+                Response.status = 400;
+                Response.message = 'не корректное значени!';
+                res.status(Response.status);
+                res.send(Response);
+                return;
+            }//else
+
+            return;
+        }//if
+        else{
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+
+        if(!validLogin||
+            !validEmail||
+            !validFirstName||
+            !validLastName||
+            !validPhone||
+            !validPassword||
+            !validRole||
+            !validUserStatus
+        ){
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status)
+            res.send(Response);
+            return;
+        }//if
+
+
 
         let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
         let saltStr = await bcrypt.genSalt(number);// создаем соль
