@@ -21,12 +21,11 @@ const userSchema = new Schema({
             message: props => `Введите корректный логин с 4 до 16 букв и цифр \n"${props.value}"`
         },
     },
-
     password: {
         type: String,
         validate:{
             validator: ( password )=>{
-                return constValidator.USER_PASSWORD_VALIDATOR.test(password)
+                return password.length > 0;
             }, // Validator Password
             message: props => `Пароль должен содержать хотя-бы одну заглавную букву, и иметь не менее 6 символов \n"${props.value}"`
         },
@@ -46,7 +45,7 @@ const userSchema = new Schema({
         type: String,
         validate:{
             validator: ( fName )=>{
-                return constValidator.USER_FERSNAME_VALIDATRO.test(fName)
+                return constValidator.USER_FIRSTNAME_VALIDATOR.test(fName)
             }, // Validator FirstName
             message: props => `Ошибка. Имя не должно содержать цифр, пробелов, символов и не превышать 12 строк \n "${props.value}"`
         },
@@ -82,12 +81,10 @@ const userSchema = new Schema({
         },
     },
 
-    role: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'roles'
-        }
-    ],
+    role: {
+        type: Schema.Types.ObjectId,
+        ref: 'roles'
+    },
 
     phone: {
         type: String, // Не Number, потому что имеет символы
@@ -99,16 +96,22 @@ const userSchema = new Schema({
         },
     },
 
-    userStatus: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: 'userStatus'
-        }
-    ],
+    userStatus: {
+        type: Schema.Types.ObjectId,
+        ref: 'userStatus'
+    },
 
     blackList:{
         type: Schema.Types.ObjectId,
         ref: 'blackList'
+    },
+    blockList:{
+        type: Schema.Types.ObjectId,
+        ref: 'blockList'
+    },
+    subscribersList:{
+        type: Schema.Types.ObjectId,
+        ref: 'subscribers'
     },
     lots: [
         {
