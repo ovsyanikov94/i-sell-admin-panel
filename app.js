@@ -12,6 +12,9 @@ const app = express();
 
 const categoryRoutes = require('./routes/categories');
 const lotRoutes = require('./routes/lots');
+const lotStatusRoutes = require('./routes/lotStatus');
+const lotTypeRoutes = require('./routes/lotType');
+const userRoutes = require('./routes/users');
 const dealRouter = require('./routes/deals');
 const statusDealRouter = require('./routes/statusDeal');
 const statusUserRouter = require('./routes/statusUsers');
@@ -31,6 +34,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', categoryRoutes);
 app.use('/api', lotRoutes);
+app.use('/api', lotStatusRoutes);
+app.use('/api', lotTypeRoutes);
+app.use('/api', userRoutes);
 app.use('/api', dealRouter);
 app.use('/api', statusDealRouter);
 app.use('/api', statusUserRouter);
