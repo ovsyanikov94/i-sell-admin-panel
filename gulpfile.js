@@ -13,5 +13,10 @@ require('./tasks/insert-deal-statuses');
 
 gulp.task( 'default' , gulpSync.sync([
     'clearDealStatuses',
-    'InsertDefaultDealStatuses'
+    'InsertDefaultDealStatuses',
+    'clearUserStatuses',
+    'InsertDefaultUserStatuses',
+    'clearUserRoles',
+    'InsertDefaultUserRoles',
+
 ]));

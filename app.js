@@ -11,7 +11,7 @@ const connection = require('./model/connection');
 const app = express();
 
 
-const userRouter = require('');
+const userRouter = require('./routes/user');
 const categoryRoutes = require('./routes/categories');
 const lotRoutes = require('./routes/lots');
 const dealRouter = require('./routes/deals');
@@ -31,6 +31,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/api',userRouter);
 app.use('/api', categoryRoutes);
 app.use('/api', lotRoutes);
 app.use('/api', dealRouter);

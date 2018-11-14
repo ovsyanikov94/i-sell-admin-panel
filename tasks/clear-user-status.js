@@ -1,18 +1,18 @@
 
 const gulp = require('gulp');
 const Logger = require('../model/Logger');
-const DealStatus = require('../model/DealsStatus');
+
+const UserStatus = require('../model/UserStatus');
 
 
-gulp.task('clearDealStatuses' , async ( done )=>{
+gulp.task('clearUserStatuses' , async ( done )=>{
 
     try{
 
-        console.log(await DealStatus.deleteMany());
+        console.log(await UserStatus.deleteMany());
 
     }//try
     catch(ex){
-
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -21,7 +21,6 @@ gulp.task('clearDealStatuses' , async ( done )=>{
                 stack: ex.stack
             },
         });
-
 
     }//catch
 

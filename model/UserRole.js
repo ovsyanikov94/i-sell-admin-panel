@@ -3,9 +3,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const constValidator = require('./Validation');
-const userStatusSchema = new Schema({
+const userRoleSchema = new Schema({
 
-    statusTitle: {
+    roleTitle: {
         type: String,
         validate:{
             validator: ( role )=>{
@@ -14,7 +14,7 @@ const userStatusSchema = new Schema({
             message: props => `Ошибка. Введите корректный статус! \n"${props.value}"`
         },
     },
-    userStatusId:Number,
+    userRoleId:Number,
     user:{
         type: Schema.Types.ObjectId,
         ref:'users'
@@ -22,4 +22,4 @@ const userStatusSchema = new Schema({
 
 });
 
-module.exports = mongoose.model('userStatus' , userStatusSchema);
+module.exports = mongoose.model('roles' , userRoleSchema);
