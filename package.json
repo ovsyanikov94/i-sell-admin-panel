@@ -7,13 +7,13 @@
     "bulk-insert": "gulp"
   },
   "dependencies": {
+    "bcrypt": "^2.0.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "express": "^4.16.4",
     "http-errors": "~1.6.2",
-    "mongoose": "^5.3.10",
+    "mongoose": "^5.3.12",
     "morgan": "~1.9.0",
-    "bcrypt": "^2.0.1",
     "pug": "2.0.0-beta11",
     "validator": "^10.9.0",
     "winston": "^3.0.0",
