@@ -32,7 +32,7 @@ gulp.task('InsertDefaultDealStatuses' , async ( done )=> {
 
         }//for i
 
-        return dealsStatuses;
+        //return dealsStatuses;
 
     }//try
     catch(ex){
