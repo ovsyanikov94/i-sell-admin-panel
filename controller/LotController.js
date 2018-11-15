@@ -428,3 +428,358 @@ module.exports.DeleteLot = async (req, res) => {
     }//catch
 
 };
+
+
+module.exports.UpdateLot = async( req , res ) => {
+
+    try{
+
+        let statusLot = req.body.statusLot;
+
+        let lotStatus =  await LotStatus.findById(statusLot);
+
+        if ( !lotStatus){
+
+            Response.status = 400;
+            Response.message = 'Стaтус лота не найден!';
+            Response.data = lotStatus;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+        if ( lotStatus != 2){
+
+            Response.status = 400;
+            Response.message = 'Вы не можете вносить изменения в данный лот!';
+            Response.data = lotStatus;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+        let lotID = req.params.id;
+
+        let lot = await Lot.findById(lotID);
+
+        if(!lot){
+            Response.status = 400;
+            Response.message = 'Такой лот не найден!';
+            Response.data = lot;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
+
+        lot.categories.length = 0;
+
+        let categoriesIds = req.body.categories;
+
+        if (categoriesIds&&categoriesIds.length===0) {
+            Response.status = 400;
+            Response.message = 'Категории должны быть выбраны!!';
+            Response.data = categoriesIds;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+        for(let i =0; i< categoriesIds.length; i++){
+
+            let cat = await Category.findById(categoriesIds[i]);
+
+            if(!cat){
+                Response.status = 400;
+                Response.message = 'Такой категории не найденно!';
+                Response.data = categoriesIds[i];
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+
+            }//if
+            lot.categories.push( cat );
+        }//for
+
+        let lotTitle = req.body.lotTitle;
+
+        if( !lotTitle.match( ValidatorConstants.TITLE_VALIDATOR ) ){
+
+            Response.status = 400;
+            Response.message = 'Название лота не верно!';
+            Response.data = lotTitle;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+        let startPrice = +req.body.startPrice;
+
+        if( startPrice < 0  ){
+
+            Response.status = 400;
+            Response.message = 'Стартовая цена не может быть меньше 0!';
+            Response.data = startPrice;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+
+        let sellerLotID = req.body.sellerID;
+        let sellerLot = await User.findById(sellerLotID);
+
+        if(!sellerLot){
+            Response.status = 400;
+            Response.message = 'Продавец  не найден!';
+            Response.data = sellerLotID;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+
+        }//if
+
+        let lotDescription = req.body.lotDescription;
+
+        if( !lotDescription.match( ValidatorConstants.TEXT_VALIDATOR ) ){
+
+            Response.status = 400;
+            Response.message = 'Описание лота не верно!';
+            Response.data = lotDescription;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+
+        let mapLot = req.body.mapLot;
+
+        if(!mapLot){
+            Response.status = 400;
+            Response.message = 'Добавьте координаты';
+            Response.data = mapLot;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+        if(mapLot.lat<0 || mapLot.lon<0){
+            Response.status = 400;
+            Response.message = 'Значение коррдинат не может быть меньше 0';
+            Response.data = mapLot;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+        let currentRate = startPrice;
+
+
+        //let dateAdminAnswer = req.body.dateAdminAnswer;
+
+        let datePlacement = req.body.datePlacement;
+
+        if (!datePlacement){
+            Response.status = 400;
+            Response.message = 'Дата размещения лота некорректна!';
+            Response.data = dateStartTrade;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+        let typeLot = req.body.typeLot;
+
+        let lotType =  await LotType.findById(typeLot);
+
+        if ( !lotType){
+
+            Response.status = 400;
+            Response.message = 'Тип лота не найден!';
+            Response.data = typeLot;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+        let dateStartTrade = req.body.dateStartTrade;
+
+        if ( lotType!=1 && dateStartTrade){
+            Response.status = 400;
+            Response.message = 'При немедленном типе лота дату начала торгов назначает администратор!';
+            Response.data = typeLot;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+        if (!dateStartTrade){
+            Response.status = 400;
+            Response.message = 'Укажите дату начала торгов!';
+            Response.data = dateStartTrade;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+        if (dateStartTrade<datePlacement){
+            Response.status = 400;
+            Response.message = 'Дата начала торгов не может быть раньше даты размещения лота!';
+            Response.data = dateStartTrade;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
+
+
+        //let dateEndTrade = req.body.dateEndTrade;
+
+        let newCoord = await CoordMap.findById(mapLot._id);
+        await newCoord.update({lat: mapLot.lat} , {lon:mapLot.lon}).fetch();
+
+
+
+
+        let appCategories = await Category.find();
+
+        for(let i =0; i< appCategories.length; i++){
+
+
+            for(let j =0; j< categoriesIds.length; j++){
+
+                let indexLot = appCategories[i].lots.indexOf(lot);
+                if(appCategories[i]._id != categoriesIds[j]._id && indexLot!=-1 && categoriesIds[j].lots.indexOf(lot)==-1){
+                    appCategories[i].lots.splice(indexLot,1);
+                }//if
+                if(categoriesIds[j].lots.indexOf(lot)==-1){
+                    categoriesIds[j].lots.push(lot);
+                }//if
+
+            }//for
+
+        }//for
+
+
+
+        if(req.files){
+
+            let lotImages = req.files.images;
+            let path = `public/images/lots/${newLot._id}`;
+
+
+            if(!fs.existsSync('public/images')){
+                fs.mkdirSync('public/images');
+            }//if
+
+            if(!fs.existsSync('public/images/lots')){
+                fs.mkdirSync('public/images/lots');
+            }//if
+
+            try{
+                fs.mkdirSync(path);
+            }//catch
+            catch(ex){
+                console.log(ex)
+            }//try
+
+            for (let i=0; i<lotImages.length; i++){
+
+                let lotImage = lotImages[i];
+
+                lotImage.mv( `${path}/${lotImage.name}`,async function(err){
+
+                    if (err){
+                        console.log('FILE UPLOAD ERROR:' , err);
+                        return;
+                    }//if
+
+                    let pathLot = `images/lots/${newLot._id}/${lotImage.name}`;
+
+                    let path = new LotImage({
+                        'path':  pathLot
+                    });
+
+                    let newImage = await path.save();
+
+                    newLot.lotImagePath.push(newImage._id);
+
+                })//lotImage.mv
+            } //for
+
+        }//if req.files
+
+
+        let updateLot = await lot.update({categories: lot.categories} ,
+            {lotTitle:lotTitle},
+            {startPrice:startPrice},
+            {seller:sellerLotID},
+            {lotDescription:lotDescription},
+            {mapLot:mapLot},
+            {dateStartTrade:dateStartTrade},
+        ).fetch();
+
+        res.status(200);
+        res.send({
+            code: 200,
+            data: updateLot,
+            message:  'Изменение лота успешно!'
+        });
+
+
+    }//try
+    catch(ex){
+
+        console.log(ex);
+
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        res.status(500);
+
+        res.send( {
+            code: 500,
+            message: "Внутренняя ошибка сервера!",
+            data: ex
+        } );
+
+    }//catch
+
+};
