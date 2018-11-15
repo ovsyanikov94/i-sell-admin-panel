@@ -16,13 +16,14 @@ const categoryRoutes = require('./routes/categories');
 const lotRoutes = require('./routes/lots');
 const lotStatusRoutes = require('./routes/lotStatus');
 const lotTypeRoutes = require('./routes/lotType');
-const userRoutes = require('./routes/users');
 const dealRouter = require('./routes/deals');
 const statusDealRouter = require('./routes/statusDeal');
 const statusUserRouter = require('./routes/statusUsers');
 const subscribersRouter = require('./routes/subscribers');
 const blackListRouter = require('./routes/blackList');
 const blockListRouter = require('./routes/blockList');
+
+const passport = require('passport');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -33,13 +34,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(require('express-session')(
+    {
+        secret:'elkflwekflwekfl888ef',
+        saveUninitialized: true,
+        cookie: {
+            maxAge: (1000 * 60 ) * 60, // ms
+            secure: false
+        },
+    }
+));
+
+app.use( passport.initialize() );
+app.use( passport.session() );
+app.use( require('connect-flash')() );
+
+require('./passport/PassportAuth')(passport);
+
+
+
+app.use( '/api' , require('./routes/access') );
 
 app.use('/api',userRouter);
 app.use('/api', categoryRoutes);
 app.use('/api', lotRoutes);
 app.use('/api', lotStatusRoutes);
 app.use('/api', lotTypeRoutes);
-app.use('/api', userRoutes);
+
 app.use('/api', dealRouter);
 app.use('/api', statusDealRouter);
 app.use('/api', statusUserRouter);
