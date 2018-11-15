@@ -10,6 +10,8 @@ const connection = require('./model/connection');
 
 const app = express();
 
+
+const userRouter = require('');
 const categoryRoutes = require('./routes/categories');
 const lotRoutes = require('./routes/lots');
 const lotStatusRoutes = require('./routes/lotStatus');

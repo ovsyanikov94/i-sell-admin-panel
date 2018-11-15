@@ -17,7 +17,7 @@ const lotStatusSchema = new Schema({
             message: props => `Статус лота введен не корректно: "${props.value}"`
         },
     },
-
+    statusID: Number,
     lots: [
         {
             type: Schema.Types.ObjectId,

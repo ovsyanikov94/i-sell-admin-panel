@@ -5,7 +5,7 @@ const UtilsController = require('../controller/UtilsController');
 const subscribers = require('./SubscribersController');
 const User = require('../model/User');
 const validator = require('validator');
-
+const Response = require('../model/Response');
 
 module.exports.AddUserToSubscribers=async(req,res)=>{
 
@@ -15,11 +15,11 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
     if(!validUser||
         !validUserInSubscriberskList
     ){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: null
-        } );
+        Response.status = 400;
+        Response.message = 'значение уже существует!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
 
@@ -38,11 +38,11 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         if(!existUser||
             !existUserBlackList
         ){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: null
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
 
@@ -72,11 +72,11 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }//catch
 }
 module.exports.RemoveUserToSubscribers=async(req,res)=>{
@@ -87,11 +87,11 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
     if(!validUser||
         !validUserInSubscriberskList
     ){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: null
-        } );
+        Response.status = 400;
+        Response.message = 'значение уже существует!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
 
@@ -110,11 +110,11 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
         if(!existUser||
             !existUserBlackList
         ){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: null
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
 
@@ -144,10 +144,10 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
     }//catch
 }

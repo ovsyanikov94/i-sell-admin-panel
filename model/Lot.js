@@ -55,39 +55,73 @@ const lotSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'coordMaps'
     },
+    //теккущая ставка
     currentRate:{
         type: Number,
         validate:{
             validator: ( rate )=>{
                 return rate >= ValidatorConstants.LOT_RATE;
             },//validator
-            message: props => `Рейтинг задан неверно: "${props.value}"`
+            message: props => `Текущая ставка задана неверно: "${props.value}"`
+        },
+    },
+//длительность торгов
+    countHourTrade:{
+        type:Number,
+        validate:{
+            validator: ( hour )=>{
+                return hour >= ValidatorConstants.LOT_COUNTHOUR_VALIDATOR;
+            },//validator
+            message: props => `Количество часов продления торгов задано неверно : "${props.value}"`
+        },
+    },
+    dateAdminAnswer:{
+        type: Number,
+        validate:{
+            validator: ( date )=>{
+                return date >= ValidatorConstants.LOT_DATE_VALIDATOR;
+            },//validator
+            message: props => `Дата указана нервно : "${props.value}"`
         },
     },
 
-    dateAdminAnswer:{
-        type: Date,
-    },
-
     datePlacement:{
-        type: Date,
+        type: Number,
+        validate:{
+            validator: ( date )=>{
+                return date >= ValidatorConstants.LOT_DATE_VALIDATOR;
+            },//validator
+            message: props => `Дата указана нервно : "${props.value}"`
+        },
     },
 
     dateStartTrade:{
-        type: Date,
+        type: Number,
+        validate:{
+            validator: ( date )=>{
+                return date >= ValidatorConstants.LOT_DATE_VALIDATOR;
+            },//validator
+            message: props => `Дата указана нервно : "${props.value}"`
+        },
     },
 
     dateEndTrade:{
-        type: Date,
+        type: Number,
+        validate:{
+            validator: ( date )=>{
+                return date >= ValidatorConstants.LOT_DATE_VALIDATOR;
+            },//validator
+            message: props => `Дата указана нервно : "${props.value}"`
+        },
     },
 
     typeLot:{
-        type: Schema.Types.ObjectId,
+        type: Number,
         ref: 'lotTypes'
     },
 
     statusLot:{
-        type: Schema.Types.ObjectId,
+        type: Number,
         ref: 'lotStatuses'
     },
     comments: [
