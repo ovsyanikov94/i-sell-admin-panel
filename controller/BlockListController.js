@@ -2,10 +2,11 @@
 
 const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
-const blockList = require('./blockListUser');
+const blockList = require('../model/blockList');
 const User = require('../model/User');
 const validator = require('validator');
 const Response = require('../model/Response');
+
 module.exports.AddUserToBlockList=async(req,res)=>{
 
     let validUser =  validator.isMongoId( req.body.UserID);
@@ -14,11 +15,11 @@ module.exports.AddUserToBlockList=async(req,res)=>{
     if(!validUser||
         !validUserInBlackList
     ){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: idStatusDeal
-        } );
+        Response.status = 400;
+        Response.message = 'значение уже существует!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
 
@@ -29,29 +30,29 @@ module.exports.AddUserToBlockList=async(req,res)=>{
             id:req.body.UserID
         });
 
-        let existUserBlackList = await User.find({
+        let existUserBlockList = await User.find({
 
             id:req.body.UserIDInBlackList
         });
 
         if(!existUser||
-            !existUserBlackList
+            !existUserBlockList
         ){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: null
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
 
-        let blackList = await blockList({
+        let blockListUser = await blockList({
             user:req.body.UserID
         });
 
-        blockList.blockList.push(req.body.UserIDInBlackList);
+        blockListUser.List.push(req.body.UserIDInBlackList);
 
-        await blackList.save();
+        await blockListUser.save();
         res.status(200);
         res.send({
             code: 200,
@@ -118,13 +119,13 @@ module.exports.RemoveUserToBlockList=async(req,res)=>{
             return;
         }//if
 
-        let blackList = await blockList({
+        let blockListUser = await blockList({
             user:req.body.UserID
         });
 
-        let idInBlackList =  blockList.blackList.remove(req.body.UserIDInBlackList);
+        let idInBlackList = blockListUser.List.remove(req.body.UserIDInBlackList);
 
-        await blockList.save();
+        await blockListUser.save();
         res.status(200);
         res.send({
             code: 200,
@@ -150,4 +151,72 @@ module.exports.RemoveUserToBlockList=async(req,res)=>{
             data: ex
         } );// res.send
     }//catch
+}
+
+
+module.exports.getBlackListUser = async (req,res)=>{
+
+    let validIdUser = validator.isMongoId(req.body.userId)||'';
+
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+    try {
+
+        let existUser = await User.find({
+            id:req.body.userId
+        });
+
+        if(!existUser){
+
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+
+        let limit = +req.query.limit || 5;
+        let offset = +req.query.offset || 0;
+
+        let blockListUser = await blockList.find( {
+            id:existUser.id
+        } , {
+            limit: limit,
+            skip: offset
+        });
+
+
+        //console.log('categories' , categories);
+
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
+
+    }//try
+    catch (ex) {
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });//Logger.error
+        res.status(500);
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+
+
+    }//catch
+    res.status(Response.status)
+    res.send(Response);
 }

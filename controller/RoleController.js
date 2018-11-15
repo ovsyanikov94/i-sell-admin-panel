@@ -1,53 +1,22 @@
 "use strict";
 
-const Role = require('../model/Role');
+const UserRole = require('../model/UserRole');
 const Logger = require('../model/Logger');
 
 const UtilsController = require('../controller/UtilsController');
 
-module.exports.AddRole = async( req , res ) => {
-
+module.exports.ListRoles = async(req,res)=>{
     try{
+        let listRole = UserRole.find().populate('roleTitle');
 
-        let roleTitle = req.body.roleTitle;
+        Response.status = 200;
+        Response.message = 'OK';
+        Response.data=listStatus
+        res.status(Response.status)
+        res.send(Response);
 
-        let newRole = null;
-
-        try {
-
-            newRole = new Role({
-                roleTitle: roleTitle
-            });
-
-        } // Try
-        catch(ex){
-
-            let message = UtilsController.MakeMongooseMessageFromError(ex);
-
-            res.status(400);
-            res.send( {
-                code: 400,
-                message: message
-            } );
-
-            return;
-
-        } // Catch
-
-        let createRoleResult = await newRole.save();
-
-        res.status(200);
-        res.send({
-            code: 200,
-            data: createRoleResult,
-            message:  'Добавление роли прошло успешно!'
-        });
-
-    } // Try
-    catch (ex) {
-
-        console.log(ex);
-
+    }
+    catch (ex){
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -55,16 +24,12 @@ module.exports.AddRole = async( req , res ) => {
                 message: ex.message,
                 stack: ex.stack
             },
-        });
+        });//Logger.error
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
 
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );
-
-    } // Catch
-
-}; // AddStatus
+    }
+}//ListStatus

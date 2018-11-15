@@ -15,6 +15,9 @@ module.exports = {
 
             let title = req.body.categoryTitle || '';
 
+            let existTitle = await Category.findOne({title: title})
+
+
             if( !title.match( ValidatorConstants.TITLE_VALIDATOR ) ){
 
                 Response.status = 400;
@@ -26,6 +29,17 @@ module.exports = {
 
                 return;
             }//if
+
+            if (existTitle){
+                Response.status = 400;
+                Response.message = 'Категория с таким названием уже существует!';
+                Response.data = title;
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+            }
 
             let newCategory = new Category({
                 title: title
@@ -74,21 +88,32 @@ module.exports = {
             skip: offset
         });
 
-
         //console.log('categories' , categories);
 
-        res.send({
-            status: 200,
-            data: categories,
-            message: 'Success!'
-        });
+        Response.status = 200;
+        Response.message = 'Success!';
+        Response.data = categories;
 
     }//try
     catch (ex) {
 
-        console.log(ex);
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
+
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
 
     }//catch
+
+        res.status(Response.status);
+        res.send(Response);
 
 
 },//categoriesList
@@ -99,38 +124,55 @@ module.exports = {
 
             let categoryID = req.body.id || '';
 
-            if(!await Category.findOne({id: categoryID})){
-                return res.send({
-                    code:400,
-                    message:'Категория с таким ID не найдена!',
-                    data:categoryID
-                });
-            }//if
+            let categoryByID = await Category.findById(categoryID);
 
-            let categoryTitle = req.body.categoryTitle;
+            if(!categoryByID){
+                Response.status = 400;
+                Response.message = 'Категория с таким ID не найдена!';
+                Response.data = categoryID;
 
-            if(categoryTitle.trim().length === 0){
-                return res.send({
-                    code:400,
-                    message:'некорректные данные',
-                    data:categoryTitle
-                });
-            }//if
+                res.status(Response.status);
+                res.send(Response);
 
-            let category = await Category.findOne({categoryTitle: newCategoryTitle});
+                return;
 
-            if(category){
-                return res.send({
-                    code:400,
-                    message:'категория с таким названием уже существует!',
-                    data:category
-                });
             }//if
 
 
-            let updatedCategory = await Category.update({id: categoryID} , {categoryTitle:categoryTitle}).fetch();
 
-            res.send(updatedCategory);
+            let categoryTitle = req.body.categoryTitle || "";
+
+            if( !categoryTitle.match( ValidatorConstants.TITLE_VALIDATOR ) ){
+
+                Response.status = 400;
+                Response.message = 'Название категории не верно!';
+                Response.data = categoryTitle;
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+            }//if
+
+            let existTitle = await Category.findOne({title: categoryTitle});
+
+            if (existTitle){
+                Response.status = 400;
+                Response.message = 'Категория с таким названием уже существует!';
+                Response.data = title;
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+            }
+
+
+            let updatedCategory = await Category.updateOne({id: categoryID} , {categoryTitle:categoryTitle});
+
+            Response.status = 200;
+            Response.message = 'Категория добавлена!';
+            Response.data = updatedCategory;
 
         }//try
         catch(ex){
@@ -138,44 +180,65 @@ module.exports = {
             res.send(ex);
 
         }//catch
+
+        res.status(Response.status);
+        res.send(Response);
 
     },//updatedCategory
 
     deleteCategory: async ( req , res )=>{
 
         try{
-
-            let categoryID = req.body.id;
+            let categoryID = req.params.id;
+            //let categoryID = req.body.id;
 
             let category = await Category.findById(categoryID);
 
-            console.log(req);
-            console.log('BODY: ' , req.body);
-
+            //console.log('categoryID', categoryID);
+            //console.log('BODY: ' , req.body);
+            //console.log('category: ' , category);
             if(!category){
+                Response.status = 400;
+                Response.message = 'Категория с таким ID не найдена!';
+                Response.data = categoryID;
 
-                return res.send({
-                    code:400,
-                    message:'Категория с таким ID не найдена!',
-                    data:categoryID
-                });
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
 
             }//if
 
-            let deletedCategory = await Category.remove({id: categoryID});
+            //let deletedCategory = await Category.deleteOne({id: categoryID});
+            let deletedCategory = await category.delete();
 
-            res.send({
-                code:200,
-                message:'Категория удалена!',
-                data:deletedCategory
-            });
+            console.log('deletedCategory: ' , deletedCategory);
+
+            Response.status = 200;
+            Response.message = 'Категория удалена!';
+            Response.data = deletedCategory;
 
         }//try
         catch(ex){
 
-            res.send(ex);
+            Response.status = 500;
+            Response.message = 'Внутренняя ошибка сервера!';
+            Response.data = ex.message;
+
+            Logger.error({
+                time: new Date().toISOString(),
+                status: 500,
+                data: {
+                    message: ex.message,
+                    stack: ex.stack
+                },
+            });
 
         }//catch
+
+        res.status(Response.status);
+        res.send(Response);
+
 
     },//deleteCategory
 

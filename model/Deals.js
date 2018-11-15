@@ -3,6 +3,8 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const DealStatus = require('./DealsStatus');
+
 const dealsSchema = new Schema({
 
     sellerUser:{
@@ -18,12 +20,11 @@ const dealsSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref:'lots'
     },
-    dataDeals:{
+    dateDeals:{
         type: Number,
     },
     dealsStatus:{
-        type: Schema.Types.ObjectId,
-        ref:'dealsStatus'
+        type: Number,
     },
     evaluation:{
         type: Schema.Types.ObjectId,
@@ -31,5 +32,11 @@ const dealsSchema = new Schema({
     }
 
 });
+
+let deal = dealsSchema.virtual('deal');
+
+deal.get( async function (  ) {
+    return await DealStatus.find({ dealID: this.dealsStatus }, 'titleStatus dealID');
+} );
 
 module.exports = mongoose.model('deals' , dealsSchema);

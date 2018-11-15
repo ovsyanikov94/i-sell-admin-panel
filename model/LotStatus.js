@@ -6,6 +6,8 @@ const Schema = mongoose.Schema;
 const lots = require('./Lot');
 
 const lotStatusSchema = new Schema({
+    id: Schema.Types.ObjectId,
+
     statusTitle: {
         type: String,
         validate:{
@@ -15,7 +17,7 @@ const lotStatusSchema = new Schema({
             message: props => `Статус лота введен не корректно: "${props.value}"`
         },
     },
-
+    statusID: Number,
     lots: [
         {
             type: Schema.Types.ObjectId,

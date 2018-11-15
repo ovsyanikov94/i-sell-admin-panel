@@ -3,16 +3,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const constValidator = require('./Validation');
-
-/*
-
-    [
-        { id: "1;l42keqmwd;sax" , title: "Подтвержден" , descr: "" },
-        { id: "flwefkkjweiofjkcm" , title: "Жалоба" },
-    ]
-
- */
-
 const dealsStatusSchema = new Schema({
 
     titleStatus:{
