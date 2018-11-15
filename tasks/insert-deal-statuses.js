@@ -48,6 +48,6 @@ gulp.task('InsertDefaultDealStatuses' , async ( done )=> {
 
     }//catch
 
-    done();
+    //done();
 
 });

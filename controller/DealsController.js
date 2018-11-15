@@ -10,25 +10,31 @@ const constValidator = require('../model/validatorConstatn');
 const User = require('../model/User');
 const Response = require('../model/Response');
 
-module.exports.createDeals=async(req,res)=>{
+const DealStatusesEnum = require('../model/Enums/DealStatus');
+
+module.exports.createDeals = async(req,res)=>{
 
     let validSellerUser =  validator.isMongoId( req.body.sellerUserID);
     let validCustomerUser =validator.isMongoId( req.body.customerUserID);
     let validLot =validator.isMongoId(req.body.lotID);
-       if(!validSellerUser||
-           !validCustomerUser||
-           !validLot){
-           Response.status = 400;
-           Response.message = 'не корректное значени!';
-           res.status(Response.status);
-           res.send(Response);
-           return;
-       }//if
+
+    if(!validSellerUser|| !validCustomerUser || !validLot){
+
+       Response.status = 400;
+       Response.message = 'не корректное значени!';
+       res.status(Response.status);
+       res.send(Response);
+       return;
+
+   }//if
+
+
     let lotInDeal = await Deals.find().populate({
         lot: req.body.lotID
     });
 
     if(lotInDeal){
+
         res.status(400);
         res.send( {
             code: 400,
@@ -40,16 +46,23 @@ module.exports.createDeals=async(req,res)=>{
     }//if
 
    try {
+
         let newDeals=null;
+
            try {
-                newDeals =new Deals({
+
+                newDeals = new Deals({
+
                    sellerUser:req.body.sellerUserID,
                    customerUser:req.body.customerUserID,
-                   lot:req.body.lotID
-                    //статус!!!!!!!!!!!!!!!
+                   lot:req.body.lotID,
+                   dealsStatus: DealStatusesEnum.IN_PROCESS
+
                });//newDeals
+
            }//try
            catch (ex){
+
                let message = UtilsController.MakeMongooseMessageFromError(ex);
 
                res.status(400);
@@ -59,6 +72,7 @@ module.exports.createDeals=async(req,res)=>{
                } );//res.send
 
                return;
+
            }//catch
 
             let Daels = await newDeals.save();
@@ -66,11 +80,13 @@ module.exports.createDeals=async(req,res)=>{
        Response.status = 200;
        Response.message = 'сделка успешно долбавлена!';
        Response.data = Daels;
+
        res.status(Response.status);
        res.send(Response);
 
    }//try
    catch (ex){
+
        Logger.error({
            time: new Date().toISOString(),
            status: 500,

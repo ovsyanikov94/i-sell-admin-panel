@@ -42,5 +42,4 @@ gulp.task( 'default' , gulpSync.sync([
     'InsertLotType',
     'clearLotStatuses',
     'InsertDefaultLotStatuses',
-
 ]));
