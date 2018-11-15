@@ -9,7 +9,7 @@ module.exports = {
 
   categoriesList: async ( req , res )=>{
 
-    console.log('LIST!');
+    //console.log('LIST!');
 
     try{
 

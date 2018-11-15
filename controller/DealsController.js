@@ -6,7 +6,7 @@ const Deals = require('../model/Deals');
 const DealsStatus = require('../model/DealsStatus');
 const validator = require('validator');
 const evaluation = require('../model/evaluationDeals');
-const constValidator = require('../model/validatorConstatn');
+//const constValidator = require('../model/validatorConstatn');
 const User = require('../model/User');
 const Response = require('../model/Response');
 
@@ -20,7 +20,7 @@ module.exports.createDeals=async(req,res)=>{
            !validLot){
            Response.status = 400;
            Response.message = 'не корректное значени!';
-           res.status(Response.status)
+           res.status(Response.status);
            res.send(Response);
            return;
        }//if
@@ -40,7 +40,7 @@ module.exports.createDeals=async(req,res)=>{
     }//if
 
    try {
-        let newDeals=null
+        let newDeals=null;
            try {
                 newDeals =new Deals({
                    sellerUser:req.body.sellerUserID,
@@ -66,7 +66,7 @@ module.exports.createDeals=async(req,res)=>{
        Response.status = 200;
        Response.message = 'сделка успешно долбавлена!';
        Response.data = Daels;
-       res.status(Response.status)
+       res.status(Response.status);
        res.send(Response);
 
    }//try
@@ -84,7 +84,7 @@ module.exports.createDeals=async(req,res)=>{
        Response.status = 500;
        Response.message = 'Внутренняя ошибка сервера!';
        Response.data = null;
-       res.status(Response.status)
+       res.status(Response.status);
        res.send(Response);
    }//catch
 
@@ -99,7 +99,7 @@ module.exports.listDealByUserId = async(req,res)=>{
     ){
         Response.status = 400;
         Response.message = 'не корректное значени!';
-        res.status(Response.status)
+        res.status(Response.status);
         res.send(Response);
         return;
     }
@@ -111,7 +111,7 @@ module.exports.listDealByUserId = async(req,res)=>{
     if(!existStatus){
         Response.status = 400;
         Response.message = 'не корректное значени!';
-        res.status(Response.status)
+        res.status(Response.status);
         res.send(Response);
         return;
     }//if
@@ -122,7 +122,7 @@ module.exports.listDealByUserId = async(req,res)=>{
     if(!existUser){
         Response.status = 400;
         Response.message = 'не корректное значени!';
-        res.status(Response.status)
+        res.status(Response.status);
         res.send(Response);
         return;
     }//if
@@ -154,7 +154,7 @@ module.exports.listDealByUserId = async(req,res)=>{
         Response.status = 500;
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = null;
-        res.status(Response.status)
+        res.status(Response.status);
         res.send(Response);
     }
 
