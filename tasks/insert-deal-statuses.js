@@ -1,7 +1,7 @@
 "use strict";
 
 const gulp = require('gulp');
-
+const Logger = require('../model/Logger');
 const DealStatus = require('../model/DealsStatus');
 
 gulp.task('InsertDefaultDealStatuses' , async ( done )=> {
@@ -37,7 +37,14 @@ gulp.task('InsertDefaultDealStatuses' , async ( done )=> {
     }//try
     catch(ex){
 
-        console.log('EXCEPTION!');
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
 
     }//catch
 

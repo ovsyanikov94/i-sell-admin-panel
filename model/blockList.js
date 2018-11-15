@@ -8,7 +8,7 @@ const blockListSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'users'
     },
-    blockList:[
+    List:[
         {
             type: Schema.Types.ObjectId,
             ref: 'users'

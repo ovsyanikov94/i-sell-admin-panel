@@ -7,14 +7,15 @@
     "bulk-insert": "gulp"
   },
   "dependencies": {
-    "bcrypt": "^2.0.1",
     "cookie-parser": "~1.4.3",
     "debug": "^4.1.0",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "mongoose": "^5.3.10",
     "morgan": "~1.9.0",
-    "pug": "^2.0.3",
+    "bcrypt": "^2.0.1",
+    "fs-extra": "^7.0.0",
+    "pug": "2.0.0-beta11",
     "validator": "^10.9.0",
     "winston": "^3.0.0",
     "winston-daily-rotate-file": "^3.5.0"
