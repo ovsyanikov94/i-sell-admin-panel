@@ -132,6 +132,7 @@ module.exports.AddLot = async( req , res ) => {
             res.send(Response);
 
             return ;
+
         }//if
 
         let currentRate = startPrice;
