@@ -1,44 +1,42 @@
 "use strict";
 
+const passport = require('passport');
+
 const express = require('express');
 const router = express.Router();
 
-const passport = require('passport');
-
-router.get('/access-denied' , (req , res )=>{
-
-    res.status(401);
-    res.send({
-        code: 401,
-        message: 'Доступ запрещен!',
-        body: req.body
-    });
-
-});
-
-router.get('/success' , (req , res )=>{
-
-    res.status(200);
-    res.send({
-        code: 200,
-        message: 'Доступ разрешен!'
-    });
-
-});
-
-let settings = {
-
+const Options = {
+    // `${host:port}${successRedirect}
     successRedirect: '/api/success',
-    failureRedirect: '/api/access-denied'
+    failureRedirect: '/api/access-denied',
+    failureFlash: false
 
 };
 
-router.post('/auth', passport.authenticate('local' , {
+router.get('/success' , function ( req, res ) {
 
-    successRedirect: '/api/success',
-    failureRedirect: '/api/access-denied',
-    session: true
+    res.status(200);
+    
+    res.send({
+        code: 200,
+        message: 'Доступ разрешен',
+        token: req.session.passport.user
+    });
 
-}) );
+});
 
-module.exports = router;
+router.get('/access-denied' , function ( req , res ) {
+
+    res.status(401);
+
+    res.send({
+        code: 401,
+        message: 'Доступ запрещен!'
+    });
+
+});
+
+router.post('/auth-user' , passport.authenticate('local' , Options ) );
+
+
+module.exports = router; 

@@ -1,12 +1,13 @@
 "use strict";
 
-module.exports.CheckAccess = async ( req , res , next )=>{
+
+module.exports.CheckAccess = async function ( req , res , next ) {
 
     if( req.isAuthenticated() ){
         next();
     }//if
     else{
-        res.redirect('/access-denied');
+        res.redirect('/api/access-denied');
     }//else
 
 };

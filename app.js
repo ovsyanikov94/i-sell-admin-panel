@@ -5,6 +5,7 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const passport = require('passport');
 
 const connection = require('./model/connection');
 
@@ -23,7 +24,10 @@ const subscribersRouter = require('./routes/subscribers');
 const blackListRouter = require('./routes/blackList');
 const blockListRouter = require('./routes/blockList');
 
-const passport = require('passport');
+//access routes
+const accessRoutes = require('./routes/access');
+
+const LocalStrategy = require('./passport/LocalStrategy');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -34,6 +38,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(require('express-session')(
     {
         secret:'elkflwekflwekfl888ef',
@@ -45,16 +50,12 @@ app.use(require('express-session')(
     }
 ));
 
-app.use( passport.initialize() );
-app.use( passport.session() );
-app.use( require('connect-flash')() );
+app.use(passport.initialize());
+app.use(passport.session());
 
-require('./passport/PassportAuth')(passport);
+LocalStrategy(passport);
 
-
-
-app.use( '/api' , require('./routes/access') );
-
+app.use('/api' , accessRoutes);
 app.use('/api',userRouter);
 app.use('/api', categoryRoutes);
 app.use('/api', lotRoutes);

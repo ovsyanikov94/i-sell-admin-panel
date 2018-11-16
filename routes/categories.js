@@ -2,11 +2,12 @@
 
 const express = require('express');
 const router = express.Router();
-const AccessController = require('../controller/AccessController');
 
 const CategoryController = require('../controller/CategoryController');
 
-router.use(AccessController.CheckAccess);
+const AccessController = require('../controller/AccessController');
+
+router.use( AccessController.CheckAccess );
 
 router.get( '/category/list' , CategoryController.categoriesList );
 router.post('/add-category' , CategoryController.AddCategory );
