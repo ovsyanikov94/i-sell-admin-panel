@@ -11,6 +11,9 @@ const Logger = require('../model/Logger');
 const ValidatorConstants = require('../model/Validation');
 const fs = require('fs');
 
+const LotTypeEnum = require('../model/Enums/LotType');
+const LotStatusEnum = require('../model/Enums/LotStatus');
+
 var moment = require('moment');
 
 const Response = require('../model/Response');
@@ -137,8 +140,6 @@ module.exports.AddLot = async( req , res ) => {
 
         let currentRate = startPrice;
 
-        //let dateAdminAnswer = req.body.dateAdminAnswer;
-
         let datePlacement = moment(new Date()).unix();
 
         let dateStartTrade = null;
@@ -172,7 +173,7 @@ module.exports.AddLot = async( req , res ) => {
             return ;
         }//if
 
-        if(typeLotId===1){//запланированный
+        if(typeLotId===LotTypeEnum.PLANED){//запланированный
 
             dateStartTrade = req.body.dateStartTrade;
 
@@ -192,7 +193,7 @@ module.exports.AddLot = async( req , res ) => {
 
         }//if
 
-        let statusLotId = 2;
+        let statusLotId = LotStatusEnum.IN_PROCESS;
 
         let coord = new CoordMap({
             "lat": +mapLot.lat,
@@ -305,8 +306,6 @@ module.exports.AddLot = async( req , res ) => {
     }//try
     catch(ex){
 
-        console.log(ex);
-
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -386,6 +385,18 @@ module.exports.DeleteLot = async (req, res) => {
             }
         }//if
 
+        if(deleteLot.statusLot === LotStatusEnum.ACTIVE){
+
+            Response.status = 400;
+            Response.message = 'Лот активный удалить невозможно';
+            Response.data = deleteLot;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
         let result = await Lot.findOneAndDelete({_id: lotId});
 
         for(let i =0; i< result.lotImagePath.length; i++){
@@ -408,25 +419,29 @@ module.exports.DeleteLot = async (req, res) => {
 
         }//for
 
-        res.send( {
-            statusCode: 200,
-            data: result,
-            message: "Лот удален"
-        });
-
-        
+        Response.status = 200;
+        Response.message = 'Лот удален';
+        Response.data = deleteLot;
 
     }//try
     catch(ex){
 
-        console.log(ex);
-        res.send( {
-            statusCode: 500,
-            data: ex,
-            message: "Server error"
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
         });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
     }//catch
 
+    res.status(Response.status);
+    res.send(Response);
 };
 
 
