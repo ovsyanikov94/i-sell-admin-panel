@@ -3,12 +3,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const constValidator = require('./Validation');
-/*
-const roles = require('./Role');
-const userStatus = require('./UserStatus');
-const lots = require('./Lot');
-*/
-
+const bcrypt = require('bcrypt');
 
 const userSchema = new Schema({
 
@@ -121,5 +116,23 @@ const userSchema = new Schema({
     ]
 
 });
+
+userSchema.methods.verifyPassword = async function ( password ) {
+
+    try{
+
+        let hashPassword = this.password;
+
+        return await bcrypt.compare( password ,hashPassword );
+
+    }//try
+    catch(ex){
+
+        return false;
+
+    }//catch
+
+};
+
 
 module.exports = mongoose.model('users' , userSchema);

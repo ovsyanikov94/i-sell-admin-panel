@@ -10,7 +10,7 @@ const Response = require('../model/Response');
 
 module.exports.createStatus = async(req,res)=>{
     let title = req.body.statusTitle;
-    let validTitle = constValidator.TITLE_VALIDATOR.test(title);
+    let validTitle = constValidator.STATUS_TITLE_VALIDATOR.test(title);
 
     if(!validTitle){
         res.send( {

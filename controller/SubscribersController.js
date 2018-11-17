@@ -2,7 +2,7 @@
 
 const Logger = require('../model/Logger');
 const UtilsController = require('../controller/UtilsController');
-const subscribers = require('./SubscribersController');
+const subscribers = require('../model/subscribersUser');
 const User = require('../model/User');
 const validator = require('validator');
 const Response = require('../model/Response');
@@ -50,16 +50,11 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
             user:req.body.UserID
         });
 
-        subscribersList.blackList.push(req.body.UserIDInSubscribersList);
+        subscribersList.List.push(req.body.UserIDInSubscribersList);
 
-        await blackList.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data: req.body.UserIDInBlackList,
-            message:  'пользователь добавлен в подписчики'
-        });// res.send
-
+        await subscribersList.save();
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
     }//try
     catch (ex){
         Logger.error({
@@ -82,10 +77,10 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
 module.exports.RemoveUserToSubscribers=async(req,res)=>{
 
     let validUser =  validator.isMongoId( req.body.UserID);
-    let validUserInSubscriberskList =  validator.isMongoId( req.body.UserIDInSubscribersList);
+    let validUserInSubscribersList =  validator.isMongoId( req.body.UserIDInSubscribersList);
 
     if(!validUser||
-        !validUserInSubscriberskList
+        !validUserInSubscribersList
     ){
         Response.status = 400;
         Response.message = 'значение уже существует!';
@@ -102,13 +97,13 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
             id:req.body.UserID
         });
 
-        let existUserSubscriberskList = await User.find({
+        let existUserSubscribersList = await User.find({
 
-            id:req.body.UserIDInBlackList
+            id:req.body.UserIDInSubscribersList
         });
 
         if(!existUser||
-            !existUserBlackList
+            !existUserSubscribersList
         ){
             Response.status = 400;
             Response.message = 'значение уже существует!';
@@ -122,15 +117,11 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
             user:req.body.UserID
         });
 
-        let idInSubscribers =  subscribersList.blackList.remove(req.body.UserIDInSubscribersList);
+        let idInSubscribers =  subscribersList.List.remove(req.body.UserIDInSubscribersList);
 
-        await blackList.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data: req.body.UserIDInBlackList,
-            message:  'пользователь удален из подписчиков'
-        });// res.send
+        await subscribersList.save();
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
 
     }//try
     catch (ex){
@@ -147,7 +138,76 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
         Response.status = 500;
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = null;
-        res.status(Response.status)
-        res.send(Response);
+
     }//catch
+    res.status(Response.status)
+    res.send(Response);
+}
+
+module.exports.getSubscribersUser = async (req,res)=>{
+
+    let validIdUser = validator.isMongoId(req.body.userId)||'';
+
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+    try {
+
+        let existUser = await User.find({
+            id:req.body.userId
+        });
+
+        if(!existUser){
+
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+
+        let limit = +req.query.limit || 5;
+        let offset = +req.query.offset || 0;
+
+        let subscribers = await subscribers.find( {
+            id:existUser.id
+            } , {
+            limit: limit,
+            skip: offset
+        });
+
+
+        //console.log('categories' , categories);
+
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
+        Response.data = subscribers;
+
+    }//try
+    catch (ex) {
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });//Logger.error
+        res.status(500);
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+
+
+    }//catch
+    res.status(Response.status)
+    res.send(Response);
 }

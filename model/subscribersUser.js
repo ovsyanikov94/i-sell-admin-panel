@@ -8,7 +8,7 @@ const subscribersSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'users'
     },
-    blackList:[
+    List:[
         {
             type: Schema.Types.ObjectId,
             ref: 'users'
