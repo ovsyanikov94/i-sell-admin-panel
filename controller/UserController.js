@@ -25,10 +25,11 @@ module.exports.AddUser = async( req , res ) => {
     let isValidUserId = validator.isMongoId(req.body.userId)||'';
 
 
+    let existUser = null;
 
     try{
         if(isValidUserId){
-            let existUser = await User.find({
+             existUser = await User.find({
                 id:req.body.userId
             });
 
@@ -92,6 +93,13 @@ module.exports.AddUser = async( req , res ) => {
         }//if
 
 
+        if(existUser.login === req.body.login){
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status)
+            res.send(Response);
+            return;
+        }
 
         let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
         let saltStr = await bcrypt.genSalt(number);// создаем соль
