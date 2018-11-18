@@ -5,6 +5,6 @@ const router = express.Router();
 
 const LotTypeController = require('../controller/LotTypeController');
 
-router.post('/lotType' , LotTypeController.AddLotType );
+router.get('/lotType' , LotTypeController.LotTypeList );
 
 module.exports = router;

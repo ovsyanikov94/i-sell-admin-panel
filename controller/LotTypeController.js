@@ -3,30 +3,42 @@
 const LotType = require('../model/LotType');
 
 
-module.exports.AddLotType = async( req , res )=>{
+module.exports.LotTypeList = async( req , res )=>{
 
     try{
+        let limit = req.query.limit || 10;
+        let offset = req.query.offset || 0;
 
-        let title = req.body.typeTitle;
 
-        let newType= new LotType({
-            'typeTitle': title
-        });
+        let status = await LotType.find()
+            .limit(limit)
+            .skip(offset);
 
-        let result = await newType.save();
-
-        res.send({
-            code: 200,
-            data: result,
-            message:  'Тип добавлен!'
-        });
+        Response.status = 200;
+        Response.message = 'Смотрите статусы лотов!!!!';
+        Response.data = status;
 
 
     }//try
     catch(ex){
 
-        res.send( ex.message );
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
 
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
 
 };
