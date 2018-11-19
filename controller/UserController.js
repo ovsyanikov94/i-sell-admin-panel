@@ -1,6 +1,13 @@
 "use strict";
 
 const User = require('../model/User');
+const UserRole = require('../model/UserRole');
+const UserStatus = require('../model/UserStatus');
+
+const UserRoleEnum = require('../model/Enums/UserRole');
+const UserStatusEnum = require('../model/Enums/UserStatus');
+
+
 const Logger = require('../model/Logger');
 
 const UtilsController = require('../controller/UtilsController');
@@ -20,79 +27,42 @@ module.exports.AddUser = async( req , res ) => {
     let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
     let validPassword = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.password)||'';
 
-    let validRole =validator.isMongoId(req.body.role)||'';
-    let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
-    let isValidUserId = validator.isMongoId(req.body.userId)||'';
-
-
-
     try{
-        if(isValidUserId){
-            let existUser = await User.find({
-                id:req.body.userId
-            });
-
-            if(!existUser){
-
-                Response.status = 400;
-                Response.message = 'не корректное значени!';
-                res.status(Response.status);
-                res.send(Response);
-                return;
-
-            }//if
-            if(validRole){
-                existUser.role = req.body.role
-
-                await existUser.save();
-            }//if
-            else{
-                Response.status = 400;
-                Response.message = 'не корректное значени!';
-                res.status(Response.status);
-                res.send(Response);
-                return;
-            }//else
-            if(validUserStatus){
-                existUser.userStatus=req.body.userStatus;
-                await existUser.save();
-            }
-            else{
-                Response.status = 400;
-                Response.message = 'не корректное значени!';
-                res.status(Response.status);
-                res.send(Response);
-                return;
-            }//else
-
-
-            return;
-        }//if
-        else{
-            Response.status = 400;
-            Response.message = 'не корректное значени!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }//else
 
         if(!validLogin||
             !validEmail||
             !validFirstName||
             !validLastName||
             !validPhone||
-            !validPassword||
-            !validRole||
-            !validUserStatus
+            !validPassword
         ){
             Response.status = 400;
             Response.message = 'не корректное значени!';
-            res.status(Response.status)
+            res.status(Response.status);
             res.send(Response);
             return;
         }//if
 
+        let checkUser = await User.findOne(
+            {
+                $or: [
+                    {userLogin: req.body.login},
+                    {userEmail: req.body.email}
+                ]
 
+            }, 'userLogin userEmail');
+
+        console.log('checkUser: ' , checkUser);
+
+        if(checkUser){
+
+            Response.status = 400;
+            Response.message = 'Данный логин или email уже используется!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
 
         let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
         let saltStr = await bcrypt.genSalt(number);// создаем соль
@@ -102,26 +72,42 @@ module.exports.AddUser = async( req , res ) => {
 
         try {
 
+            let status = await UserStatus.findOne(
+                {
+                    userStatusId: UserStatusEnum.NOT_VERIFIED
+                },
+                '_id'
+            );
+
+            let role = await UserRole.findOne(
+                {
+                    userRoleId: UserRoleEnum.REGISTERED
+                },
+                '_id'
+            );
+
             newUser = new User({
-                login: req.body.login,
-                password: hexPassword,
-                email: req.body.email,
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                phone: req.body.phone,
-                role:req.body.role,
-                userStatus:req.body.userStatus,
+                userLogin: req.body.login,
+                userPassword: hexPassword,
+                userEmail: req.body.email,
+                userName: req.body.firstName,
+                userLastname: req.body.lastName,
+                userPhone: req.body.phone,
+                role: role._id,
+                userStatus: status._id,
             });
 
         } // Try
         catch(ex){
 
-            let message = UtilsController.MakeMongooseMessageFromError(ex);
+            console.log('Eeception: ' , ex);
+
+            //let message = UtilsController.MakeMongooseMessageFromError(ex);
 
             res.status(400);
             res.send( {
-                code: 400,
-                message: message
+                status: 400,
+                message: ex
             } );
 
             return;
@@ -132,7 +118,7 @@ module.exports.AddUser = async( req , res ) => {
         let createUserResult = await newUser.save();
 
         Response.status = 200;
-        Response.message = `Регистрация успешна, проверьте email: ${createUserResult.email}`;
+        Response.message = `Регистрация успешна, проверьте email: ${createUserResult.userEmail}`;
         Response.data = null;
 
         res.status(Response.status);

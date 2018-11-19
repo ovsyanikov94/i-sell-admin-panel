@@ -18,12 +18,16 @@ gulp.task('InsertDefaultUserStatuses' , async ( done )=> {
                 "userStatusId": 2
             }),
             new UserStatus({
-                "statusTitle": "Не верифицированный ",
+                "statusTitle": "Не верифицированный",
                 "userStatusId": 3
             }),
             new UserStatus({
-                "statusTitle": "Заблокированный ",
+                "statusTitle": "Заблокированный",
                 "userStatusId": 4
+            }),
+            new UserStatus({
+                "statusTitle": "Удален",
+                "userStatusId": 5
             }),
         ];
 
