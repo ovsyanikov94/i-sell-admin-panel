@@ -4,7 +4,8 @@ const Lot = require('../model/Lot');
 const User = require('../model/User')
 const Logger = require('../model/Logger');
 
-const ValidatorConstants = require('../model/Validation')
+const CommentTypeEnum = require('../model/Enums/CommentType');
+const ValidatorConstants = require('../model/Validation');
 const Response = require('../model/Response');
 
 module.exports.AddComment = async( req , res ) => {
@@ -114,7 +115,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//catch
 
-        if(commentTypeID === ValidatorConstants.COMMENT_TYPE_PERSONAL ){
+        if(commentTypeID === CommentTypeEnum.PERSONAL ){
 
             try{
 
@@ -149,7 +150,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        else if (commentTypeID === ValidatorConstants.COMMENT_TYPE_LOT){
+        else if (commentTypeID === CommentTypeEnum.LOT){
 
             try{
 
