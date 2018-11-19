@@ -6,7 +6,6 @@ const Deals = require('../model/Deals');
 const DealsStatus = require('../model/DealsStatus');
 const validator = require('validator');
 const evaluation = require('../model/evaluationDeals');
-const constValidator = require('../model/validatorConstatn');
 const User = require('../model/User');
 const Response = require('../model/Response');
 

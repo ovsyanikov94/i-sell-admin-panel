@@ -7,7 +7,7 @@ module.exports.CheckAccess = async function ( req , res , next ) {
         next();
     }//if
     else{
-        res.redirect('/api/access-denied');
+        res.redirect('/i-sell-admin-api/api/access-denied');
     }//else
 
 };

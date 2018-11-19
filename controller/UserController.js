@@ -46,11 +46,13 @@ module.exports.AddUser = async( req , res ) => {
         let checkUser = await User.findOne(
             {
                 $or: [
-                    {login: req.body.login},
-                    {email: req.body.email}
+                    {userLogin: req.body.login},
+                    {userEmail: req.body.email}
                 ]
 
-            }, 'login email');
+            }, 'userLogin userEmail');
+
+        console.log('checkUser: ' , checkUser);
 
         if(checkUser){
 
@@ -85,12 +87,12 @@ module.exports.AddUser = async( req , res ) => {
             );
 
             newUser = new User({
-                login: req.body.login,
-                password: hexPassword,
-                email: req.body.email,
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                phone: req.body.phone,
+                userLogin: req.body.login,
+                userPassword: hexPassword,
+                userEmail: req.body.email,
+                userName: req.body.firstName,
+                userLastname: req.body.lastName,
+                userPhone: req.body.phone,
                 role: role._id,
                 userStatus: status._id,
             });
@@ -98,12 +100,14 @@ module.exports.AddUser = async( req , res ) => {
         } // Try
         catch(ex){
 
-            let message = UtilsController.MakeMongooseMessageFromError(ex);
+            console.log('Eeception: ' , ex);
+
+            //let message = UtilsController.MakeMongooseMessageFromError(ex);
 
             res.status(400);
             res.send( {
                 status: 400,
-                message: message
+                message: ex
             } );
 
             return;
@@ -114,7 +118,7 @@ module.exports.AddUser = async( req , res ) => {
         let createUserResult = await newUser.save();
 
         Response.status = 200;
-        Response.message = `Регистрация успешна, проверьте email: ${createUserResult.email}`;
+        Response.message = `Регистрация успешна, проверьте email: ${createUserResult.userEmail}`;
         Response.data = null;
 
         res.status(Response.status);

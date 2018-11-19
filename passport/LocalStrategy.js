@@ -16,7 +16,7 @@ module.exports = function ( passport ) {
 
         try{
 
-            let user = await User.findById(id);
+            let user = await User.findById(id , '_id');
 
             done(null , user);
 
@@ -29,25 +29,34 @@ module.exports = function ( passport ) {
 
     passport.use(new LocalStrategy(
         {
-            usernameField: 'login',    // req.body.login
-            passwordField: 'password'  // req.body.password
+            usernameField: 'userLogin',    // req.body.userLogin
+            passwordField: 'userPassword'  // req.body.userPassword
         },
 
         async function(login, password, done) {
 
             try{
 
-                let user = await User.findOne({ login: login });
+                let user = await User.findOne(
+                    {
+                        $or:[
+                            {userLogin: login },
+                            {userEmail: login }
+                        ],
+
+                    } , 'userLogin userEmail userPassword');
+
+                console.log('user: ' , user);
 
                 if(!user){
                     return done(null, false);
                 }//if
 
-                // let checkPassword = await user.verifyPassword( password );
-                //
-                // if( !checkPassword ){
-                //     return done(null , false);
-                // }//if
+                let checkPassword = await user.verifyPassword( password );
+
+                if( !checkPassword ){
+                    return done(null , false);
+                }//if
 
                 done(null, user);
 

@@ -117,7 +117,7 @@ userSchema.methods.verifyPassword = async function ( password ) {
 
     try{
 
-        let hashPassword = this.password;
+        let hashPassword = this.userPassword;
 
         return await bcrypt.compare( password ,hashPassword );
 

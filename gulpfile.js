@@ -32,14 +32,14 @@ require('./tasks/clear-lot-statuses');
 require('./tasks/insert-lot-statuses');
 
 gulp.task( 'default' , gulpSync.sync([
-    'clearDealStatuses',
-    'InsertDefaultDealStatuses',
-    'clearUserStatuses',
-    'InsertDefaultUserStatuses',
-    'clearUserRoles',
-    'InsertDefaultUserRoles',
-    'clearLotType',
-    'InsertLotType',
-    'clearLotStatuses',
-    'InsertDefaultLotStatuses',
+    // 'clearDealStatuses',
+    // 'InsertDefaultDealStatuses',
+    // 'clearUserStatuses',
+    // 'InsertDefaultUserStatuses',
+    // 'clearUserRoles',
+    // 'InsertDefaultUserRoles',
+    // 'clearLotType',
+    // 'InsertLotType',
+    // 'clearLotStatuses',
+    // 'InsertDefaultLotStatuses',
 ]));
