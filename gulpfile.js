@@ -38,8 +38,8 @@ gulp.task( 'default' , gulpSync.sync([
     // 'InsertDefaultUserStatuses',
     // 'clearUserRoles',
     // 'InsertDefaultUserRoles',
-    // 'clearLotType',
-    // 'InsertLotType',
+    'clearLotType',
+    'InsertLotType',
     // 'clearLotStatuses',
     // 'InsertDefaultLotStatuses',
 ]));

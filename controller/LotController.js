@@ -14,7 +14,7 @@ const fs = require('fs');
 const LotTypeEnum = require('../model/Enums/LotType');
 const LotStatusEnum = require('../model/Enums/LotStatus');
 
-var moment = require('moment');
+const moment = require('moment');
 
 const Response = require('../model/Response');
 const UtilsController = require('../controller/UtilsController');
