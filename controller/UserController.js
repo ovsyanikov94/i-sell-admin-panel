@@ -550,3 +550,48 @@ module.exports.removeUserAvatar = async (req,res)=>{
     res.status(Response.status);
     res.send(Response);
 }
+
+module.exports.findUserById = async (req,res)=>{
+
+    let id = req.query.id;
+
+    console.log(id);
+
+    try {
+
+        let findUser = await User.findOne({_id: id});
+
+
+        if(!findUser){
+
+            Response.status = 400;
+            Response.message = 'Юзер не найден';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+
+
+        Response.status = 200;
+        Response.message = 'Юзер найден';
+        Response.data = findUser;
+    }//try
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+}
