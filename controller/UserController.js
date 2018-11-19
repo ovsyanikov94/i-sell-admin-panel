@@ -1,6 +1,13 @@
 "use strict";
 
 const User = require('../model/User');
+const UserRole = require('../model/UserRole');
+const UserStatus = require('../model/UserStatus');
+
+const UserRoleEnum = require('../model/Enums/UserRole');
+const UserStatusEnum = require('../model/Enums/UserStatus');
+
+
 const Logger = require('../model/Logger');
 
 const UtilsController = require('../controller/UtilsController');
@@ -20,9 +27,6 @@ module.exports.AddUser = async( req , res ) => {
     let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
     let validPassword = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.password)||'';
 
-    let validRole =validator.isMongoId(req.body.role)||'';
-    let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
-
     try{
 
         if(!validLogin||
@@ -30,9 +34,7 @@ module.exports.AddUser = async( req , res ) => {
             !validFirstName||
             !validLastName||
             !validPhone||
-            !validPassword||
-            !validRole||
-            !validUserStatus
+            !validPassword
         ){
             Response.status = 400;
             Response.message = 'не корректное значени!';
@@ -68,6 +70,20 @@ module.exports.AddUser = async( req , res ) => {
 
         try {
 
+            let status = await UserStatus.findOne(
+                {
+                    userStatusId: UserStatusEnum.NOT_VERIFIED
+                },
+                '_id'
+            );
+
+            let role = await UserRole.findOne(
+                {
+                    userRoleId: UserRoleEnum.REGISTERED
+                },
+                '_id'
+            );
+
             newUser = new User({
                 login: req.body.login,
                 password: hexPassword,
@@ -75,8 +91,8 @@ module.exports.AddUser = async( req , res ) => {
                 firstName: req.body.firstName,
                 lastName: req.body.lastName,
                 phone: req.body.phone,
-                role:req.body.role,
-                userStatus:req.body.userStatus,
+                role: role._id,
+                userStatus: status._id,
             });
 
         } // Try
@@ -86,7 +102,7 @@ module.exports.AddUser = async( req , res ) => {
 
             res.status(400);
             res.send( {
-                code: 400,
+                status: 400,
                 message: message
             } );
 

@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 
 const userSchema = new Schema({
 
-    login: {
+    userLogin: {
         type: String,
         validate:{
             validator: ( login )=>{
@@ -16,7 +16,7 @@ const userSchema = new Schema({
             message: props => `Введите корректный логин с 4 до 16 букв и цифр \n"${props.value}"`
         },
     },
-    password: {
+    userPassword: {
         type: String,
         validate:{
             validator: ( password )=>{
@@ -25,8 +25,7 @@ const userSchema = new Schema({
             message: props => `Пароль должен содержать хотя-бы одну заглавную букву, и иметь не менее 6 символов \n"${props.value}"`
         },
     },
-
-    email: {
+    userEmail: {
         type: String,
         validate:{
             validator: ( email )=>{
@@ -35,8 +34,7 @@ const userSchema = new Schema({
             message: props => `Введен некоректный E-Mail, пример: test@example.com \n "${props.value}"`
         },
     },
-
-    firstName: {
+    userName: {
         type: String,
         validate:{
             validator: ( fName )=>{
@@ -45,8 +43,7 @@ const userSchema = new Schema({
             message: props => `Ошибка. Имя не должно содержать цифр, пробелов, символов и не превышать 12 строк \n "${props.value}"`
         },
     },
-
-    lastName: {
+    userLastname: {
         type: String,
         validate:{
             validator: ( lName )=>{
@@ -55,8 +52,7 @@ const userSchema = new Schema({
             message: props => `Ошибка. Фамилия не должна содержать цифр, пробелов, символов и не превышать 12 строк \n "${props.value}"`
         },
     },
-
-    image: {
+    userPhoto: {
         type: String, // Либо Image, хз
         validate:{
             validator: ( image )=>{
@@ -81,7 +77,7 @@ const userSchema = new Schema({
         ref: 'roles'
     },
 
-    phone: {
+    userPhone: {
         type: String, // Не Number, потому что имеет символы
         validate:{
             validator: ( phone )=>{
@@ -134,5 +130,10 @@ userSchema.methods.verifyPassword = async function ( password ) {
 
 };
 
+let id = userSchema.virtual('id');
+
+id.get(function (  ) {
+    return this._id;
+});
 
 module.exports = mongoose.model('users' , userSchema);
