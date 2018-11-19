@@ -183,15 +183,15 @@ module.exports.AddUser = async( req , res ) => {
 
 module.exports.updateUser = async(req,res)=>{
 
-
-
-    if(req.session.passport === undefined){
+        console.log(req.session.passport.user);
+        console.log(req.body);
+    /*if(req.session.passport === undefined){
         Response.status = 400;
         Response.message = 'не корректное значени!';
         res.status(Response.status);
         res.send(Response);
         return;
-    }
+    }*/
     let validIdUser = validator.isMongoId(req.session.passport.user)||'';
     if(!validIdUser){
 
@@ -205,9 +205,9 @@ module.exports.updateUser = async(req,res)=>{
     try {
 
         let existUser = await User.find({
-            id:req.body.userId
+            _id:req.session.passport.user
         });
-
+        console.log('22222222222222',existUser);
         if(!existUser){
 
             Response.status = 400;
@@ -217,150 +217,147 @@ module.exports.updateUser = async(req,res)=>{
             return;
 
         }//if
-
         let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(req.body.email)||'';
-
+        console.log('22222222222222');
         if(validEmail){
 
-            existUser.set({
-                email:req.body.email
-            });
-
+           let resp =  await User.updateOne({_id:req.session.passport.user},{email: req.body.email});
+            console.log('3333333333333333333',resp);
         }//if
-        else{
+       // /* else{
+       //
+       //      Response.status = 400;
+       //      Response.message = 'не корректный email!';
+       //      res.status(Response.status);
+       //      res.send(Response);
+       //      return;
+       //
+       //  }//else*/
+       //
+       //  let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(req.body.firstName)||'';
+       //
+       //  if(validFirstName){
+       //
+       //      existUser.set({
+       //          firstName:req.body.firstName
+       //      });
+       //      console.log('444444444444');
+       //  }//if
+       //  /*else{
+       //
+       //      Response.status = 400;
+       //      Response.message = 'не корректное имя !';
+       //      res.status(Response.status)
+       //      res.send(Response);
+       //      return;
+       //
+       //  }//else*/
+       //
+       //  let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
+       //
+       //  if(validLastName){
+       //
+       //      existUser.set({
+       //          lastName:req.body.lastName
+       //      });
+       //      console.log('555555555555');
+       //  }//if
+       //  /*else{
+       //
+       //      Response.status = 400;
+       //      Response.message = 'не корректная фамилия !';
+       //      res.status(Response.status);
+       //      res.send(Response);
+       //      return;
+       //
+       //  }//else*/
+       //
+       //  let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
+       //
+       //  if(validPhone){
+       //
+       //      existUser.set({
+       //          phone:req.body.phone
+       //      })
+       //      console.log('6666666666666666666');
+       //  }//if
+       // /* else{
+       //
+       //      Response.status = 400;
+       //      Response.message = 'не корректный телефон !';
+       //      res.status(Response.status);
+       //      res.send(Response);
+       //      return;
+       //
+       //  }//else*/
+       //
+       //  let validRole =validator.isMongoId(req.body.role)||'';
+       //
+       //  if(validRole){
+       //
+       //      existUser.set({
+       //          role:req.body.role
+       //      })
+       //
+       //  }//if
+       // /* else{
+       //
+       //      Response.status = 400;
+       //      Response.message = 'не корректная роль !';
+       //      res.status(Response.status);
+       //      res.send(Response);
+       //      return;
+       //
+       //  }//else*/
+       //
+       //  let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
+       //
+       //  if(validUserStatus){
+       //
+       //      existUser.set({
+       //          userStatus:req.body.userStatus
+       //      });
+       //
+       //  }//if
+       //  /*else{
+       //
+       //      Response.status = 400;
+       //      Response.message = 'не корректный статус !';
+       //      res.status(Response.status);
+       //      res.send(Response);
+       //      return;
+       //
+       //  }//else*/
+       //
+       //  let validPasswordOld = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.oldPassword)||'';
+       //  let validPasswordNew = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.newPassword)||'';
+       //
+       //  if(validPasswordOld && validPasswordNew) {
+       //
+       //      let compare = await bcrypt.compare(req.body.oldPassword ,existUser.password );
+       //
+       //      if(compare === true ){
+       //
+       //          let number = Math.floor(Math.random() * (19 - 9+1) ) + 5 //генерируем случайное число символов от 9 до 19
+       //          let saltStr = await bcrypt.genSalt(number);// создаем соль
+       //          let newHexPassword = await bcrypt.hash(req.body.newPassword, saltStr); // получаем закодированный пароль
+       //
+       //          existUser.set({
+       //              password:newHexPassword
+       //          });
+       //
+       //      }//if
+       //     /* else {
+       //
+       //          Response.status = 400;
+       //          Response.message = 'не корректный пароль !';
+       //          res.status(Response.status);
+       //          res.send(Response);
+       //          return;
+       //
+       //      }//else*/
 
-            Response.status = 400;
-            Response.message = 'не корректный email!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//else
-
-        let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(req.body.firstName)||'';
-
-        if(validFirstName){
-
-            existUser.set({
-                firstName:req.body.firstName
-            });
-
-        }//if
-        else{
-
-            Response.status = 400;
-            Response.message = 'не корректное имя !';
-            res.status(Response.status)
-            res.send(Response);
-            return;
-
-        }//else
-
-        let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
-
-        if(validLastName){
-
-            existUser.set({
-                lastName:req.body.lastName
-            });
-
-        }//if
-        else{
-
-            Response.status = 400;
-            Response.message = 'не корректная фамилия !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//else
-
-        let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
-
-        if(validPhone){
-
-            existUser.set({
-                phone:req.body.phone
-            })
-
-        }//if
-        else{
-
-            Response.status = 400;
-            Response.message = 'не корректный телефон !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//else
-
-        let validRole =validator.isMongoId(req.body.role)||'';
-
-        if(validRole){
-
-            existUser.set({
-                role:req.body.role
-            })
-
-        }//if
-        else{
-
-            Response.status = 400;
-            Response.message = 'не корректная роль !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//else
-
-        let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
-
-        if(validUserStatus){
-
-            existUser.set({
-                userStatus:req.body.userStatus
-            });
-
-        }//if
-        else{
-
-            Response.status = 400;
-            Response.message = 'не корректный статус !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//else
-
-        let validPasswordOld = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.oldPassword)||'';
-        let validPasswordNew = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.newPassword)||'';
-
-        if(validPasswordOld && validPasswordNew) {
-
-            let compare = await bcrypt.compare(req.body.oldPassword ,existUser.password );
-
-            if(compare === true ){
-
-                let number = Math.floor(Math.random() * (19 - 9+1) ) + 5 //генерируем случайное число символов от 9 до 19
-                let saltStr = await bcrypt.genSalt(number);// создаем соль
-                let newHexPassword = await bcrypt.hash(req.body.newPassword, saltStr); // получаем закодированный пароль
-
-                existUser.set({
-                    password:newHexPassword
-                });
-
-            }//if
-            else {
-
-                Response.status = 400;
-                Response.message = 'не корректный пароль !';
-                res.status(Response.status);
-                res.send(Response);
-                return;
-
-            }//else
-
-        }//if
+       // }//if
         else{
 
             Response.status = 400;
@@ -371,8 +368,11 @@ module.exports.updateUser = async(req,res)=>{
 
         }//else
 
-        let updateUser = await existUser.save();
+        console.log('999999999999999999');
 
+        //let updateUser = await existUser.save();
+
+        console.log('0000000000000000000');
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
         Response.data = null;
@@ -402,7 +402,15 @@ module.exports.updateUser = async(req,res)=>{
 
 module.exports.addUserAvatar = async (req,res)=>{
 
-    let validIdUser = validator.isMongoId(req.session)||'';
+    if(req.session.passport.user === undefined){
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }
+
+    let validIdUser = validator.isMongoId(req.session.passport.user)||'';
 
     if(!validIdUser){
 
