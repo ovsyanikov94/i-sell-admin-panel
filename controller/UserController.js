@@ -29,19 +29,54 @@ module.exports.AddUser = async( req , res ) => {
 
     try{
 
-        if(!validLogin||
-            !validEmail||
-            !validFirstName||
-            !validLastName||
-            !validPhone||
-            !validPassword
-        ){
+        if(!validLogin){
             Response.status = 400;
-            Response.message = 'не корректное значени!';
+            Response.message = 'не корректны логин !';
             res.status(Response.status);
             res.send(Response);
             return;
         }//if
+
+        if(!validEmail){
+            Response.status = 400;
+            Response.message = 'не корректны еmail !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+        if(!validFirstName){
+            Response.status = 400;
+            Response.message = 'не корректное имя !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+        if(!validLastName){
+            Response.status = 400;
+            Response.message = 'не корректная фамилия !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+        if(!validPhone){
+            Response.status = 400;
+            Response.message = 'не корректны телефон !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+        if(!validPassword){
+            Response.status = 400;
+            Response.message = 'не корректны пароль !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+
 
         let checkUser = await User.findOne(
             {
