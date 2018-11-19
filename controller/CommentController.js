@@ -134,11 +134,13 @@ module.exports.AddComment = async( req , res ) => {
 
                 }//if
 
+                await newComment.addFields({userReceiver:userReceiverID});
+
             }//try
             catch(ex){
 
                 Response.status = 400;
-                Response.message = '!';
+                Response.message = 'Ошибка при добавлении получателя!';
                 Response.data = ex;
 
                 res.status(Response.status);
@@ -169,11 +171,13 @@ module.exports.AddComment = async( req , res ) => {
 
                 }//if
 
+                await newComment.addFields({lot:lotID});
+
             }//try
             catch(ex){
 
                 Response.status = 400;
-                Response.message = '!';
+                Response.message = 'Ошибка при добавлении лота к комментарию!';
                 Response.data = ex;
 
                 res.status(Response.status);
