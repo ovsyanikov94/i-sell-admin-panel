@@ -10,11 +10,7 @@ module.exports.LotTypeList = async( req , res )=>{
         let limit = req.query.limit || 10;
         let offset = req.query.offset || 0;
 
-
-        let status = await LotType.find( null , "_id" , {
-            limit: limit,
-            skip: offset
-        });
+        let status = await LotType.find();
 
         Response.status = 200;
         Response.message = 'Смотрите статусы лотов!!!!';
