@@ -3,7 +3,7 @@
 const User = require('../model/User');
 const UserRole = require('../model/UserRole');
 const UserStatus = require('../model/UserStatus');
-
+const passport = require('passport');
 const UserRoleEnum = require('../model/Enums/UserRole');
 const UserStatusEnum = require('../model/Enums/UserStatus');
 
@@ -183,8 +183,16 @@ module.exports.AddUser = async( req , res ) => {
 
 module.exports.updateUser = async(req,res)=>{
 
-    let validIdUser = validator.isMongoId(req.body.userId)||'';
 
+
+    if(req.session.passport === undefined){
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }
+    let validIdUser = validator.isMongoId(req.session.passport.user)||'';
     if(!validIdUser){
 
         Response.status = 400;
@@ -394,7 +402,7 @@ module.exports.updateUser = async(req,res)=>{
 
 module.exports.addUserAvatar = async (req,res)=>{
 
-    let validIdUser = validator.isMongoId(req.body.userId)||'';
+    let validIdUser = validator.isMongoId(req.session)||'';
 
     if(!validIdUser){
 
@@ -585,3 +593,63 @@ module.exports.removeUserAvatar = async (req,res)=>{
     res.status(Response.status);
     res.send(Response);
 }
+
+module.exports.GetUser = async (req,res)=>{
+
+    if(req.session.passport === undefined){
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }
+    let validIdUser = validator.isMongoId(req.session.passport.user)||'';
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+
+    try {
+
+        let existUser = await User.find({
+            id:req.body.userId
+        });
+
+        if(!existUser){
+
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+
+
+        Response.status = 200;
+        Response.message = 'OK!';
+        Response.data = existUser;
+    }
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }
+
+    res.status(Response.status);
+    res.send(Response);
+}//GetUser

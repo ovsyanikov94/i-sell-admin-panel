@@ -8,7 +8,7 @@ gulp.task('clearLotTypes' , async ( done )=>{
 
     try{
 
-        console.log(await LotType.deleteMany());
+        await LotType.deleteMany()
 
     }//try
     catch(ex){

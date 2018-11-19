@@ -5,6 +5,7 @@ const router = express.Router();
 
 const UserController = require('../controller/UserController');
 
+router.get('/getUser',UserController.GetUser);
 router.post('/registryUser',UserController.AddUser);
 router.post('/updateUserInfo', UserController.updateUser);
 router.post('/addUserAvatar', UserController.addUserAvatar);
