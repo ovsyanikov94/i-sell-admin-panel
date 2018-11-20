@@ -17,10 +17,10 @@ require('./tasks/insert-user-role')
 //очистка статуса юзера
 require('./tasks/clear-user-status');
 //добавление статуса юзера
-require('./tasks/insert-user-status')
+require('./tasks/insert-user-status');
 
 //Очистка типов лотов
-require('./tasks/clear-lot-type');
+//require('./tasks/clear-lot-type');
 
 //Вставка типа лота
 require('./tasks/insert-lot-type');
@@ -32,14 +32,14 @@ require('./tasks/clear-lot-statuses');
 require('./tasks/insert-lot-statuses');
 
 gulp.task( 'default' , gulpSync.sync([
-   /* 'clearDealStatuses',
-    'InsertDefaultDealStatuses',
-    'clearUserStatuses',
-    'InsertDefaultUserStatuses',*/
+    // 'clearDealStatuses',
+    // 'InsertDefaultDealStatuses',
+    // 'clearUserStatuses',
+    // 'InsertDefaultUserStatuses',
     // 'clearUserRoles',
     // 'InsertDefaultUserRoles',
     // 'clearLotType',
-    // 'InsertLotType',
+    'InsertLotType',
     // 'clearLotStatuses',
     // 'InsertDefaultLotStatuses',
 ]));

@@ -187,11 +187,15 @@ module.exports.updateUser = async(req,res)=>{
     let email = req.body.email;
     let firstName = req.body.firstName;
     let lastName =req.body.lastName;
-    let phone = req.body.phone
+    let phone = req.body.phone;
     let oldPassword = req.body.oldPassword;
-    let newPassword = req.body.newPassword
+    let newPassword = req.body.newPassword;
+
+    let errors = [];
+
     let role = req.body.role;
     let status = req.body.userStatus;
+
     try {
 
         let existUser = await User.findById(id);
@@ -207,6 +211,10 @@ module.exports.updateUser = async(req,res)=>{
         }//if
 
         let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(email)||'';
+
+        if( !validEmail && req.body.email){
+            errors.push( 'Email не корректен!' );
+        }//if
 
         if(validEmail && existUser.userEmail !== email){
            existUser.userEmail = email;
@@ -236,7 +244,8 @@ module.exports.updateUser = async(req,res)=>{
 
         if(validPhone && existUser.userPhone !== phone){
 
-            existUser.userPhone = phone
+            existUser.userPhone = phone;
+
         }//if
 
 
@@ -292,7 +301,10 @@ module.exports.updateUser = async(req,res)=>{
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = updateUser;
+        Response.data = {
+            user: updateUser,
+            errors: errors
+        };
 
     }//try
     catch (ex){
