@@ -14,10 +14,7 @@ module.exports.LotTypeList = async( req , res )=>{
 
         Response.status = 200;
         Response.message = 'Смотрите статусы лотов!!!!';
-        Response.data = {
-            status: status,
-            userId:  req.session.passport.user
-        };
+        Response.data = status;
 
 
     }//try

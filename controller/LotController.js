@@ -83,7 +83,8 @@ module.exports.AddLot = async( req , res ) => {
         }//if
 
 
-        let sellerLotID = req.body.sellerID;
+        let sellerLotID = req.session.passport.user;
+
         let sellerLot = await User.findById(sellerLotID);
 
         if(!sellerLot){
