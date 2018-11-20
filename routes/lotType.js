@@ -8,5 +8,6 @@ const LotTypeController = require('../controller/LotTypeController');
 
 router.use( AccessController.CheckAccess );
 router.get('/lotType' , LotTypeController.LotTypeList );
+router.get('/lotTypeById' , LotTypeController.LotTypeByID );
 
 module.exports = router;

@@ -27,7 +27,7 @@ module.exports.AddLot = async( req , res ) => {
 
         let categoriesIds = req.body.categories;
 
-        if (categoriesIds&&categoriesIds.length===0) {
+        if (!categoriesIds || categoriesIds.length===0) {
             Response.status = 400;
             Response.message = 'Категории должны быть выбраны!!';
             Response.data = categoriesIds;
@@ -160,21 +160,23 @@ module.exports.AddLot = async( req , res ) => {
 
             return ;
         }
-        let typeLotId = req.body.typeLot;
+        let typeLotId = +req.body.typeLot;
 
-        let lotType =  await LotType.find({typeID: typeLotId });
+        let lotType =  await LotType.findOne({typeID: typeLotId });
 
         if ( !lotType){
 
             Response.status = 400;
             Response.message = 'Тип лота не найден!';
-            Response.data = typeLot;
+            Response.data = lotType;
 
             res.status(Response.status);
             res.send(Response);
 
             return ;
         }//if
+
+
 
         if(typeLotId===LotTypeEnum.PLANED){//запланированный
 
@@ -238,7 +240,11 @@ module.exports.AddLot = async( req , res ) => {
             return ;
 
         }//catch
-        
+
+        let newTypeLot = await LotType.findById(lotType._id);
+            newTypeLot.lots.push(newLot._id);
+        await newTypeLot.save();
+
         for(let i =0; i< categoriesIds.length; i++){
 
             let c = categoriesIds[i];
