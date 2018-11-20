@@ -10,7 +10,7 @@ const passport = require('passport');
 const connection = require('./model/connection');
 
 const app = express();
-
+const fileUpload = require('express-fileupload');
 
 const userRouter = require('./routes/user');
 const categoryRoutes = require('./routes/categories');
@@ -28,6 +28,10 @@ const blockListRouter = require('./routes/blockList');
 const accessRoutes = require('./routes/access');
 
 const LocalStrategy = require('./passport/LocalStrategy');
+
+app.use(fileUpload({
+    limits: { fileSize: 6 * 1024 * 1024 },
+}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

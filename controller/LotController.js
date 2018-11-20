@@ -18,6 +18,8 @@ const UtilsController = require('../controller/UtilsController');
 
 module.exports.AddLot = async( req , res ) => {
 
+    console.log('files' , req.files);
+
     try{
 
         let categoriesIds = req.body.categories;

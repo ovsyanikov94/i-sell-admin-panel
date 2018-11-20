@@ -3,7 +3,7 @@
 const User = require('../model/User');
 const UserRole = require('../model/UserRole');
 const UserStatus = require('../model/UserStatus');
-
+const passport = require('passport');
 const UserRoleEnum = require('../model/Enums/UserRole');
 const UserStatusEnum = require('../model/Enums/UserStatus');
 
@@ -29,19 +29,54 @@ module.exports.AddUser = async( req , res ) => {
 
     try{
 
-        if(!validLogin||
-            !validEmail||
-            !validFirstName||
-            !validLastName||
-            !validPhone||
-            !validPassword
-        ){
+        if(!validLogin){
             Response.status = 400;
-            Response.message = 'не корректное значени!';
+            Response.message = 'не корректны логин !';
             res.status(Response.status);
             res.send(Response);
             return;
         }//if
+
+        if(!validEmail){
+            Response.status = 400;
+            Response.message = 'не корректны еmail !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+        if(!validFirstName){
+            Response.status = 400;
+            Response.message = 'не корректное имя !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+        if(!validLastName){
+            Response.status = 400;
+            Response.message = 'не корректная фамилия !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+        if(!validPhone){
+            Response.status = 400;
+            Response.message = 'не корректны телефон !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+        if(!validPassword){
+            Response.status = 400;
+            Response.message = 'не корректны пароль !';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }//if
+
+
 
         let checkUser = await User.findOne(
             {
@@ -148,22 +183,22 @@ module.exports.AddUser = async( req , res ) => {
 
 module.exports.updateUser = async(req,res)=>{
 
-    let validIdUser = validator.isMongoId(req.body.userId)||'';
+    let id = req.session.passport.user;
+    let email = req.body.email;
+    let firstName = req.body.firstName;
+    let lastName =req.body.lastName;
+    let phone = req.body.phone;
+    let oldPassword = req.body.oldPassword;
+    let newPassword = req.body.newPassword;
 
-    if(!validIdUser){
+    let errors = [];
 
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
+    let role = req.body.role;
+    let status = req.body.userStatus;
 
-    }//if
     try {
 
-        let existUser = await User.find({
-            id:req.body.userId
-        });
+        let existUser = await User.findById(id);
 
         if(!existUser){
 
@@ -175,149 +210,83 @@ module.exports.updateUser = async(req,res)=>{
 
         }//if
 
-        let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(req.body.email)||'';
+        let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(email)||'';
 
-        if(validEmail){
+        if( !validEmail && req.body.email){
+            errors.push( 'Email не корректен!' );
+        }//if
 
-            existUser.set({
-                email:req.body.email
-            });
+        if(validEmail && existUser.userEmail !== email){
+           existUser.userEmail = email;
 
         }//if
-        else{
 
-            Response.status = 400;
-            Response.message = 'не корректный email!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
 
-        }//else
+        let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(firstName) || '';
 
-        let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(req.body.firstName)||'';
+        if(validFirstName && existUser.userName!==firstName){
 
-        if(validFirstName){
+            existUser.userName = firstName;
 
-            existUser.set({
-                firstName:req.body.firstName
-            });
 
         }//if
-        else{
 
-            Response.status = 400;
-            Response.message = 'не корректное имя !';
-            res.status(Response.status)
-            res.send(Response);
-            return;
 
-        }//else
+        let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(lastName)||'';
 
-        let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
+        if(validLastName && existUser.userLastname !==lastName){
 
-        if(validLastName){
+            existUser.userLastname = lastName;
+        }//if
 
-            existUser.set({
-                lastName:req.body.lastName
-            });
+
+        let validPhone = constValidator.USER_PHONE_VALIDATOR.test(phone)||'';
+
+        if(validPhone && existUser.userPhone !== phone){
+
+            existUser.userPhone = phone;
 
         }//if
-        else{
 
-            Response.status = 400;
-            Response.message = 'не корректная фамилия !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
 
-        }//else
+        let validRole =validator.isMongoId(role)||'';
 
-        let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
+        if(validRole && existUser.role !== role){
 
-        if(validPhone){
+            existUser.role = role;
 
-            existUser.set({
-                phone:req.body.phone
-            })
 
         }//if
-        else{
 
-            Response.status = 400;
-            Response.message = 'не корректный телефон !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
+        let validUserStatus = validator.isMongoId(status)||'';
 
-        }//else
+        if(validUserStatus && existUser.userStatus!== status ){
 
-        let validRole =validator.isMongoId(req.body.role)||'';
-
-        if(validRole){
-
-            existUser.set({
-                role:req.body.role
-            })
+            existUser.userStatus = status;
 
         }//if
-        else{
 
-            Response.status = 400;
-            Response.message = 'не корректная роль !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
 
-        }//else
+        let validPasswordOld = constValidator.USER_PASSWORD_VALIDATOR.test(oldPassword)||'';
+        let validPasswordNew = constValidator.USER_PASSWORD_VALIDATOR.test(newPassword)||'';
 
-        let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
 
-        if(validUserStatus){
+        if(validPasswordOld && validPasswordNew ) {
 
-            existUser.set({
-                userStatus:req.body.userStatus
-            });
-
-        }//if
-        else{
-
-            Response.status = 400;
-            Response.message = 'не корректный статус !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//else
-
-        let validPasswordOld = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.oldPassword)||'';
-        let validPasswordNew = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.newPassword)||'';
-
-        if(validPasswordOld && validPasswordNew) {
-
-            let compare = await bcrypt.compare(req.body.oldPassword ,existUser.password );
+            let compare = await bcrypt.compare(oldPassword ,existUser.userPassword );
 
             if(compare === true ){
 
                 let number = Math.floor(Math.random() * (19 - 9+1) ) + 5 //генерируем случайное число символов от 9 до 19
                 let saltStr = await bcrypt.genSalt(number);// создаем соль
-                let newHexPassword = await bcrypt.hash(req.body.newPassword, saltStr); // получаем закодированный пароль
+                let newHexPassword = await bcrypt.hash(newPassword, saltStr); // получаем закодированный пароль
 
-                existUser.set({
-                    password:newHexPassword
-                });
+                existUser.userPassword = newHexPassword
 
             }//if
-            else {
 
-                Response.status = 400;
-                Response.message = 'не корректный пароль !';
-                res.status(Response.status);
-                res.send(Response);
-                return;
 
-            }//else
-
-        }//if
+       }//if
         else{
 
             Response.status = 400;
@@ -332,7 +301,10 @@ module.exports.updateUser = async(req,res)=>{
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = null;
+        Response.data = {
+            user: updateUser,
+            errors: errors
+        };
 
     }//try
     catch (ex){
@@ -359,7 +331,15 @@ module.exports.updateUser = async(req,res)=>{
 
 module.exports.addUserAvatar = async (req,res)=>{
 
-    let validIdUser = validator.isMongoId(req.body.userId)||'';
+    if(req.session.passport.user === undefined){
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }
+
+    let validIdUser = validator.isMongoId(req.session.passport.user)||'';
 
     if(!validIdUser){
 
@@ -550,3 +530,63 @@ module.exports.removeUserAvatar = async (req,res)=>{
     res.status(Response.status);
     res.send(Response);
 }
+
+module.exports.GetUser = async (req,res)=>{
+
+    let id = req.session.passport.user;
+
+    if(req.session.passport === undefined){
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }
+    let validIdUser = validator.isMongoId(id)||'';
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+
+    try {
+
+        let existUser = await User.findById(id);
+
+        if(!existUser){
+
+            Response.status = 400;
+            Response.message = 'не корректное значени!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+
+
+        Response.status = 200;
+        Response.message = 'OK!';
+        Response.data = existUser;
+    }
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }
+
+    res.status(Response.status);
+    res.send(Response);
+}//GetUser
