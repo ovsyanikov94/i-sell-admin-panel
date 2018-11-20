@@ -4,7 +4,8 @@ const Lot = require('../model/Lot');
 const User = require('../model/User')
 const Logger = require('../model/Logger');
 
-const ValidatorConstants = require('../model/Validation')
+const CommentTypeEnum = require('../model/Enums/CommentType');
+const ValidatorConstants = require('../model/Validation');
 const Response = require('../model/Response');
 
 module.exports.AddComment = async( req , res ) => {
@@ -56,6 +57,7 @@ module.exports.AddComment = async( req , res ) => {
             return;
         }//if
 
+        //!!!!!!!!!! UNIX !!!!!!!!!!!
         let commentSendDate = req.body.commentSendDate;
 
         if( !commentSendDate.match( ValidatorConstants.COMMENT_DATE_VALIDATOR ) ){
@@ -114,7 +116,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//catch
 
-        if(commentTypeID === ValidatorConstants.COMMENT_TYPE_PERSONAL ){
+        if(commentTypeID === CommentTypeEnum.PERSONAL ){
 
             try{
 
@@ -133,11 +135,13 @@ module.exports.AddComment = async( req , res ) => {
 
                 }//if
 
+                await newComment.addFields({userReceiver:userReceiverID});
+
             }//try
             catch(ex){
 
                 Response.status = 400;
-                Response.message = '!';
+                Response.message = 'Ошибка при добавлении получателя!';
                 Response.data = ex;
 
                 res.status(Response.status);
@@ -149,7 +153,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        else if (commentTypeID === ValidatorConstants.COMMENT_TYPE_LOT){
+        else if (commentTypeID === CommentTypeEnum.LOT){
 
             try{
 
@@ -168,11 +172,13 @@ module.exports.AddComment = async( req , res ) => {
 
                 }//if
 
+                await newComment.addFields({lot:lotID});
+
             }//try
             catch(ex){
 
                 Response.status = 400;
-                Response.message = '!';
+                Response.message = 'Ошибка при добавлении лота к комментарию!';
                 Response.data = ex;
 
                 res.status(Response.status);
@@ -375,7 +381,9 @@ module.exports.GetComments = async( req , res ) => {
 
     try{
 
-        let comments = await Comment.find(null , 'id commentText' , {
+        let comments = await Comment.find({
+
+        } , 'id commentText' , {
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
         });

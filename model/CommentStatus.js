@@ -10,7 +10,7 @@ const commentStatusSchema = new Schema({
         type: String,
         validate:{
             validator:(commentStatusTitle)=>{
-                return constValidator.COMMENT_STATUS_AND_TYPE_VALIDATOR.test(commentStatusTitle)
+                return constValidator.TITLE_VALIDATOR.test(commentStatusTitle)
             },
             message: props => `Название статуса комментария некорректно: "${props.value}"`
         }
