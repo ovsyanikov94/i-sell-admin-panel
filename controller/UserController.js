@@ -242,13 +242,12 @@ module.exports.updateUser = async(req,res)=>{
 
         let validRole =validator.isMongoId(role)||'';
 
-        if(validRole){
+        if(validRole && existUser.role !== role){
 
             existUser.role = role;
 
 
         }//if
-
 
         let validUserStatus = validator.isMongoId(status)||'';
 
