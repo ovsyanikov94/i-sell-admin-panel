@@ -183,16 +183,12 @@ module.exports.AddUser = async( req , res ) => {
 
 module.exports.updateUser = async(req,res)=>{
 
-        console.log(req.session.passport.user);
-        console.log(req.body);
-    /*if(req.session.passport === undefined){
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-    }*/
-    let validIdUser = validator.isMongoId(req.session.passport.user)||'';
+    let id = req.session.passport.user;
+    let email = req.body.email;
+    let firstName = req.body.firstName;
+
+    let validIdUser = validator.isMongoId(id)||'';
+
     if(!validIdUser){
 
         Response.status = 400;
@@ -204,10 +200,8 @@ module.exports.updateUser = async(req,res)=>{
     }//if
     try {
 
-        let existUser = await User.find({
-            _id:req.session.passport.user
-        });
-        console.log('22222222222222',existUser);
+        let existUser = await User.findById(id);
+
         if(!existUser){
 
             Response.status = 400;
@@ -217,41 +211,28 @@ module.exports.updateUser = async(req,res)=>{
             return;
 
         }//if
-        let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(req.body.email)||'';
-        console.log('22222222222222');
-        if(validEmail){
 
-           let resp =  await User.updateOne({_id:req.session.passport.user},{email: req.body.email});
-            console.log('3333333333333333333',resp);
+        let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(email)||'';
+
+        if(validEmail || existUser.userEmail !== email){
+
+           //let resp =  await User.updateOne({_id: id},{userEmail: req.body.email});
+
+           existUser.userEmail = email;
+
+
         }//if
-       // /* else{
-       //
-       //      Response.status = 400;
-       //      Response.message = 'не корректный email!';
-       //      res.status(Response.status);
-       //      res.send(Response);
-       //      return;
-       //
-       //  }//else*/
-       //
-       //  let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(req.body.firstName)||'';
-       //
-       //  if(validFirstName){
-       //
-       //      existUser.set({
-       //          firstName:req.body.firstName
-       //      });
-       //      console.log('444444444444');
-       //  }//if
-       //  /*else{
-       //
-       //      Response.status = 400;
-       //      Response.message = 'не корректное имя !';
-       //      res.status(Response.status)
-       //      res.send(Response);
-       //      return;
-       //
-       //  }//else*/
+
+
+        let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(firstName) || '';
+
+        if(validFirstName){
+
+            existUser.userName = firstName;
+
+
+        }//if
+
        //
        //  let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
        //
@@ -368,14 +349,11 @@ module.exports.updateUser = async(req,res)=>{
 
         }//else
 
-        console.log('999999999999999999');
+        let updateUser = await existUser.save();
 
-        //let updateUser = await existUser.save();
-
-        console.log('0000000000000000000');
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = null;
+        Response.data = updateUser;
 
     }//try
     catch (ex){
@@ -604,6 +582,8 @@ module.exports.removeUserAvatar = async (req,res)=>{
 
 module.exports.GetUser = async (req,res)=>{
 
+    let id = req.session.passport.user;
+
     if(req.session.passport === undefined){
         Response.status = 400;
         Response.message = 'не корректное значени!';
@@ -611,7 +591,7 @@ module.exports.GetUser = async (req,res)=>{
         res.send(Response);
         return;
     }
-    let validIdUser = validator.isMongoId(req.session.passport.user)||'';
+    let validIdUser = validator.isMongoId(id)||'';
     if(!validIdUser){
 
         Response.status = 400;
@@ -624,9 +604,7 @@ module.exports.GetUser = async (req,res)=>{
 
     try {
 
-        let existUser = await User.find({
-            id:req.body.userId
-        });
+        let existUser = await User.findById(id);
 
         if(!existUser){
 
