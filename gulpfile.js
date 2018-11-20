@@ -13,7 +13,7 @@ require('./tasks/insert-deal-statuses');
 //очистка роли юзера
 require('./tasks/clear-user-role');
 //добавление роли юзера
-require('./tasks/insert-user-role')
+require('./tasks/insert-user-role');
 //очистка статуса юзера
 require('./tasks/clear-user-status');
 //добавление статуса юзера
@@ -54,8 +54,8 @@ gulp.task( 'default' , gulpSync.sync([
     // 'InsertLotType',
     // 'clearLotStatuses',
     // 'InsertDefaultLotStatuses',
-    // 'insertCommentStatuses',
-    // 'insertCommentTypes',
+     'InsertDefaultCommentStatuses',
+     'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
 

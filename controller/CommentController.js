@@ -57,6 +57,7 @@ module.exports.AddComment = async( req , res ) => {
             return;
         }//if
 
+        //!!!!!!!!!! UNIX !!!!!!!!!!!
         let commentSendDate = req.body.commentSendDate;
 
         if( !commentSendDate.match( ValidatorConstants.COMMENT_DATE_VALIDATOR ) ){
@@ -380,7 +381,9 @@ module.exports.GetComments = async( req , res ) => {
 
     try{
 
-        let comments = await Comment.find(null , 'id commentText' , {
+        let comments = await Comment.find({
+
+        } , 'id commentText' , {
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
         });

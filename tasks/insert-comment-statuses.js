@@ -10,16 +10,16 @@ gulp.task('InsertDefaultCommentStatuses' , async ( done )=> {
 
         let commentStatuses = [
             new CommentStatus({
-                "titleStatus": "Прочитано",
-                "dealID": "1"
+                "commentStatusTitle": "Прочитано",
+                "commentStatusID": 1
             }),
             new CommentStatus({
-                "titleStatus": "Не прочитано",
-                "dealID": "2"
+                "commentStatusTitle": "Не прочитано",
+                "commentStatusID": 2
             }),
             new CommentStatus({
-                "titleStatus": "Удален ",
-                "dealID": "3"
+                "commentStatusTitle": "Удален ",
+                "commentStatusID": 3
             }),
         ];
 
@@ -37,7 +37,7 @@ gulp.task('InsertDefaultCommentStatuses' , async ( done )=> {
     }//try
     catch(ex){
 
-        console.log('EXCEPTION!');
+        console.log('EXCEPTION!' , ex);
 
     }//catch
 
