@@ -186,18 +186,12 @@ module.exports.updateUser = async(req,res)=>{
     let id = req.session.passport.user;
     let email = req.body.email;
     let firstName = req.body.firstName;
-
-    let validIdUser = validator.isMongoId(id)||'';
-
-    if(!validIdUser){
-
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-
-    }//if
+    let lastName =req.body.lastName;
+    let phone = req.body.phone
+    let oldPassword = req.body.oldPassword;
+    let newPassword = req.body.newPassword
+    let role = req.body.role;
+    let status = req.body.userStatus;
     try {
 
         let existUser = await User.findById(id);
@@ -214,131 +208,77 @@ module.exports.updateUser = async(req,res)=>{
 
         let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(email)||'';
 
-        if(validEmail || existUser.userEmail !== email){
-
-           //let resp =  await User.updateOne({_id: id},{userEmail: req.body.email});
-
+        if(validEmail && existUser.userEmail !== email){
            existUser.userEmail = email;
-
 
         }//if
 
 
         let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(firstName) || '';
 
-        if(validFirstName){
+        if(validFirstName && existUser.userName!==firstName){
 
             existUser.userName = firstName;
 
 
         }//if
 
-       //
-       //  let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
-       //
-       //  if(validLastName){
-       //
-       //      existUser.set({
-       //          lastName:req.body.lastName
-       //      });
-       //      console.log('555555555555');
-       //  }//if
-       //  /*else{
-       //
-       //      Response.status = 400;
-       //      Response.message = 'не корректная фамилия !';
-       //      res.status(Response.status);
-       //      res.send(Response);
-       //      return;
-       //
-       //  }//else*/
-       //
-       //  let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
-       //
-       //  if(validPhone){
-       //
-       //      existUser.set({
-       //          phone:req.body.phone
-       //      })
-       //      console.log('6666666666666666666');
-       //  }//if
-       // /* else{
-       //
-       //      Response.status = 400;
-       //      Response.message = 'не корректный телефон !';
-       //      res.status(Response.status);
-       //      res.send(Response);
-       //      return;
-       //
-       //  }//else*/
-       //
-       //  let validRole =validator.isMongoId(req.body.role)||'';
-       //
-       //  if(validRole){
-       //
-       //      existUser.set({
-       //          role:req.body.role
-       //      })
-       //
-       //  }//if
-       // /* else{
-       //
-       //      Response.status = 400;
-       //      Response.message = 'не корректная роль !';
-       //      res.status(Response.status);
-       //      res.send(Response);
-       //      return;
-       //
-       //  }//else*/
-       //
-       //  let validUserStatus = validator.isMongoId(req.body.userStatus)||'';
-       //
-       //  if(validUserStatus){
-       //
-       //      existUser.set({
-       //          userStatus:req.body.userStatus
-       //      });
-       //
-       //  }//if
-       //  /*else{
-       //
-       //      Response.status = 400;
-       //      Response.message = 'не корректный статус !';
-       //      res.status(Response.status);
-       //      res.send(Response);
-       //      return;
-       //
-       //  }//else*/
-       //
-       //  let validPasswordOld = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.oldPassword)||'';
-       //  let validPasswordNew = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.newPassword)||'';
-       //
-       //  if(validPasswordOld && validPasswordNew) {
-       //
-       //      let compare = await bcrypt.compare(req.body.oldPassword ,existUser.password );
-       //
-       //      if(compare === true ){
-       //
-       //          let number = Math.floor(Math.random() * (19 - 9+1) ) + 5 //генерируем случайное число символов от 9 до 19
-       //          let saltStr = await bcrypt.genSalt(number);// создаем соль
-       //          let newHexPassword = await bcrypt.hash(req.body.newPassword, saltStr); // получаем закодированный пароль
-       //
-       //          existUser.set({
-       //              password:newHexPassword
-       //          });
-       //
-       //      }//if
-       //     /* else {
-       //
-       //          Response.status = 400;
-       //          Response.message = 'не корректный пароль !';
-       //          res.status(Response.status);
-       //          res.send(Response);
-       //          return;
-       //
-       //      }//else*/
 
-       // }//if
+        let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(lastName)||'';
+
+        if(validLastName && existUser.userLastname !==lastName){
+
+            existUser.userLastname = lastName;
+        }//if
+
+
+        let validPhone = constValidator.USER_PHONE_VALIDATOR.test(phone)||'';
+
+        if(validPhone && existUser.userPhone !== phone){
+
+            existUser.userPhone = phone
+        }//if
+
+
+        let validRole =validator.isMongoId(role)||'';
+
+        if(validRole){
+
+            existUser.role = role;
+
+
+        }//if
+
+
+        let validUserStatus = validator.isMongoId(status)||'';
+
+        if(validUserStatus && existUser.userStatus!== status ){
+
+            existUser.userStatus = status;
+
+        }//if
+
+
+        let validPasswordOld = constValidator.USER_PASSWORD_VALIDATOR.test(oldPassword)||'';
+        let validPasswordNew = constValidator.USER_PASSWORD_VALIDATOR.test(newPassword)||'';
+
+
+        if(validPasswordOld && validPasswordNew ) {
+
+            let compare = await bcrypt.compare(oldPassword ,existUser.userPassword );
+
+            if(compare === true ){
+
+                let number = Math.floor(Math.random() * (19 - 9+1) ) + 5 //генерируем случайное число символов от 9 до 19
+                let saltStr = await bcrypt.genSalt(number);// создаем соль
+                let newHexPassword = await bcrypt.hash(newPassword, saltStr); // получаем закодированный пароль
+
+                existUser.userPassword = newHexPassword
+
+            }//if
+
+
+       }//if
         else{
 
             Response.status = 400;
