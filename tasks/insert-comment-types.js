@@ -10,12 +10,12 @@ gulp.task('InsertDefaultCommentTypes' , async ( done )=> {
 
         let commentTypes = [
             new CommentType({
-                "titleStatus": "Комментарий",
-                "dealID": "1"
+                "commentTypeTitle": "Комментарий",
+                "commentTypeID": 1
             }),
             new CommentType({
-                "titleStatus": "Личное сообщение",
-                "dealID": "2"
+                "commentTypeTitle": "Личное сообщение",
+                "commentTypeID": 2
             }),
         ];
 
@@ -33,7 +33,7 @@ gulp.task('InsertDefaultCommentTypes' , async ( done )=> {
     }//try
     catch(ex){
 
-        console.log('EXCEPTION!');
+        console.log('EXCEPTION!' , ex);
 
     }//catch
 

@@ -31,6 +31,18 @@ require('./tasks/clear-lot-statuses');
 //Вставка статусов лотов
 require('./tasks/insert-lot-statuses');
 
+//Вставка типов комментария
+require('./tasks/insert-comment-statuses');
+
+//Вставка статусов комментария
+require('./tasks/insert-comment-types');
+
+//Очистка статусов комментария
+require('./tasks/clear-comment-statuses');
+
+//Очистка типов комментария
+require('./tasks/clear-comment-types');
+
 gulp.task( 'default' , gulpSync.sync([
     // 'clearDealStatuses',
     // 'InsertDefaultDealStatuses',
@@ -38,8 +50,13 @@ gulp.task( 'default' , gulpSync.sync([
     // 'InsertDefaultUserStatuses',
     // 'clearUserRoles',
     // 'InsertDefaultUserRoles',
-    'clearLotType',
-    'InsertLotType',
+    // 'clearLotType',
+    // 'InsertLotType',
     // 'clearLotStatuses',
     // 'InsertDefaultLotStatuses',
+     'InsertDefaultCommentStatuses',
+     'InsertDefaultCommentTypes',
+    // 'clearCommentStatuses',
+    // 'clearCommentTypes',
+
 ]));
