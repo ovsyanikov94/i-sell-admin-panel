@@ -21,11 +21,22 @@ const UtilsController = require('../controller/UtilsController');
 
 module.exports.AddLot = async( req , res ) => {
 
-    console.log('files' , req.files);
-
+console.log('req.body.', req.body);
     try{
 
-        let categoriesIds = req.body.categories;
+        if(!req.files){
+            Response.status = 400;
+            Response.message = 'Изображения не добавлены!!';
+            Response.data = null;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+
+        let categoriesIds = JSON.parse(req.body.categories);
 
         if (!categoriesIds || categoriesIds.length===0) {
             Response.status = 400;
@@ -115,8 +126,7 @@ module.exports.AddLot = async( req , res ) => {
             return;
         }//if
 
-
-        let mapLot = req.body.mapLot;
+        let mapLot = JSON.parse(req.body.mapLot);
 
         if(!mapLot){
             Response.status = 400;
@@ -148,7 +158,7 @@ module.exports.AddLot = async( req , res ) => {
         let dateStartTrade = null;
         let dateEndTrade = null;
 
-        let countHourTrade = req.body.countHourTrade;
+        let countHourTrade = +req.body.countHourTrade;
 
         if(countHourTrade < ValidatorConstants.LOT_COUNTHOUR_MIN_VALIDATOR || countHourTrade > ValidatorConstants.LOT_COUNTHOUR_MAX_VALIDATOR){
             Response.status = 400;
@@ -194,8 +204,8 @@ module.exports.AddLot = async( req , res ) => {
             }//if
 
 
-            dateEndTrade = moment.unix(dateStartTrade).add(countHourTrade, 'h');
-
+            let newDate = moment.unix(dateStartTrade).add(countHourTrade, 'h');
+            dateEndTrade = moment(newDate).unix();
         }//if
 
         let statusLotId = LotStatusEnum.IN_PROCESS;
@@ -257,6 +267,9 @@ module.exports.AddLot = async( req , res ) => {
 
         }//for
 
+
+        let createLotResult = await newLot.save();
+
         if(req.files){
 
             let lotImages = req.files.images;
@@ -282,7 +295,7 @@ module.exports.AddLot = async( req , res ) => {
 
                 let lotImage = lotImages[i];
 
-                lotImage.mv( `${path}/${lotImage.name}`,async function(err){
+                lotImage.mv( `${path}/${lotImage.name}`, async function(err){
 
                     if (err){
                         console.log('FILE UPLOAD ERROR:' , err);
@@ -295,17 +308,19 @@ module.exports.AddLot = async( req , res ) => {
                         'path':  pathLot
                     });
 
-                    let newImage = await path.save();
 
-                    newLot.lotImagePath.push(newImage._id);
+                    let newImage = await path.save();
+                    console.log('newImage', newImage);
+
+                    let addLot = await Lot.findById(newLot._id);
+                    addLot.lotImagePath.push(newImage._id);
+                    await addLot.save();
+
 
                 })//lotImage.mv
             } //for
 
         }//if req.files
-
-
-        let createLotResult = await newLot.save();
 
         Response.status = 200;
         Response.message = 'Лот добавлен';
@@ -325,7 +340,7 @@ module.exports.AddLot = async( req , res ) => {
         });
 
         Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
+        Response.message = ex.message;
         Response.data = ex.message;
 
 
