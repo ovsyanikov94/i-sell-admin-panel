@@ -355,14 +355,17 @@ console.log('req.body.', req.body);
 module.exports.GetLotList = async (req, res) => {
 
     try{
-        let limit = req.query.limit || 10;
-        let offset = req.query.offset || 0;
+        let limit = +req.query.limit || 10;
+        let offset = +req.query.offset || 0;
 
 
         let lots = await Lot.find()
             .limit(limit)
             .skip(offset)
-            .populate('categories', 'lotImagePath');
+            .populate('lotImagePath')
+            .populate('mapLot')
+            .populate('seller', 'userLogin')
+            .populate('categories', 'title');
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
@@ -372,6 +375,7 @@ module.exports.GetLotList = async (req, res) => {
     }//try
     catch(ex){
 
+        console.log(ex);
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
