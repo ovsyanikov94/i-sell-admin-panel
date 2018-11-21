@@ -376,7 +376,7 @@ module.exports.GetLotByID = async (req, res) => {
     try{
 
         let lotID = req.params.id;
-        let lot = await Lot.findById(lotID).populate(comments);
+        let lot = await Lot.findById(lotID).populate('comments');
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
