@@ -14,6 +14,8 @@ router.post('/registryUser',UserController.AddUser);
 router.post('/updateUserInfo', UserController.updateUser);
 router.post('/addUserAvatar', UserController.addUserAvatar);
 router.post('/removeUserAvatar', UserController.removeUserAvatar);
+router.post('/GetUserBuyLot', UserController.GetUserBuyLot);
+router.post('/GetUserSaleLot', UserController.GetUserSaleLot);
 
 
 module.exports = router;

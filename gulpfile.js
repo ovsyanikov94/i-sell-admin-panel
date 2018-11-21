@@ -23,7 +23,7 @@ require('./tasks/insert-user-status');
 //require('./tasks/clear-lot-type');
 
 //Вставка типа лота
-require('./tasks/insert-lot-type');
+require('./tasks/insert-lot-types');
 
 //Очистка статусов лотов
 require('./tasks/clear-lot-statuses');
@@ -51,11 +51,11 @@ gulp.task( 'default' , gulpSync.sync([
     // 'clearUserRoles',
     // 'InsertDefaultUserRoles',
     // 'clearLotType',
-    'InsertLotType',
-    // 'clearLotStatuses',
-    // 'InsertDefaultLotStatuses',
-     'InsertDefaultCommentStatuses',
-     'InsertDefaultCommentTypes',
+    //'InsertLotType',
+    //'clearLotStatuses',
+     //'InsertDefaultLotStatuses',
+     //'InsertDefaultCommentStatuses',
+     //'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
 

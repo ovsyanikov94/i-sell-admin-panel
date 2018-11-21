@@ -586,7 +586,7 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
     let id = req.session.passport.user||'';
 
-    let lotStatus = req.body.lotstatus||'';
+    let lotStatus = req.body.idStatus||'';
 
     if(req.session.passport === undefined){
         Response.status = 400;
@@ -621,7 +621,7 @@ module.exports.GetUserBuyLot = async(req,res)=>{
     let limit = req.body.limit||0;
     let offset = req.body.offset||10;
         try{
-            let Lots = User
+            let Lots = await User
                 .find({
                     _id:id
                 })
@@ -657,7 +657,7 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 module.exports.GetUserSaleLot = async (req,res)=>{
     let id = req.session.passport.user||'';
 
-    let lotStatus = req.body.lotstatus||'';
+    let lotStatus = req.body.idStatus||'';
 
     if(req.session.passport === undefined){
         Response.status = 400;
@@ -692,7 +692,7 @@ module.exports.GetUserSaleLot = async (req,res)=>{
     let limit = req.body.limit||0;
     let offset = req.body.offset||10;
     try{
-        let Lots = User
+        let Lots = await User
             .find({
                 _id:id
             })
