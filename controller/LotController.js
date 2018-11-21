@@ -337,7 +337,6 @@ module.exports.GetLotList = async (req, res) => {
         let limit = req.query.limit || 10;
         let offset = req.query.offset || 0;
 
-
         let lots = await Lot.find()
             .limit(limit)
             .skip(offset)
@@ -347,6 +346,43 @@ module.exports.GetLotList = async (req, res) => {
         Response.message = 'Смотрите ЛОТЫ!!!!';
         Response.data = lots;
 
+
+    }//try
+    catch(ex){
+
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
+
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
+
+};
+
+module.exports.GetLotByID = async (req, res) => {
+
+    try{
+
+        let lotID = req.params.id;
+        let lot = await Lot.findById(lotID);
+
+        console.log(lotID);
+
+        Response.status = 200;
+        Response.message = 'Смотрите ЛОТЫ!!!!';
+        Response.data = lot;
 
     }//try
     catch(ex){

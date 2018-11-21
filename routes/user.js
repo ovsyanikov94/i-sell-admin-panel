@@ -6,7 +6,7 @@ const router = express.Router();
 const UserController = require('../controller/UserController');
 const AccessController = require('../controller/AccessController');
 
-router.use( AccessController.CheckAccess );
+//router.use( AccessController.CheckAccess );
 
 
 router.get('/getUser',UserController.GetUser);
