@@ -9,7 +9,9 @@ const passport = require('passport');
 
 const connection = require('./model/connection');
 
+const socketio = require('socket.io');
 const app = express();
+const ws = socketio.listen(app);
 const fileUpload = require('express-fileupload');
 
 const userRouter = require('./routes/user');
@@ -95,5 +97,17 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+ws.sockets.on('connection', function (socket) {
+
+    socket.emit('hello', { message: 'hello' });
+
+    socket.on('newlot', function (data) {
+
+      console.log(data);
+
+    });
+    
+  });
 
 module.exports = app;
