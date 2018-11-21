@@ -20,10 +20,10 @@ require('./tasks/clear-user-status');
 require('./tasks/insert-user-status');
 
 //Очистка типов лотов
-//require('./tasks/clear-lot-type');
+require('./tasks/clear-lot-types');
 
 //Вставка типа лота
-require('./tasks/insert-lot-type');
+require('./tasks/insert-lot-types');
 
 //Очистка статусов лотов
 require('./tasks/clear-lot-statuses');
@@ -43,20 +43,30 @@ require('./tasks/clear-comment-statuses');
 //Очистка типов комментария
 require('./tasks/clear-comment-types');
 
+//Очистка названий оценок
+require('./tasks/clear-marks-titles');
+
+//Вставка названий оценок
+require('./tasks/insert-mark-titles');
+
 gulp.task( 'default' , gulpSync.sync([
-    // 'clearDealStatuses',
-    // 'InsertDefaultDealStatuses',
-    // 'clearUserStatuses',
+     //'clearDealStatuses',
+     //'InsertDefaultDealStatuses',
+     //'clearUserStatuses',
     // 'InsertDefaultUserStatuses',
-    // 'clearUserRoles',
-    // 'InsertDefaultUserRoles',
-    // 'clearLotType',
-    'InsertLotType',
-    // 'clearLotStatuses',
-    // 'InsertDefaultLotStatuses',
-     'InsertDefaultCommentStatuses',
-     'InsertDefaultCommentTypes',
+     //'clearUserRoles',
+     //'InsertDefaultUserRoles',
+    //'clearLotTypes',
+     //'InsertDefaultLotTypes',
+     //'clearLotStatuses',
+     //'InsertDefaultLotStatuses',
+     //'InsertDefaultCommentStatuses',
+     //'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
+
+    //'clearMarkTitles',
+    //'InsertDefaultMarkTitles',
+
 
 ]));
