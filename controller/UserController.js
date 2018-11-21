@@ -184,12 +184,12 @@ module.exports.AddUser = async( req , res ) => {
 module.exports.updateUser = async(req,res)=>{
 
     let id = req.session.passport.user;
-    let email = req.body.email;
-    let firstName = req.body.firstName;
-    let lastName =req.body.lastName;
-    let phone = req.body.phone;
-    let oldPassword = req.body.oldPassword;
-    let newPassword = req.body.newPassword;
+    let email = req.body.email||'';
+    let firstName = req.body.firstName||'';
+    let lastName =req.body.lastName||'';
+    let phone = req.body.phone||'';
+    let oldPassword = req.body.oldPassword||'';
+    let newPassword = req.body.newPassword||'';
 
     let errors = [];
 
@@ -198,7 +198,9 @@ module.exports.updateUser = async(req,res)=>{
 
     try {
 
-        let existUser = await User.findById(id);
+
+        let existUser = await User.findOne({_id:id});
+
 
         if(!existUser){
 
@@ -231,7 +233,6 @@ module.exports.updateUser = async(req,res)=>{
 
         }//if
 
-
         let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(lastName)||'';
 
         if(validLastName && existUser.userLastname !==lastName){
@@ -249,62 +250,52 @@ module.exports.updateUser = async(req,res)=>{
         }//if
 
 
-        let validRole =validator.isMongoId(role)||'';
 
-        if(validRole && existUser.role !== role){
+        if(role!==undefined){
+            let validRole = validator.isMongoId(role)||'';
+            if(validRole && existUser.role !== role){
 
-            existUser.role = role;
+                existUser.role = role;
 
-
+            }//if
         }//if
 
-        let validUserStatus = validator.isMongoId(status)||'';
+        if(status!==undefined){
+            let validUserStatus = validator.isMongoId(status)||'';
 
-        if(validUserStatus && existUser.userStatus!== status ){
+            if(validUserStatus && existUser.userStatus!== status ){
 
-            existUser.userStatus = status;
+                existUser.userStatus = status;
 
-        }//if
+            }//if
+        }
 
 
         let validPasswordOld = constValidator.USER_PASSWORD_VALIDATOR.test(oldPassword)||'';
         let validPasswordNew = constValidator.USER_PASSWORD_VALIDATOR.test(newPassword)||'';
 
-
         if(validPasswordOld && validPasswordNew ) {
 
             let compare = await bcrypt.compare(oldPassword ,existUser.userPassword );
+
 
             if(compare === true ){
 
                 let number = Math.floor(Math.random() * (19 - 9+1) ) + 5 //генерируем случайное число символов от 9 до 19
                 let saltStr = await bcrypt.genSalt(number);// создаем соль
                 let newHexPassword = await bcrypt.hash(newPassword, saltStr); // получаем закодированный пароль
-
                 existUser.userPassword = newHexPassword
 
             }//if
 
 
        }//if
-        else{
-
-            Response.status = 400;
-            Response.message = 'не корректный пароль !';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//else
 
         let updateUser = await existUser.save();
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = {
-            user: updateUser,
-            errors: errors
-        };
+        Response.data = updateUser
 
     }//try
     catch (ex){
@@ -590,3 +581,145 @@ module.exports.GetUser = async (req,res)=>{
     res.status(Response.status);
     res.send(Response);
 }//GetUser
+
+module.exports.GetUserBuyLot = async(req,res)=>{
+
+    let id = req.session.passport.user||'';
+
+    let lotStatus = req.body.lotstatus||'';
+
+    if(req.session.passport === undefined){
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }
+    let validIdUser = validator.isMongoId(id)||'';
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректный пользователь!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+
+    let  validStatusLot = validator.isMongoId(lotStatus);
+    if(!validStatusLot){
+
+        Response.status = 400;
+        Response.message = 'не корректный статусь!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+
+
+    let limit = req.body.limit||0;
+    let offset = req.body.offset||10;
+        try{
+            let Lots = User
+                .find({
+                    _id:id
+                })
+                .populate({
+                    statusLot: lotStatus,
+                    customer:id
+                });
+
+            Response.status = 200;
+            Response.message = 'OK!';
+            Response.data = Lots;
+        }//try
+        catch (ex){
+            Logger.error({
+                time: new Date().toISOString(),
+                status: 500,
+                data: {
+                    message: ex.message,
+                    stack: ex.stack
+                },
+            });
+
+            Response.status = 500;
+            Response.message = 'Внутренняя ошибка сервера!';
+            Response.data = null;
+        }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+}//GetUserBuyActiveLot
+
+
+module.exports.GetUserSaleLot = async (req,res)=>{
+    let id = req.session.passport.user||'';
+
+    let lotStatus = req.body.lotstatus||'';
+
+    if(req.session.passport === undefined){
+        Response.status = 400;
+        Response.message = 'не корректное значени!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }
+    let validIdUser = validator.isMongoId(id)||'';
+    if(!validIdUser){
+
+        Response.status = 400;
+        Response.message = 'не корректный пользователь!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+
+    let  validStatusLot = validator.isMongoId(lotStatus);
+    if(!validStatusLot){
+
+        Response.status = 400;
+        Response.message = 'не корректный статусь!';
+        res.status(Response.status);
+        res.send(Response);
+        return;
+
+    }//if
+
+
+    let limit = req.body.limit||0;
+    let offset = req.body.offset||10;
+    try{
+        let Lots = User
+            .find({
+                _id:id
+            })
+            .populate({
+                statusLot: lotStatus,
+                seller:id
+            });
+
+        Response.status = 200;
+        Response.message = 'OK!';
+        Response.data = Lots;
+    }//try
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+}//GetUserSaleActiveLot
