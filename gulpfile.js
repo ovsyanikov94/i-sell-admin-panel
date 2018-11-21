@@ -65,8 +65,8 @@ gulp.task( 'default' , gulpSync.sync([
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
 
-    //'clearMarkTitles',
-    //'InsertDefaultMarkTitles',
+    'clearMarkTitles',
+    'InsertDefaultMarkTitles',
 
 
 ]));
