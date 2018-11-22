@@ -112,6 +112,8 @@ console.log('req.body.', req.body);
 
         }//if
 
+
+
         let lotDescription = req.body.lotDescription;
 
         if( !lotDescription.match( ValidatorConstants.TEXT_VALIDATOR ) ){
@@ -236,6 +238,8 @@ console.log('req.body.', req.body);
                 'countHourTrade': countHourTrade
             });
 
+
+
         }//try
         catch(ex){
 
@@ -317,10 +321,14 @@ console.log('req.body.', req.body);
                     await addLot.save();
 
 
+
                 })//lotImage.mv
             } //for
 
         }//if req.files
+
+        sellerLot.lots.push(newLot._id);
+        await sellerLot.save();
 
         Response.status = 200;
         Response.message = 'Лот добавлен';

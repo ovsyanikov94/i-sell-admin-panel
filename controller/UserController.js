@@ -607,16 +607,17 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
     }//if
 
-    let  validStatusLot = validator.isMongoId(lotStatus);
-    if(!validStatusLot){
-
-        Response.status = 400;
-        Response.message = 'не корректный статусь!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-
-    }//if
+    // let  validStatusLot = validator.isMongoId(lotStatus);
+    //
+    // if(!validStatusLot){
+    //
+    //     Response.status = 400;
+    //     Response.message = 'не корректный статусь!';
+    //     res.status(Response.status);
+    //     res.send(Response);
+    //     return;
+    //
+    // }//if
 
 
     let limit = req.body.limit||0;
@@ -629,7 +630,10 @@ module.exports.GetUserBuyLot = async(req,res)=>{
             .populate({
                 path: 'lots',
                 populate: {
-                    match: ''
+                    path: 'categories',
+                    populate: {
+                        path: 'lotImagePath'
+                    }
                 }
             });
 
