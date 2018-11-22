@@ -53,7 +53,7 @@ gulp.task( 'default' , gulpSync.sync([
     // 'clearLotType',
     //'InsertLotType',
     //'clearLotStatuses',
-     //'InsertDefaultLotStatuses',
+     'InsertDefaultLotStatuses',
      //'InsertDefaultCommentStatuses',
      //'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',

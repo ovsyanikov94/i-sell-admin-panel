@@ -620,37 +620,40 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
     let limit = req.body.limit||0;
     let offset = req.body.offset||10;
-        try{
-            let Lots = await User
-                .find({
-                    _id:id
-                })
-                .populate({
-                    statusLot: lotStatus,
-                    customer:id
-                });
 
-            Response.status = 200;
-            Response.message = 'OK!';
-            Response.data = Lots;
-        }//try
-        catch (ex){
-            Logger.error({
-                time: new Date().toISOString(),
-                status: 500,
-                data: {
-                    message: ex.message,
-                    stack: ex.stack
-                },
+    try{
+
+        let Lots = await User
+            .findById(id)
+            .populate({
+                path: 'lots',
+                populate: {
+                    match: ''
+                }
             });
 
-            Response.status = 500;
-            Response.message = 'Внутренняя ошибка сервера!';
-            Response.data = null;
-        }//catch
+        Response.status = 200;
+        Response.message = 'OK!';
+        Response.data = Lots;
+    }//try
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }//catch
 
     res.status(Response.status);
     res.send(Response);
+
 }//GetUserBuyActiveLot
 
 

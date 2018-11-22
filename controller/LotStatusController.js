@@ -3,6 +3,7 @@
 const LotStatus = require('../model/LotStatus');
 const Logger = require('../model/Logger');
 const Response = require('../model/Response');
+
 module.exports.AddLotStatus = async( req , res )=>{
 
     try{
@@ -35,12 +36,12 @@ module.exports.AddLotStatus = async( req , res )=>{
 module.exports.GetListLotStatusBuy = async (req,res)=>{///ИСПРАВИТЬ!!
 
     try {
-        let listLotStatus = await LotStatus.find(null,'id statusTitle',{
+        let listLotStatus = await LotStatus.find({
             $or:[
-                {_id : 1},
-                {_id : 4}
+                {statusID : 1},
+                {statusID : 4}
             ]
-        });
+        },'statusID statusTitle');
 
         Response.status = 200;
         Response.message = 'добавление прошли успешно!';
@@ -66,7 +67,7 @@ module.exports.GetListLotStatusBuy = async (req,res)=>{///ИСПРАВИТЬ!!
 module.exports.GetListLotStatusSale = async (req,res)=>{
 
     try {
-        let listLotStatus = await LotStatus.find(null,'id statusTitle');
+        let listLotStatus = await LotStatus.find(null,'statusID statusTitle');
 
         Response.status = 200;
         Response.message = 'добавление прошли успешно!';
