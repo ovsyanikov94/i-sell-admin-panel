@@ -11,9 +11,11 @@ module.exports = {
 
     AddCategory: async (req, res) => {
 
+        console.log(req.body);
         try {
 
-            let title = req.body.categoryTitle || '';
+            let title = 'телефоны';
+            //let title = req.body.categoryTitle || '';
 
             let existTitle = await Category.findOne({title: title})
 

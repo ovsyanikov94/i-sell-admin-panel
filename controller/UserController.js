@@ -6,7 +6,7 @@ const UserStatus = require('../model/UserStatus');
 const passport = require('passport');
 const UserRoleEnum = require('../model/Enums/UserRole');
 const UserStatusEnum = require('../model/Enums/UserStatus');
-
+const Category = require('../model/Category');
 
 const Logger = require('../model/Logger');
 
@@ -586,7 +586,7 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
     let id = req.session.passport.user||'';
 
-    let lotStatus = req.body.idStatus||'';
+    let lotStatus = +req.body.idStatus||'';
 
     if(req.session.passport === undefined){
         Response.status = 400;
@@ -606,18 +606,6 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
     }//if
 
-    // let  validStatusLot = validator.isMongoId(lotStatus);
-    //
-    // if(!validStatusLot){
-    //
-    //     Response.status = 400;
-    //     Response.message = 'не корректный статусь!';
-    //     res.status(Response.status);
-    //     res.send(Response);
-    //     return;
-    //
-    // }//if
-
 
     let limit = req.body.limit||0;
     let offset = req.body.offset||10;
@@ -628,13 +616,12 @@ module.exports.GetUserBuyLot = async(req,res)=>{
             .findById(id)
             .populate({
                 path: 'lots',
-                populate: {
-                    path: 'categories',
-                    populate: {
-                        path: 'lotImagePath'
-                    }
+                match: {
+                    customer: id,
+                    statusLot:lotStatus
                 }
             });
+
 
         Response.status = 200;
         Response.message = 'OK!';
@@ -664,7 +651,7 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 module.exports.GetUserSaleLot = async (req,res)=>{
     let id = req.session.passport.user||'';
 
-    let lotStatus = req.body.idStatus||'';
+    let lotStatus = +req.body.idStatus;
 
     if(req.session.passport === undefined){
         Response.status = 400;
@@ -684,29 +671,35 @@ module.exports.GetUserSaleLot = async (req,res)=>{
 
     }//if
 
-    let  validStatusLot = validator.isMongoId(lotStatus);
-    if(!validStatusLot){
 
-        Response.status = 400;
-        Response.message = 'не корректный статусь!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-
-    }//if
 
 
     let limit = req.body.limit||0;
     let offset = req.body.offset||10;
     try{
         let Lots = await User
-            .find({
-                _id:id
-            })
+            .findById(id)
             .populate({
-                statusLot: lotStatus,
-                seller:id
+                path: 'lots',
+                match: {
+                    seller: id,
+                    statusLot:lotStatus
+                }
             });
+
+        for(let i=0;i<Lots.lots.length;i++){
+
+            let category= Lots.lots[i].categories;
+            let titleCategory =[];
+            for(let i=0;i<category.length;i++){
+
+                let title = await Category.findOne({_id:category[i]},'title');
+
+                titleCategory.push(title);
+            }//for
+
+            Lots.lots[i].categories = titleCategory;
+        }//for
 
         Response.status = 200;
         Response.message = 'OK!';

@@ -5,7 +5,7 @@ const router = express.Router();
 
 const CategoryController = require('../controller/CategoryController');
 
-const AccessController = require('../controller/AccessController');
+//const AccessController = require('../controller/AccessController');
 
 // router.use( AccessController.CheckAccess );
 

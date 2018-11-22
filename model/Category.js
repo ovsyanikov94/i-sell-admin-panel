@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const ValidationConstants = require('./Validation');
 
 const categorySchema = new Schema({
-    id: Schema.ObjectId,
+    //id: Schema.ObjectId,
     title: {
         type: String,
         validate:{

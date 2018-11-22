@@ -43,6 +43,7 @@ require('./tasks/clear-comment-statuses');
 //Очистка типов комментария
 require('./tasks/clear-comment-types');
 
+require('./tasks/insert-category');
 gulp.task( 'default' , gulpSync.sync([
     // 'clearDealStatuses',
     // 'InsertDefaultDealStatuses',
@@ -51,12 +52,13 @@ gulp.task( 'default' , gulpSync.sync([
     // 'clearUserRoles',
     // 'InsertDefaultUserRoles',
     // 'clearLotType',
-    'InsertLotType',
+    //'InsertLotType',
     // 'clearLotStatuses',
     // 'InsertDefaultLotStatuses',
-     'InsertDefaultCommentStatuses',
-     'InsertDefaultCommentTypes',
+     //'InsertDefaultCommentStatuses',
+    // 'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
+    //'InsertCategory'
 
 ]));
