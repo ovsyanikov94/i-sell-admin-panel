@@ -10,7 +10,7 @@ const passport = require('passport');
 const connection = require('./model/connection');
 
 const app = express();
-
+const fileUpload = require('express-fileupload');
 
 const userRouter = require('./routes/user');
 const categoryRoutes = require('./routes/categories');
@@ -23,11 +23,18 @@ const statusUserRouter = require('./routes/statusUsers');
 const subscribersRouter = require('./routes/subscribers');
 const blackListRouter = require('./routes/blackList');
 const blockListRouter = require('./routes/blockList');
+const commentRouter = require('./routes/comment');
+const commentTypeRouter = require('./routes/commentType');
+const commentStatusRouter = require('./routes/commentStatus');
 
 //access routes
 const accessRoutes = require('./routes/access');
 
 const LocalStrategy = require('./passport/LocalStrategy');
+
+app.use(fileUpload({
+    limits: { fileSize: 6 * 1024 * 1024 },
+}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -69,6 +76,9 @@ app.use('/api', subscribersRouter);
 app.use('/api', blackListRouter);
 app.use('/api', blockListRouter);
 
+app.use('/api', commentRouter);
+app.use('/api', commentStatusRouter);
+app.use('/api', commentTypeRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

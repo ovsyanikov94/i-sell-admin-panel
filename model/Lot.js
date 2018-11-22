@@ -121,8 +121,7 @@ const lotSchema = new Schema({
     },
 
     statusLot:{
-        type: Number,
-        ref: 'lotStatuses'
+        type: Number
     },
     comments: [
         {

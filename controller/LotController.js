@@ -11,18 +11,34 @@ const Logger = require('../model/Logger');
 const ValidatorConstants = require('../model/Validation');
 const fs = require('fs');
 
-var moment = require('moment');
+const LotTypeEnum = require('../model/Enums/LotType');
+const LotStatusEnum = require('../model/Enums/LotStatus');
+
+const moment = require('moment');
 
 const Response = require('../model/Response');
 const UtilsController = require('../controller/UtilsController');
 
 module.exports.AddLot = async( req , res ) => {
 
+console.log('req.body.', req.body);
     try{
 
-        let categoriesIds = req.body.categories;
+        if(!req.files){
+            Response.status = 400;
+            Response.message = 'Изображения не добавлены!!';
+            Response.data = null;
 
-        if (categoriesIds&&categoriesIds.length===0) {
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+
+        let categoriesIds = JSON.parse(req.body.categories);
+
+        if (!categoriesIds || categoriesIds.length===0) {
             Response.status = 400;
             Response.message = 'Категории должны быть выбраны!!';
             Response.data = categoriesIds;
@@ -80,7 +96,8 @@ module.exports.AddLot = async( req , res ) => {
         }//if
 
 
-        let sellerLotID = req.body.sellerID;
+        let sellerLotID = req.session.passport.user;
+
         let sellerLot = await User.findById(sellerLotID);
 
         if(!sellerLot){
@@ -94,6 +111,8 @@ module.exports.AddLot = async( req , res ) => {
             return;
 
         }//if
+
+
 
         let lotDescription = req.body.lotDescription;
 
@@ -109,8 +128,7 @@ module.exports.AddLot = async( req , res ) => {
             return;
         }//if
 
-
-        let mapLot = req.body.mapLot;
+        let mapLot = JSON.parse(req.body.mapLot);
 
         if(!mapLot){
             Response.status = 400;
@@ -137,14 +155,12 @@ module.exports.AddLot = async( req , res ) => {
 
         let currentRate = startPrice;
 
-        //let dateAdminAnswer = req.body.dateAdminAnswer;
-
         let datePlacement = moment(new Date()).unix();
 
         let dateStartTrade = null;
         let dateEndTrade = null;
 
-        let countHourTrade = req.body.countHourTrade;
+        let countHourTrade = +req.body.countHourTrade;
 
         if(countHourTrade < ValidatorConstants.LOT_COUNTHOUR_MIN_VALIDATOR || countHourTrade > ValidatorConstants.LOT_COUNTHOUR_MAX_VALIDATOR){
             Response.status = 400;
@@ -156,15 +172,15 @@ module.exports.AddLot = async( req , res ) => {
 
             return ;
         }
-        let typeLotId = req.body.typeLot;
+        let typeLotId = +req.body.typeLot;
 
-        let lotType =  await LotType.find({typeID: typeLotId });
+        let lotType =  await LotType.findOne({typeID: typeLotId });
 
         if ( !lotType){
 
             Response.status = 400;
             Response.message = 'Тип лота не найден!';
-            Response.data = typeLot;
+            Response.data = lotType;
 
             res.status(Response.status);
             res.send(Response);
@@ -172,7 +188,9 @@ module.exports.AddLot = async( req , res ) => {
             return ;
         }//if
 
-        if(typeLotId===1){//запланированный
+
+
+        if(typeLotId===LotTypeEnum.PLANED){//запланированный
 
             dateStartTrade = req.body.dateStartTrade;
 
@@ -188,11 +206,11 @@ module.exports.AddLot = async( req , res ) => {
             }//if
 
 
-            dateEndTrade = moment.unix(dateStartTrade).add(countHourTrade, 'h');
-
+            let newDate = moment.unix(dateStartTrade).add(countHourTrade, 'h');
+            dateEndTrade = moment(newDate).unix();
         }//if
 
-        let statusLotId = 2;
+        let statusLotId = LotStatusEnum.IN_PROCESS;
 
         let coord = new CoordMap({
             "lat": +mapLot.lat,
@@ -220,6 +238,8 @@ module.exports.AddLot = async( req , res ) => {
                 'countHourTrade': countHourTrade
             });
 
+
+
         }//try
         catch(ex){
 
@@ -234,7 +254,11 @@ module.exports.AddLot = async( req , res ) => {
             return ;
 
         }//catch
-        
+
+        let newTypeLot = await LotType.findById(lotType._id);
+            newTypeLot.lots.push(newLot._id);
+        await newTypeLot.save();
+
         for(let i =0; i< categoriesIds.length; i++){
 
             let c = categoriesIds[i];
@@ -246,6 +270,9 @@ module.exports.AddLot = async( req , res ) => {
             newLot.categories.push( c );
 
         }//for
+
+
+        let createLotResult = await newLot.save();
 
         if(req.files){
 
@@ -272,7 +299,7 @@ module.exports.AddLot = async( req , res ) => {
 
                 let lotImage = lotImages[i];
 
-                lotImage.mv( `${path}/${lotImage.name}`,async function(err){
+                lotImage.mv( `${path}/${lotImage.name}`, async function(err){
 
                     if (err){
                         console.log('FILE UPLOAD ERROR:' , err);
@@ -285,17 +312,23 @@ module.exports.AddLot = async( req , res ) => {
                         'path':  pathLot
                     });
 
-                    let newImage = await path.save();
 
-                    newLot.lotImagePath.push(newImage._id);
+                    let newImage = await path.save();
+                    console.log('newImage', newImage);
+
+                    let addLot = await Lot.findById(newLot._id);
+                    addLot.lotImagePath.push(newImage._id);
+                    await addLot.save();
+
+
 
                 })//lotImage.mv
             } //for
 
         }//if req.files
 
-
-        let createLotResult = await newLot.save();
+        sellerLot.lots.push(newLot._id);
+        await sellerLot.save();
 
         Response.status = 200;
         Response.message = 'Лот добавлен';
@@ -304,8 +337,6 @@ module.exports.AddLot = async( req , res ) => {
 
     }//try
     catch(ex){
-
-        console.log(ex);
 
         Logger.error({
             time: new Date().toISOString(),
@@ -317,7 +348,7 @@ module.exports.AddLot = async( req , res ) => {
         });
 
         Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
+        Response.message = ex.message;
         Response.data = ex.message;
 
 
@@ -332,14 +363,17 @@ module.exports.AddLot = async( req , res ) => {
 module.exports.GetLotList = async (req, res) => {
 
     try{
-        let limit = req.query.limit || 10;
-        let offset = req.query.offset || 0;
+        let limit = +req.query.limit || 10;
+        let offset = +req.query.offset || 0;
 
 
         let lots = await Lot.find()
             .limit(limit)
             .skip(offset)
-            .populate('categories', 'lotImagePath');
+            .populate('lotImagePath')
+            .populate('mapLot')
+            .populate('seller', 'userLogin')
+            .populate('categories', 'title');
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
@@ -349,6 +383,7 @@ module.exports.GetLotList = async (req, res) => {
     }//try
     catch(ex){
 
+        console.log(ex);
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -386,6 +421,18 @@ module.exports.DeleteLot = async (req, res) => {
             }
         }//if
 
+        if(deleteLot.statusLot === LotStatusEnum.ACTIVE){
+
+            Response.status = 400;
+            Response.message = 'Лот активный удалить невозможно';
+            Response.data = deleteLot;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+        }//if
+
         let result = await Lot.findOneAndDelete({_id: lotId});
 
         for(let i =0; i< result.lotImagePath.length; i++){
@@ -408,25 +455,29 @@ module.exports.DeleteLot = async (req, res) => {
 
         }//for
 
-        res.send( {
-            statusCode: 200,
-            data: result,
-            message: "Лот удален"
-        });
-
-        
+        Response.status = 200;
+        Response.message = 'Лот удален';
+        Response.data = deleteLot;
 
     }//try
     catch(ex){
 
-        console.log(ex);
-        res.send( {
-            statusCode: 500,
-            data: ex,
-            message: "Server error"
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
         });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
     }//catch
 
+    res.status(Response.status);
+    res.send(Response);
 };
 
 

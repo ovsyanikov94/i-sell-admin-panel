@@ -25,4 +25,4 @@ const lotTypeSchema = new Schema({
     ]
 });
 
-module.exports = mongoose.model('lotTypes' , lotTypeSchema);
+module.exports = mongoose.model('lottypes' , lotTypeSchema);

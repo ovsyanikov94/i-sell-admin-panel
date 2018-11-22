@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const lots = require('./Lot');
 
 const lotStatusSchema = new Schema({
-    id: Schema.Types.ObjectId,
+
 
     statusTitle: {
         type: String,
@@ -24,6 +24,11 @@ const lotStatusSchema = new Schema({
             ref: 'lots'
         }
     ]
+});
+let id = lotStatusSchema.virtual('id');
+
+id.get(function (  ) {
+    return this._id;
 });
 
 module.exports = mongoose.model('lotStatuses' , lotStatusSchema);

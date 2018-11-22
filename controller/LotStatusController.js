@@ -1,7 +1,8 @@
 "use strict";
 
 const LotStatus = require('../model/LotStatus');
-
+const Logger = require('../model/Logger');
+const Response = require('../model/Response');
 
 module.exports.AddLotStatus = async( req , res )=>{
 
@@ -29,4 +30,63 @@ module.exports.AddLotStatus = async( req , res )=>{
 
     }//catch
 
-};
+};//AddLotStatus
+
+
+module.exports.GetListLotStatusBuy = async (req,res)=>{///ИСПРАВИТЬ!!
+
+    try {
+        let listLotStatus = await LotStatus.find({
+            $or:[
+                {statusID : 1},
+                {statusID : 4}
+            ]
+        },'statusID statusTitle');
+
+        Response.status = 200;
+        Response.message = 'добавление прошли успешно!';
+        Response.data = listLotStatus;
+    }
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }
+    res.status(Response.status);
+    res.send(Response);
+};//GetListLotStatus
+module.exports.GetListLotStatusSale = async (req,res)=>{
+
+    try {
+        let listLotStatus = await LotStatus.find(null,'statusID statusTitle');
+
+        Response.status = 200;
+        Response.message = 'добавление прошли успешно!';
+        Response.data = listLotStatus;
+    }
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+    }
+    res.status(Response.status);
+    res.send(Response);
+};//GetListLotStatus

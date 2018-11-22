@@ -24,12 +24,12 @@ module.exports.AddUserToBlackList=async(req,res)=>{
 
     try {
 
-        let existUser = await User.find({
+        let existUser = await User.findOne({
 
             id:req.body.UserID
         });
 
-        let existUserBlackList = await User.find({
+        let existUserBlackList = await User.findOne({
 
             id:req.body.UserIDInBlackList
         });
