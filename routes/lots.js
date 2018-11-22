@@ -1,14 +1,18 @@
 "use strict";
 
+
+
 const express = require('express');
 const router = express.Router();
 
 const LotController = require('../controller/LotController');
+const AccessController = require( "../controller/AccessController");
 
-router.post('/lot' , LotController.AddLot );
+
+router.post('/lot' , AccessController.CheckAccess , LotController.AddLot );
 router.get('/lotList' , LotController.GetLotList );
-router.delete('/deleteLot/:id' , LotController.DeleteLot );
-router.put('/updateLot/:id' , LotController.UpdateLot );
+router.delete('/deleteLot/:id',  AccessController.CheckAccess  , LotController.DeleteLot );
+router.put('/updateLot/:id',  AccessController.CheckAccess  , LotController.UpdateLot );
 
 
 module.exports = router;

@@ -10,8 +10,8 @@ const AccessController = require('../controller/AccessController');
 // router.use( AccessController.CheckAccess );
 
 router.get( '/category/list' , CategoryController.categoriesList );
-router.post('/add-category' , CategoryController.AddCategory );
-router.put('/update-category' , CategoryController.updateCategory );
-router.delete('/delete-category/:id' , CategoryController.deleteCategory );
+router.post('/add-category' , AccessController.CheckAccess, CategoryController.AddCategory );
+router.put('/update-category' ,AccessController.CheckAccess, CategoryController.updateCategory );
+router.delete('/delete-category/:id' ,AccessController.CheckAccess, CategoryController.deleteCategory );
 
 module.exports = router;
