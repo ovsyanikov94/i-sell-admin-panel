@@ -16,5 +16,6 @@ const blackListSchema = new Schema({
     ]
 });
 
+
 module.exports = mongoose.model('blackList' , blackListSchema);
 
