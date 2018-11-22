@@ -6,13 +6,13 @@ const router = express.Router();
 const UserController = require('../controller/UserController');
 const AccessController = require('../controller/AccessController');
 
-router.use( AccessController.CheckAccess );
-
-router.get('/getUser',UserController.GetUser);
+router.get('/getUser', AccessController.CheckAccess  ,UserController.GetUser);
 router.post('/registryUser',UserController.AddUser);
-router.post('/updateUserInfo', UserController.updateUser);
-router.post('/addUserAvatar', UserController.addUserAvatar);
-router.post('/removeUserAvatar', UserController.removeUserAvatar);
+router.post('/updateUserInfo', AccessController.CheckAccess , UserController.updateUser);
+router.post('/addUserAvatar',AccessController.CheckAccess , UserController.addUserAvatar);
+router.post('/removeUserAvatar',AccessController.CheckAccess , UserController.removeUserAvatar);
+router.post('/GetUserBuyLot',AccessController.CheckAccess , UserController.GetUserBuyLot);
+router.post('/GetUserSaleLot', AccessController.CheckAccess , UserController.GetUserSaleLot);
 
 
 module.exports = router;

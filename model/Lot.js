@@ -117,10 +117,11 @@ const lotSchema = new Schema({
 
     typeLot:{
         type: Number,
+        ref: 'lotTypes'
     },
 
     statusLot:{
-        type: Number,
+        type: Number
     },
     comments: [
         {
