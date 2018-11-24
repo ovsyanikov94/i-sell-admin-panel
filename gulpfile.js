@@ -43,10 +43,16 @@ require('./tasks/clear-comment-statuses');
 //Очистка типов комментария
 require('./tasks/clear-comment-types');
 
+//Очистка названий оценок
+require('./tasks/clear-marks-titles');
+
+//Вставка названий оценок
+require('./tasks/insert-mark-titles');
+
 gulp.task( 'default' , gulpSync.sync([
-    // 'clearDealStatuses',
-    // 'InsertDefaultDealStatuses',
-    // 'clearUserStatuses',
+     //'clearDealStatuses',
+     //'InsertDefaultDealStatuses',
+     //'clearUserStatuses',
     // 'InsertDefaultUserStatuses',
     // 'clearUserRoles',
     //'InsertDefaultUserRoles',
@@ -56,7 +62,19 @@ gulp.task( 'default' , gulpSync.sync([
     // 'InsertDefaultLotStatuses',
      //'InsertDefaultCommentStatuses',
      //'InsertDefaultCommentTypes',
+     //'clearUserRoles',
+     //'InsertDefaultUserRoles',
+    //'clearLotTypes',
+     //'InsertDefaultLotTypes',
+     //'clearLotStatuses',
+     //'InsertDefaultLotStatuses',
+     //'InsertDefaultCommentStatuses',
+     //'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
+
+    'clearMarkTitles',
+    'InsertDefaultMarkTitles',
+
 
 ]));
