@@ -51,9 +51,9 @@ require('./tasks/insert-mark-titles');
 
 require('./tasks/insert-category');
 gulp.task( 'default' , gulpSync.sync([
-     //'clearDealStatuses',
-     //'InsertDefaultDealStatuses',
-     //'clearUserStatuses',
+    // 'clearDealStatuses',
+    // 'InsertDefaultDealStatuses',
+    // 'clearUserStatuses',
     // 'InsertDefaultUserStatuses',
     // 'clearUserRoles',
     //'InsertDefaultUserRoles',

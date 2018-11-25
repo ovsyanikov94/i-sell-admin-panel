@@ -3,7 +3,7 @@
 const User = require('../model/User');
 const UserRole = require('../model/UserRole');
 const UserStatus = require('../model/UserStatus');
-const passport = require('passport');
+
 const UserRoleEnum = require('../model/Enums/UserRole');
 const UserStatusEnum = require('../model/Enums/UserStatus');
 const Category = require('../model/Category');
@@ -75,8 +75,6 @@ module.exports.AddUser = async( req , res ) => {
             res.send(Response);
             return;
         }//if
-
-
 
         let checkUser = await User.findOne(
             {
@@ -196,6 +194,7 @@ module.exports.updateUser = async(req,res)=>{
 
     let role = req.body.role;
     let status = req.body.userStatus;
+
 
     try {
 
@@ -724,3 +723,284 @@ module.exports.GetUserSaleLot = async (req,res)=>{
     res.status(Response.status);
     res.send(Response);
 }//GetUserSaleActiveLot
+
+module.exports.AddUserWithRole = async( req , res ) => {
+
+    let validLogin =constValidator.USER_LOGIN_VALIDATOR.test( req.body.login)||'';
+    let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(req.body.email)||'';
+    let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(req.body.firstName)||'';
+    let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
+    let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
+    let validPassword = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.password)||'';
+    let userRole = req.body.role ||'';
+    let photo = req.body.photo ||'';
+    try{
+
+        if(!validLogin){
+            Response.status = 400;
+            Response.message = 'Логин не корректный!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if(!validEmail){
+            Response.status = 400;
+            Response.message = 'Email не корректный!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if(!validFirstName){
+            Response.status = 400;
+            Response.message = 'Имя не корректно!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if(!validLastName){
+            Response.status = 400;
+            Response.message = 'Фамилия не корректна!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if( !validPhone){
+            Response.status = 400;
+            Response.message = 'Телефон не корректен!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if( !validPassword){
+            Response.status = 400;
+            Response.message = 'Пароль не корректен!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if(!userRole){
+            Response.status = 400;
+            Response.message = 'Вы не выбрали роль пользователя!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if(!photo){
+            Response.status = 400;
+            Response.message = 'Выберите фото пользователя!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if(photo.length>1){
+            Response.status = 400;
+            Response.message = 'У пользователя должны быть только одна фотография!!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        let checkUser = await User.findOne(
+            {
+                $or: [
+                    {userLogin: req.body.login},
+                    {userEmail: req.body.email}
+                ]
+
+            }, 'userLogin userEmail');
+
+        console.log('checkUser: ' , checkUser);
+
+        if(checkUser){
+
+            Response.status = 400;
+            Response.message = 'Данный логин или email уже используется!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+
+        }//if
+
+        let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
+        let saltStr = await bcrypt.genSalt(number);// создаем соль
+        let hexPassword = await bcrypt.hash(req.body.password, saltStr); // получаем закодированный пароль
+
+        let newUser = null;
+
+        try {
+
+            let status = await UserStatus.findOne(
+                {
+                    userStatusId: UserStatusEnum.NOT_VERIFIED
+                },
+                '_id'
+            );
+            let role = null;
+
+            switch(userRole) {
+                case '1':
+                     role = await UserRole.findOne(
+                        {
+                            userRoleId: UserRoleEnum.ADMIN
+                        },
+                        '_id'
+                    );
+
+                    break;
+                case '2':
+                    role = await UserRole.findOne(
+                        {
+                            userRoleId: UserRoleEnum.MODERATOR
+                        },
+                        '_id'
+                    );
+
+                    break;
+
+                case '3':
+                    role = await UserRole.findOne(
+                        {
+                            userRoleId: UserRoleEnum.REGISTERED
+                        },
+                        '_id'
+                    );
+
+                    break;
+                case '4':
+                    role = await UserRole.findOne(
+                        {
+                            userRoleId: UserRoleEnum.ANONYMOUS
+                        },
+                        '_id'
+                    );
+
+                    break;
+
+            };
+            let pathUserImage=null;
+
+            if(req.files){
+
+                let userImage = req.files.images;
+                let path = `public/images/users/${newUser._id}`;
+
+
+                if(!fs.existsSync('public/images')){
+                    fs.mkdirSync('public/images');
+                }//if
+
+                if(!fs.existsSync('public/images/users')){
+                    fs.mkdirSync('public/images/users');
+                }//if
+
+                try{
+                    fs.mkdirSync(path);
+                }//catch
+                catch(ex){
+                    console.log(ex)
+                }//try
+
+                userImage.mv( `${path}/${userImage.name}`,async function(err){
+
+                    if (err){
+                        console.log('FILE UPLOAD ERROR:' , err);
+                        return;
+                    }//if
+
+                    pathUserImage = `images/users/${newUser._id}/${userImage.name}`;
+
+
+                })//lotImage.mv
+
+
+
+
+
+
+            }//if req.files
+
+
+            try {
+
+
+
+                newUser = new User({
+                    userLogin: req.body.login,
+                    userPassword: hexPassword,
+                    userEmail: req.body.email,
+                    userName: req.body.firstName,
+                    userLastname: req.body.lastName,
+                    userPhone: req.body.phone,
+                    role: role._id,
+                    userStatus: status._id,
+                    userPhoto:pathUserImage,
+                });
+
+
+            }//try
+            catch(ex){
+
+                let message = UtilsController.MakeMongooseMessageFromError(ex);
+
+                Response.status = 400;
+                Response.message = message;
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return ;
+
+            }//catch
+
+
+
+
+
+
+        } // Try
+        catch(ex){
+
+            console.log('Eeception: ' , ex);
+
+            //let message = UtilsController.MakeMongooseMessageFromError(ex);
+
+            res.status(400);
+            res.send( {
+                status: 400,
+                message: ex
+            } );
+
+            return;
+
+
+        } // Catch
+
+        let createUserResult = await newUser.save();
+
+        Response.status = 200;
+        Response.message = `Добавление юзера успешно, проверьте email: ${createUserResult.userEmail}`;
+        Response.data = null;
+
+        res.status(Response.status);
+        res.send(Response);
+
+    } // Try
+    catch(ex){
+
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+        res.status(Response.status);
+        res.send(Response);
+
+    } // Catch
+
+}; // AddUser
