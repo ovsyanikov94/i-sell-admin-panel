@@ -194,7 +194,7 @@ module.exports.updateUser = async(req,res)=>{
     let role = req.body.role;
     let status = req.body.userStatus;
 
-    }//if
+
     try {
 
 
@@ -729,6 +729,7 @@ module.exports.GetUserSaleLot = async (req,res)=>{
     res.status(Response.status);
     res.send(Response);
 }//GetUserSaleActiveLot
+
 module.exports.AddUserWithRole = async( req , res ) => {
 
     let validLogin =constValidator.USER_LOGIN_VALIDATOR.test( req.body.login)||'';
@@ -793,6 +794,13 @@ module.exports.AddUserWithRole = async( req , res ) => {
         if(!photo){
             Response.status = 400;
             Response.message = 'Выберите фото пользователя!';
+            res.status(Response.status);
+            res.send(Response);
+            return;
+        }
+        if(photo.length>1){
+            Response.status = 400;
+            Response.message = 'У пользователя должны быть только одна фотография!!';
             res.status(Response.status);
             res.send(Response);
             return;
@@ -874,8 +882,52 @@ module.exports.AddUserWithRole = async( req , res ) => {
                     break;
 
             };
+            let pathUserImage=null;
+
+            if(req.files){
+
+                let userImage = req.files.images;
+                let path = `public/images/users/${newUser._id}`;
+
+
+                if(!fs.existsSync('public/images')){
+                    fs.mkdirSync('public/images');
+                }//if
+
+                if(!fs.existsSync('public/images/users')){
+                    fs.mkdirSync('public/images/users');
+                }//if
+
+                try{
+                    fs.mkdirSync(path);
+                }//catch
+                catch(ex){
+                    console.log(ex)
+                }//try
+
+                userImage.mv( `${path}/${userImage.name}`,async function(err){
+
+                    if (err){
+                        console.log('FILE UPLOAD ERROR:' , err);
+                        return;
+                    }//if
+
+                    pathUserImage = `images/users/${newUser._id}/${userImage.name}`;
+
+
+                })//lotImage.mv
+
+
+
+
+
+
+            }//if req.files
+
 
             try {
+
+
 
                 newUser = new User({
                     userLogin: req.body.login,
@@ -886,6 +938,7 @@ module.exports.AddUserWithRole = async( req , res ) => {
                     userPhone: req.body.phone,
                     role: role._id,
                     userStatus: status._id,
+                    userPhoto:pathUserImage,
                 });
 
 
@@ -905,45 +958,7 @@ module.exports.AddUserWithRole = async( req , res ) => {
             }//catch
 
 
-            if(req.files){
 
-                let userImages = req.files.images;
-                let path = `public/images/users/${newUser._id}`;
-
-
-                if(!fs.existsSync('public/images')){
-                    fs.mkdirSync('public/images');
-                }//if
-
-                if(!fs.existsSync('public/images/users')){
-                    fs.mkdirSync('public/images/users');
-                }//if
-
-                try{
-                    fs.mkdirSync(path);
-                }//catch
-                catch(ex){
-                    console.log(ex)
-                }//try
-
-                for (let i=0; i<userImages.length; i++){
-
-                    let userImage = userImages[i];
-
-                    userImage.mv( `${path}/${userImage.name}`,async function(err){
-
-                        if (err){
-                            console.log('FILE UPLOAD ERROR:' , err);
-                            return;
-                        }//if
-
-                        let pathLot = `images/users/${newUser._id}/${userImage.name}`;
-                        newUser.userPhoto = pathLot;
-
-                    })//lotImage.mv
-                } //for
-
-            }//if req.files
 
 
 
