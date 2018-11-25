@@ -47,7 +47,7 @@ gulp.task( 'default' , gulpSync.sync([
     // 'clearDealStatuses',
     // 'InsertDefaultDealStatuses',
     // 'clearUserStatuses',
-    // 'InsertDefaultUserStatuses',
+    'InsertDefaultUserStatuses',
     // 'clearUserRoles',
     // 'InsertDefaultUserRoles',
     // 'clearLotType',
@@ -58,5 +58,5 @@ gulp.task( 'default' , gulpSync.sync([
      //'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
-    'InsertDefaultUserRoles'
+    //'InsertDefaultUserRoles'
 ]));
