@@ -7,7 +7,7 @@ const UserStatus = require('../model/UserStatus');
 const UserRoleEnum = require('../model/Enums/UserRole');
 const UserStatusEnum = require('../model/Enums/UserStatus');
 const Category = require('../model/Category');
-
+const lotImagePath = require('../model/LotImage');
 const Logger = require('../model/Logger');
 
 const UtilsController = require('../controller/UtilsController');
@@ -699,7 +699,16 @@ module.exports.GetUserSaleLot = async (req,res)=>{
             }//for
 
             Lots.lots[i].categories = titleCategory;
+
+            if(Lots.lots[i].lotImagePath.length>0){
+                let imageId = Lots.lots[i].lotImagePath[0];
+
+                let imagePath = await lotImagePath.find({_id : imageId},'path');
+                Lots.lots[i].lotImagePath = imagePath;
+            }
+
         }//for
+
 
         Response.status = 200;
         Response.message = 'OK!';
