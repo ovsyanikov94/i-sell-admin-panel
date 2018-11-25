@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const categories = require('./Category');
+const lotMarks = require('./LotMark');
 const ValidatorConstants = require('../model/Validation');
 
 const lotSchema = new Schema({
@@ -117,7 +118,7 @@ const lotSchema = new Schema({
 
     typeLot:{
         type: Number,
-        ref: 'lotTypes'
+
     },
 
     statusLot:{
@@ -134,7 +135,70 @@ const lotSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'categories'
         }
-    ]
+    ],
+    countLikes:
+        {
+            type: Number,
+
+        },
+    countDisLikes:
+        {
+            type: Number,
+
+        },
+
+},{
+    toObject: { virtuals: true },
+    toJSON: { virtuals: true }
 });
+
+// let like = lotSchema.virtual('countLike');
+//
+// like.get( function ( c ) {
+// console.log('c', c);
+// return 25;
+//
+// })
+//     .set(  function(val) {
+//
+//         console.log('this.countLike', this.countLike);
+//
+//
+//     });
+
+
+lotSchema.methods.getLikes = async function (  ) {
+
+    try{
+
+        let likes =  await lotMarks.find({receiver: this.id, mark: ValidatorConstants.MARK_LIKE});
+        this.countLikes = likes.length;
+        return likes.length || 0;
+
+    }//try
+    catch(ex){
+
+        return false;
+
+    }//catch
+
+};
+
+lotSchema.methods.getDisLike = async function (  ) {
+
+    try{
+
+        let disLikes =  await lotMarks.find({receiver: this.id, mark: ValidatorConstants.MARK_DISLIKE});
+        this.countDisLikes = disLikes.length;
+        return disLikes.length || 0;
+
+    }//try
+    catch(ex){
+
+        return false;
+
+    }//catch
+
+};
 
 module.exports = mongoose.model('lots' , lotSchema);

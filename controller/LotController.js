@@ -403,6 +403,16 @@ module.exports.GetLotList = async (req, res) => {
             .populate('seller', 'userLogin')
             .populate('categories', 'title');
 
+
+
+        for(let i =0; i< lots.length; i++){
+        
+            let countLikes = await lots[i].getLikes();
+            let countDislikes = await lots[i].getDisLike();
+
+
+        }//for
+
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
         Response.data = lots;
@@ -861,5 +871,50 @@ module.exports.UpdateLot = async( req , res ) => {
         } );
 
     }//catch
+
+};
+
+module.exports.GetLotById= async (req, res) => {
+
+    try{
+        let idLot = req.query.id ;
+
+        let lot = await Lot.findOne({_id: idLot})
+            .populate('lotImagePath')
+            .populate('mapLot')
+            .populate('seller', 'userLogin')
+            .populate('categories', 'title');
+
+            let countLikes = await lot.getLikes();
+            let countDislikes = await lot.getDisLike();
+
+
+        Response.status = 200;
+        Response.message = 'Смотрите ЛОТЫ!!!!';
+        Response.data = lot;
+
+
+    }//try
+    catch(ex){
+
+        console.log(ex);
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
+
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
 
 };

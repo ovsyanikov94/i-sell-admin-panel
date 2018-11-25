@@ -1,6 +1,6 @@
 "use strict";
 
-const mongoose = required('mongoose');
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 //описание схемы модели оценки лота
@@ -17,8 +17,7 @@ const lotMarkSchema = new Schema({
    },//receiver
 
    mark:{
-      type: Schema.Types.ObjectId,
-      ref: 'marks'
+      type: Number,
    },//mark
 
 });
