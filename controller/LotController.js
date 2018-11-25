@@ -21,7 +21,7 @@ const UtilsController = require('../controller/UtilsController');
 
 module.exports.AddLot = async( req , res ) => {
 
-console.log('req.body.', req.body);
+
     try{
 
         if(!req.files){
@@ -274,6 +274,8 @@ console.log('req.body.', req.body);
 
         let createLotResult = await newLot.save();
 
+        console.log('req.files', req.files);
+
         if(req.files){
 
             let lotImages = req.files.images;
@@ -295,6 +297,34 @@ console.log('req.body.', req.body);
                 console.log(ex)
             }//try
 
+            console.log('lotImages.length',lotImages.length);
+
+            if(lotImages.length === undefined){
+                let lotImage = lotImages;
+
+                lotImage.mv( `${path}/${lotImage.name}`, async function(err){
+
+                    if (err){
+                        console.log('FILE UPLOAD ERROR:' , err);
+                        return;
+                    }//if
+
+                    let pathLot = `/i-sell-admin-api/images/lots/${newLot._id}/${lotImage.name}`;
+
+                    let path = new LotImage({
+                        'path':  pathLot
+                    });
+
+                    let newImage = await path.save();
+
+
+                    let addLot = await Lot.findById(newLot._id);
+                    addLot.lotImagePath.push(newImage._id);
+                    await addLot.save();
+
+                })//lotImage.mv
+            }//if
+
             for (let i=0; i<lotImages.length; i++){
 
                 let lotImage = lotImages[i];
@@ -306,15 +336,13 @@ console.log('req.body.', req.body);
                         return;
                     }//if
 
-                    let pathLot = `images/lots/${newLot._id}/${lotImage.name}`;
+                    let pathLot = `/i-sell-admin-api/images/lots/${newLot._id}/${lotImage.name}`;
 
                     let path = new LotImage({
                         'path':  pathLot
                     });
 
-
                     let newImage = await path.save();
-                    console.log('newImage', newImage);
 
                     let addLot = await Lot.findById(newLot._id);
                     addLot.lotImagePath.push(newImage._id);
@@ -765,6 +793,7 @@ module.exports.UpdateLot = async( req , res ) => {
                 console.log(ex)
             }//try
 
+            console.log('lotImages.length', lotImages.length);
             for (let i=0; i<lotImages.length; i++){
 
                 let lotImage = lotImages[i];
