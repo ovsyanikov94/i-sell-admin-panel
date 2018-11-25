@@ -21,6 +21,7 @@ const dealRouter = require('./routes/deals');
 const statusDealRouter = require('./routes/statusDeal');
 const statusUserRouter = require('./routes/statusUsers');
 const subscribersRouter = require('./routes/subscribers');
+const lotMarkRouter = require('./routes/lot-mark');
 const blackListRouter = require('./routes/blackList');
 const blockListRouter = require('./routes/blockList');
 const commentRouter = require('./routes/comment');
@@ -68,6 +69,7 @@ app.use('/api', categoryRoutes);
 app.use('/api', lotRoutes);
 app.use('/api', lotStatusRoutes);
 app.use('/api', lotTypeRoutes);
+app.use('/api', lotMarkRouter);
 
 app.use('/api', dealRouter);
 app.use('/api', statusDealRouter);
