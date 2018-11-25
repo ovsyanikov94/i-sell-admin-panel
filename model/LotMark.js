@@ -17,8 +17,7 @@ const lotMarkSchema = new Schema({
    },//receiver
 
    mark:{
-      type: Schema.Types.ObjectId,
-      ref: 'marks'
+      type: Number
    },//mark
 
 });
