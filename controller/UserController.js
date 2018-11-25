@@ -705,8 +705,10 @@ module.exports.GetUserSaleLot = async (req,res)=>{
 
                 let imagePath = await lotImagePath.find({_id : imageId},'path');
                 Lots.lots[i].lotImagePath = imagePath;
-            }
+            }//if
 
+             await Lots.lots[i].getLikes();
+             await Lots.lots[i].getDisLike();
         }//for
 
 
