@@ -677,6 +677,7 @@ module.exports.GetUserSaleLot = async (req,res)=>{
     let limit = req.body.limit||0;
     let offset = req.body.offset||10;
     try{
+
         let Lots = await User
             .findById(id)
             .populate({
@@ -686,6 +687,19 @@ module.exports.GetUserSaleLot = async (req,res)=>{
                     statusLot:lotStatus
                 }
             });
+
+        // let Lots = await User
+        //     .findById(id , {
+        //         skip: offset,
+        //         limit: limit
+        //     }, '')
+        //     .populate({
+        //         path: 'lots',
+        //         match: {
+        //             seller: id,
+        //             statusLot:lotStatus
+        //         }
+        //     });
 
         for(let i=0;i<Lots.lots.length;i++){
 
