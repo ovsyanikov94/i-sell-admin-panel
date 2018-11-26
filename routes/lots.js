@@ -8,7 +8,7 @@ const AccessController = require( "../controller/AccessController");
 
 
 router.post('/lot' , AccessController.CheckAccess , LotController.AddLot );
-router.post('/singleLot' , AccessController.CheckAccess , LotController.GetLotById );
+router.get('/singleLot' , AccessController.CheckAccess , LotController.GetLotById );
 router.get('/lotList' , LotController.GetLotList );
 router.delete('/deleteLot/:id' , LotController.DeleteLot );
 router.put('/updateLot/:id' , LotController.UpdateLot );
