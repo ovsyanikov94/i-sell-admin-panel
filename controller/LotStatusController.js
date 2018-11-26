@@ -4,31 +4,49 @@ const LotStatus = require('../model/LotStatus');
 const Logger = require('../model/Logger');
 const Response = require('../model/Response');
 
-module.exports.AddLotStatus = async( req , res )=>{
+module.exports.GetLotStatusById = async( req , res )=>{
 
     try{
+        let id = req.query.id;
 
-        let title = req.body.statusTitle;
+        if(!id){
+            Response.status = 400;
+            Response.message = 'id статуса лота не заданю';
+            Response.data = id;
 
-        let newStatus= new LotStatus({
-            'statusTitle': title
-        });
+            res.status(Response.status);
+            res.send(Response);
 
-        let result = await newStatus.save();
+            return ;
+        }
+        let status = await LotStatus.findOne({statusID: id}, 'statusTitle statusID');
 
-        res.send({
-            code: 200,
-            data: result,
-            message:  'Статус добавлен!'
-        });
+        Response.status = 200;
+        Response.message = 'Смотрите статус лотов!!!!';
+        Response.data = status;
 
 
     }//try
     catch(ex){
 
-        res.send( ex.message );
+        console.log(ex);
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
 
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
 
 };//AddLotStatus
 
@@ -64,6 +82,7 @@ module.exports.GetListLotStatusBuy = async (req,res)=>{///ИСПРАВИТЬ!!
     res.status(Response.status);
     res.send(Response);
 };//GetListLotStatus
+
 module.exports.GetListLotStatusSale = async (req,res)=>{
 
     try {

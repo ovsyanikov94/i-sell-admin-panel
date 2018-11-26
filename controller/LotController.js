@@ -884,6 +884,9 @@ module.exports.GetLotById= async (req, res) => {
             .populate('mapLot')
             .populate('seller', 'userLogin')
             .populate('categories', 'title');
+            //.populate('comments');
+
+
 
             let countLikes = await lot.getLikes();
             let countDislikes = await lot.getDisLike();
