@@ -447,7 +447,11 @@ module.exports.GetLotByID = async (req, res) => {
     try{
 
         let lotID = req.params.id;
-        let lot = await Lot.findById(lotID).populate('comments');
+        let lot = await Lot.findById(lotID)
+                    .populate('comments')
+                    .populate('lotImagePath')
+                    .populate('mapLot')
+                    .populate('categories');
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
@@ -917,14 +921,11 @@ module.exports.GetLotById= async (req, res) => {
             .populate('lotImagePath')
             .populate('mapLot')
             .populate('seller', 'userLogin')
-            .populate('categories', 'title');
-            //.populate('comments');
+            .populate('categories', 'title')
+            .populate('comments');
 
-
-
-            let countLikes = await lot.getLikes();
-            let countDislikes = await lot.getDisLike();
-
+        let countLikes = await lot.getLikes();
+        let countDislikes = await lot.getDisLike();
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';

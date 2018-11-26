@@ -7,12 +7,10 @@ const LotController = require('../controller/LotController');
 const AccessController = require( "../controller/AccessController");
 
 
-router.post('/lot' , AccessController.CheckAccess , LotController.AddLot );
-router.get('/singleLot' , AccessController.CheckAccess , LotController.GetLotById );
+router.post('/lot' ,  LotController.AddLot );
+router.get('/singleLot' , LotController.GetLotById );
 router.get('/lotList' , LotController.GetLotList );
 router.delete('/deleteLot/:id' , LotController.DeleteLot );
 router.put('/updateLot/:id' , LotController.UpdateLot );
-
-router.get('/lot/:id' , LotController.GetLotByID );
 
 module.exports = router;
