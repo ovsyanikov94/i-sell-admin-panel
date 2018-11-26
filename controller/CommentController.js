@@ -127,7 +127,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//catch
 
-        if (commentTypeID == CommentTypeEnum.LOT){
+        if (+commentTypeID === CommentTypeEnum.LOT){
 
             try{
 
@@ -146,7 +146,9 @@ module.exports.AddComment = async( req , res ) => {
 
                 }//if
 
-                //newComment = await Comment.populate('lots');
+                let lot = await Lot.findById( lotID , '_id');
+
+                newComment.lot = lot._id;
 
             }//try
             catch(ex){
@@ -167,7 +169,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//else
 
-        else if(commentTypeID == CommentTypeEnum.PERSONAL ){
+        else if(+commentTypeID === CommentTypeEnum.PERSONAL ){
 
             try{
 
@@ -186,7 +188,9 @@ module.exports.AddComment = async( req , res ) => {
 
                 }//if
 
-                //newComment = await Comment.populate('userReceiver');
+                let user = await User.findById(userReceiverID , '_id');
+
+                newComment.userReceiver = user._id;
 
             }//try
             catch(ex){
