@@ -336,6 +336,7 @@ module.exports.addUserAvatar = async (req,res)=>{
 
         Response.status = 400;
         Response.message = 'не корректное значени!';
+
         res.status(Response.status);
         res.send(Response);
         return;
