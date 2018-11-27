@@ -8,6 +8,8 @@ const commentType = require('./CommentType');
 const users = require('./User');
 const lots = require('./Lot');
 
+const ValidatorConstants = require('../model/Validation');
+
 const commentSchema = new Schema({
     commentText: {
         type: String,
@@ -17,17 +19,23 @@ const commentSchema = new Schema({
     },
 
     commentStatus:{
-        type: Schema.Types.ObjectId,
+        type: Number,
         ref: 'commentStatus'
     },
 
     commentType:{
-        type: Schema.Types.ObjectId,
+        type: Number,
         ref: 'commentType'
     },
 
     commentSendDate:{
-        type:Date
+        type:Number,
+        validate:{
+            validator: ( date )=>{
+                return date >= ValidatorConstants.COMMENT_DATE_VALIDATOR;
+            },//validator
+            message: props => `Дата указана неверно : "${props.value}"`
+        },
     },
 
     userSender:{

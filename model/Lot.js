@@ -171,9 +171,7 @@ lotSchema.methods.getLikes = async function (  ) {
 
     try{
 
-        let likes =  await lotMarks.find({receiver: this.id, mark: ValidatorConstants.MARK_LIKE});
-        this.countLikes = likes.length;
-        return likes.length || 0;
+        return this.countLikes = await lotMarks.count({receiver: this.id, mark: ValidatorConstants.MARK_LIKE});
 
     }//try
     catch(ex){

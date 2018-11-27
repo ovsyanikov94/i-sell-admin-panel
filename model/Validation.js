@@ -33,11 +33,9 @@ const ValidatorConst = {
     COMMENT_TYPE_ID:/^[1-2]{1}/i,
     COMMENT_STATUS_ID:/^[1-3]{1}/i,
     COMMENT_STATUS_AND_TYPE_VALIDATOR: /^[a-z\s]{1,20}$/i,
-    COMMENT_DATE_VALIDATOR:/^\d{1,2}\/\d{1,2}\/\d{4}$/i,
-
+    COMMENT_DATE_VALIDATOR:0,
     MARK_LIKE:1,
     MARK_DISLIKE:0
-
 };
 
 module.exports = ValidatorConst;

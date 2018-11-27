@@ -1,12 +1,18 @@
 "use strict";
 
 const Lot = require('../model/Lot');
-const User = require('../model/User')
+const User = require('../model/User');
+const Comment = require('../model/Comment');
 const Logger = require('../model/Logger');
 
+const CommentType = require('../model/CommentType');
+const CommentStatus = require('../model/CommentStatus');
 const CommentTypeEnum = require('../model/Enums/CommentType');
 const ValidatorConstants = require('../model/Validation');
 const Response = require('../model/Response');
+
+const moment = require('moment');
+const validator = require('validator');
 
 module.exports.AddComment = async( req , res ) => {
 
@@ -30,37 +36,39 @@ module.exports.AddComment = async( req , res ) => {
 
         let commentStatusID = req.body.commentStatusID;
 
-        if( !commentStatusID.match( ValidatorConstants.COMMENT_STATUS_ID ) ){
+        let commentStatus =  await CommentStatus.find({commentStatusID: commentStatusID });
+
+        if ( commentStatus.length === 0){
 
             Response.status = 400;
-            Response.message = 'Неправильный id статуса комментария !';
-            Response.data = commentStatusID;
+            Response.message = 'Статус комментария не найден!';
+            Response.data = commentStatus;
 
             res.status(Response.status);
             res.send(Response);
 
-            return;
-
+            return ;
         }//if
 
         let commentTypeID = req.body.commentTypeID;
 
-        if( !commentTypeID.match( ValidatorConstants.COMMENT_TYPE_ID ) ){
+        let commentType =  await CommentType.find({commentTypeID: commentTypeID });
+
+        if ( commentType.length === 0){
 
             Response.status = 400;
-            Response.message = 'Неправильный id типа комментария!';
-            Response.data = commentTypeID;
+            Response.message = 'Тип комментария не найден!';
+            Response.data = commentType;
 
             res.status(Response.status);
             res.send(Response);
 
-            return;
+            return ;
         }//if
 
-        //!!!!!!!!!! UNIX !!!!!!!!!!!
         let commentSendDate = req.body.commentSendDate;
 
-        if( !commentSendDate.match( ValidatorConstants.COMMENT_DATE_VALIDATOR ) ){
+        if( commentSendDate < ValidatorConstants.COMMENT_DATE_VALIDATOR || moment.unix(commentSendDate).isValid()===false ){
 
             Response.status = 400;
             Response.message = 'Неверный формат даты !';
@@ -73,18 +81,20 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let userSenderID = req.body.userSender;
+        let userSenderID = req.body.userSenderID;
 
-        if(!validator.isMongoId(userSenderID)){
+        let userSender =  await User.find({_id: userSenderID });
+
+        if ( userSender.length === 0){
 
             Response.status = 400;
-            Response.message = 'Неверный ID оправителя !';
-            Response.data = userSenderID;
+            Response.message = 'Отправитель не найден!';
+            Response.data = userSender;
 
             res.status(Response.status);
             res.send(Response);
 
-            return;
+            return ;
 
         }//if
 
@@ -95,9 +105,10 @@ module.exports.AddComment = async( req , res ) => {
             newComment = new Comment({
 
                 commentText: commentText,
-                commentStatusID: commentStatusID,
-                commentTypeID: commentTypeID,
-                commentSendDate: commentSendDate
+                commentStatus: commentStatusID,
+                commentType: commentTypeID,
+                commentSendDate: commentSendDate,
+                userSender: userSenderID
 
             });
 
@@ -116,44 +127,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//catch
 
-        if(commentTypeID === CommentTypeEnum.PERSONAL ){
-
-            try{
-
-                let userReceiverID = req.body.userReceiverID;
-
-                if(!validator.isMongoId(userReceiverID)){
-
-                    Response.status = 400;
-                    Response.message = 'Неверный ID получателя !';
-                    Response.data = userReceiverID;
-
-                    res.status(Response.status);
-                    res.send(Response);
-
-                    return;
-
-                }//if
-
-                await newComment.addFields({userReceiver:userReceiverID});
-
-            }//try
-            catch(ex){
-
-                Response.status = 400;
-                Response.message = 'Ошибка при добавлении получателя!';
-                Response.data = ex;
-
-                res.status(Response.status);
-                res.send(Response);
-
-                return;
-
-            }//catch
-
-        }//if
-
-        else if (commentTypeID === CommentTypeEnum.LOT){
+        if (+commentTypeID === CommentTypeEnum.LOT){
 
             try{
 
@@ -172,7 +146,9 @@ module.exports.AddComment = async( req , res ) => {
 
                 }//if
 
-                await newComment.addFields({lot:lotID});
+                let lot = await Lot.findById( lotID , '_id');
+
+                newComment.lot = lot._id;
 
             }//try
             catch(ex){
@@ -181,6 +157,8 @@ module.exports.AddComment = async( req , res ) => {
                 Response.message = 'Ошибка при добавлении лота к комментарию!';
                 Response.data = ex;
 
+                console.log(ex);
+
                 res.status(Response.status);
                 res.send(Response);
 
@@ -188,18 +166,55 @@ module.exports.AddComment = async( req , res ) => {
 
             }//catch
 
-            newComment.addFields({
-
-            });
 
         }//else
+
+        else if(+commentTypeID === CommentTypeEnum.PERSONAL ){
+
+            try{
+
+                let userReceiverID = req.body.userReceiverID;
+
+                if(!validator.isMongoId(userReceiverID)){
+
+                    Response.status = 400;
+                    Response.message = 'Неверный ID получателя !';
+                    Response.data = userReceiverID;
+
+                    res.status(Response.status);
+                    res.send(Response);
+
+                    return;
+
+                }//if
+
+                let user = await User.findById(userReceiverID , '_id');
+
+                newComment.userReceiver = user._id;
+
+            }//try
+            catch(ex){
+
+                Response.status = 400;
+                Response.message = 'Ошибка при добавлении получателя!';
+                Response.data = ex;
+
+                console.log(ex);
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+
+            }//catch
+
+        }//if
 
         let createResult = await newComment.save();
 
         Response.status = 200;
-        Response.message = 'Комментарий успещно добавлен!';
+        Response.message = 'Комментарий успешно добавлен!';
         Response.data = createResult;
-
 
 
     }//try
@@ -208,6 +223,8 @@ module.exports.AddComment = async( req , res ) => {
         Response.status = 500;
         Response.message = 'Ошибка сервера!';
         Response.data = ex;
+
+        console.log(ex);
 
         Logger.error({
             time: new Date().toISOString(),
@@ -229,24 +246,21 @@ module.exports.UpdateComment = async( req , res ) => {
 
     try{
 
-        let commentID = req.body.id || '';
+        let commentID = req.params.id || '';
 
-        if(!await Comment.findOne({id: commentID})){
+        let comment = Lot.findById(commentID);
 
-            Response.status = 400;
-            Response.message = 'Комментарий с таким ID не был найден!';
-            Response.data = commentID;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return;
-
+        if(!comment){
+            return {
+                code: 400,
+                data: commentID,
+                message:  'Комментарий не был найден!'
+            }
         }//if
 
         let commentText = req.body.commentText && req.body.commentText.trim();
 
-        if(commentText || commentText.length < ValidatorConstants.COMMENT_MIN_LENGTH || commentText.length > ValidatorConstants.COMMENT_MAX_LENGTH){
+        if(!commentText || commentText.length < ValidatorConstants.COMMENT_MIN_LENGTH || commentText.length > ValidatorConstants.COMMENT_MAX_LENGTH){
 
             Response.status = 400;
             Response.message = 'Некорректная длина комментария!';
@@ -279,11 +293,9 @@ module.exports.UpdateComment = async( req , res ) => {
 
         }//catch
 
-        let updateResult = await updateComment.save();
-
         Response.status = 200;
-        Response.message = 'Комментарий успещно обновлен!';
-        Response.data = updateResult;
+        Response.message = 'Комментарий успешно обновлен!';
+        Response.data = updateComment;
 
     }//try
     catch(ex){
@@ -291,6 +303,8 @@ module.exports.UpdateComment = async( req , res ) => {
         Response.status = 500;
         Response.message = 'Ошибка сервера!';
         Response.data = ex;
+
+        console.log(ex);
 
         Logger.error({
             time: new Date().toISOString(),
@@ -312,46 +326,23 @@ module.exports.DeleteComment = async( req , res ) => {
 
     try{
 
-        let commentID = req.body.commentID;
+        let commentID = req.params.id;
 
-        if(!await Comment.findOne({id: commentID})){
+        let deleteComment = Lot.findById(commentID);
 
-            Response.status = 400;
-            Response.message = 'Комментарий с таким ID не был найден!';
-            Response.data = commentID;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return;
-
+        if(!deleteComment){
+            return {
+                code: 400,
+                data: commentID,
+                message:  'Комментарий не был найден!'
+            }
         }//if
 
-        let deleteComment = null;
-
-        try {
-
-            deleteComment = await Comment.remove({_id:commentID});
-
-        }//try
-        catch(ex){
-
-            Response.status = 400;
-            Response.message = 'Комментарий не был удален!';
-            Response.data = deleteComment;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return;
-
-        }//catch
-
-        let deleteResult = await deleteComment.save();
+        let result = await Comment.findOneAndDelete({_id: commentID});
 
         Response.status = 200;
         Response.message = 'Комментарий успещно удален!';
-        Response.data = deleteResult;
+        Response.data = result;
 
 
     }//try
@@ -360,6 +351,8 @@ module.exports.DeleteComment = async( req , res ) => {
         Response.status = 500;
         Response.message = 'Ошибка сервера!';
         Response.data = ex;
+
+        console.log(ex);
 
         Logger.error({
             time: new Date().toISOString(),
@@ -381,9 +374,7 @@ module.exports.GetComments = async( req , res ) => {
 
     try{
 
-        let comments = await Comment.find({
-
-        } , 'id commentText' , {
+        let comments = await Comment.find({commentType: CommentTypeEnum.LOT }, 'id commentStatus commentType commentSendDate userSender userReceiver lot ',{
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
         });
@@ -399,6 +390,8 @@ module.exports.GetComments = async( req , res ) => {
         Response.status = 500;
         Response.message = 'Ошибка сервера!';
         Response.data = ex;
+
+        console.log(ex);
 
         Logger.error({
             time: new Date().toISOString(),

@@ -394,7 +394,6 @@ module.exports.GetLotList = async (req, res) => {
         let limit = +req.query.limit || 10;
         let offset = +req.query.offset || 0;
 
-
         let lots = await Lot.find()
             .limit(limit)
             .skip(offset)
@@ -422,6 +421,45 @@ module.exports.GetLotList = async (req, res) => {
     catch(ex){
 
         console.log(ex);
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
+
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
+
+};
+
+module.exports.GetLotByID = async (req, res) => {
+
+    try{
+
+        let lotID = req.params.id;
+        let lot = await Lot.findById(lotID)
+                    .populate('comments')
+                    .populate('lotImagePath')
+                    .populate('mapLot')
+                    .populate('categories');
+
+        Response.status = 200;
+        Response.message = 'Смотрите ЛОТЫ!!!!';
+        Response.data = lot;
+
+    }//try
+    catch(ex){
+
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -883,11 +921,11 @@ module.exports.GetLotById= async (req, res) => {
             .populate('lotImagePath')
             .populate('mapLot')
             .populate('seller', 'userLogin')
-            .populate('categories', 'title');
+            .populate('categories', 'title')
+            .populate('comments');
 
-            let countLikes = await lot.getLikes();
-            let countDislikes = await lot.getDisLike();
-
+        let countLikes = await lot.getLikes();
+        let countDislikes = await lot.getDisLike();
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';

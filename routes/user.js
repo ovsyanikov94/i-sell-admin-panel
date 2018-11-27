@@ -6,7 +6,10 @@ const router = express.Router();
 const UserController = require('../controller/UserController');
 const AccessController = require('../controller/AccessController');
 
-router.get('/getUser', AccessController.CheckAccess  ,UserController.GetUser);
+//router.use( AccessController.CheckAccess );
+
+
+router.get('/getUser',UserController.GetUser);
 router.post('/registryUser',UserController.AddUser);
 router.post('/updateUserInfo', AccessController.CheckAccess , UserController.updateUser);
 router.post('/addUserAvatar',AccessController.CheckAccess , UserController.addUserAvatar);

@@ -17,8 +17,14 @@ const commentTypeSchema = new Schema({
     },
     commentTypeID:{
         type:Number
-    }
+    },
+    comments: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'comments'
+        }
+    ]
 
 });
 
-module.exports = mongoose.model('commentType' , commentTypeSchema);
+module.exports = mongoose.model('commenttypes' , commentTypeSchema);

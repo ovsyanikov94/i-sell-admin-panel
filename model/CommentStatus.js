@@ -17,8 +17,14 @@ const commentStatusSchema = new Schema({
     },
     commentStatusID: {
         type:Number
-    }
+    },
+    comments: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'comments'
+        }
+    ]
 
 });
 
-module.exports = mongoose.model('commentStatus' , commentStatusSchema);
+module.exports = mongoose.model('commentstatuses' , commentStatusSchema);
