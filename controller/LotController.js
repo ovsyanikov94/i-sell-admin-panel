@@ -441,45 +441,6 @@ module.exports.GetLotList = async (req, res) => {
 
 };
 
-module.exports.GetLotByID = async (req, res) => {
-
-    try{
-
-        let lotID = req.params.id;
-        let lot = await Lot.findById(lotID)
-                    .populate('comments')
-                    .populate('lotImagePath')
-                    .populate('mapLot')
-                    .populate('categories');
-
-        Response.status = 200;
-        Response.message = 'Смотрите ЛОТЫ!!!!';
-        Response.data = lot;
-
-    }//try
-    catch(ex){
-
-        Logger.error({
-            time: new Date().toISOString(),
-            status: 500,
-            data: {
-                message: ex.message,
-                stack: ex.stack
-            },
-        });
-
-        Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
-        Response.data = ex.message;
-
-    }//catch
-
-    res.status(Response.status);
-    res.send(Response);
-
-
-};
-
 module.exports.DeleteLot = async (req, res) => {
 
     try {
