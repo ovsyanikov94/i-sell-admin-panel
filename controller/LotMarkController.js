@@ -14,8 +14,6 @@ module.exports.UpdateLotMark = async ( req, res ) => {
 
     try{
 
-        //получаем айди оценки лота
-
         let userID = req.session.passport.user;
 
         let userCheck = await User.findById(userID , '_id');
