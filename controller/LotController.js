@@ -409,7 +409,6 @@ module.exports.GetLotList = async (req, res) => {
             let countLikes = await lots[i].getLikes();
             let countDislikes = await lots[i].getDisLike();
 
-
         }//for
 
         Response.status = 200;
@@ -810,9 +809,10 @@ module.exports.UpdateLot = async( req , res ) => {
                 if(appCategories[i]._id != categoriesIds[j]._id && indexLot!=-1 && categoriesIds[j].lots.indexOf(lot)==-1){
                     appCategories[i].lots.splice(indexLot,1);
                 }//if
-                if(categoriesIds[j].lots.indexOf(lot)==-1){
+                if(categoriesIds[j].lots.indexOf(lot) === -1){
                     categoriesIds[j].lots.push(lot);
                 }//if
+
 
             }//for
 
