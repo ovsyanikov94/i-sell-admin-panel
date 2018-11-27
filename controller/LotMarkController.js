@@ -30,7 +30,7 @@ module.exports.UpdateLotMark = async ( req, res ) => {
             return;
         }//if
 
-        let lotID = req.body.lotID;
+        let lotID = req.body.receiver;
 
         let lotCheck = await Lot.findById(lotID , '_id');
 
