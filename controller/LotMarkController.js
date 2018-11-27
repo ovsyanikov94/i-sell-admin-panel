@@ -10,169 +10,89 @@ const UtilsController = require('../controller/UtilsController');
 
 const LotMarkConstants = require('../model/LotMarkConstants');
 
-module.exports.AddLotMark = async( req, res ) =>{
-
-    try{
-
-        //получаем айди отправителя, получателя и оценку лота
-        let senderID = req.body.senderID;
-        let receiverID = req.body.recieverID;
-        let mark = req.body.mark;
-
-        //получаем объекты пользователя и лота которым была поставлена оценка
-        let user = await User.findById(senderID);
-        let lot = await Lot.findById(receiverID);
-
-        if(!user){
-
-            Response.status(400);
-            Response.message = 'Пользователь не найден!';
-            Response.data = user;
-
-            res.status(Response.status);
-            res.send(Response);
-
-        }//if
-        if(!lot){
-
-            Response.status(400);
-            Response.message = 'Лот не найден!';
-            Response.data = lot;
-
-            res.status(Response.status);
-            res.send(Response);
-            
-        }//if
-
-        let newLotMark = null;
-        
-        try{
-
-            //создаём объект и присваиваем значения полям
-            newLotMark = new LotMark({
-
-               sender: user,
-               receiver: lot,
-               mark: mark
-
-            });
-
-        }//try
-        catch(ex){
-
-            let message = UtilsController.MakeMongooseMessageFromError(ex);
-
-            Response.status = 400;
-            Response.message = message;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return;
-
-        }//catch
-
-        //сохраняем документ в коллекцию базы данных
-        let createLotMarkResult = await newLotMark.save();
-
-        Response.status = 200;
-        Response.message = 'Новая оценка добавлена';
-        Response.data = createLotMarkResult;
-
-        res.status(Response.status);
-        res.send(Response);
-
-    }//try
-    catch(ex){
-
-        Logger.error({
-            time: new Date().toISOString(),
-            status: 500,
-            data: {
-                message: ex.message,
-                stack: ex.stack
-            },
-        });
-
-        Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
-        Response.data = ex;
-
-        res.status(Response.status);
-        res.send(Response);
-
-    }//catch
-
-};//AddLotMark
-
 module.exports.UpdateLotMark = async ( req, res ) => {
 
     try{
 
         //получаем айди оценки лота
-        let lotMarkID = req.params.id;
-        let mark = req.params.mark;
 
-        let lotMarkToUpdate = await LotMark.findById(lotMarkID);
+        let userID = req.session.passport.user;
 
-        if(lotMarkToUpdate.mark !== mark){
+        let userCheck = await User.findById(userID , '_id');
 
-           let updateResult = await LotMark.findByIdAndUpdate(lotMarkID, { mark: mark });
+        if(!userCheck){
 
-            Response.status = 200;
-            Response.message = 'Оценка успешно изменена';
-            Response.data = updateResult;
+            Response.status = 404;
+            Response.message = 'Пользователь не найден!';
+            Response.data = userID;
 
             res.status(Response.status);
             res.send(Response);
 
+            return;
         }//if
 
-    }//try
-    catch(ex){
+        let lotID = req.body.lotID;
 
-        Logger.error({
-            time: new Date().toISOString(),
-            status: 500,
-            data: {
-                message: ex.message,
-                stack: ex.stack
-            },
+        let lotCheck = await Lot.findById(lotID , '_id');
+
+        if(!lotCheck){
+
+            Response.status = 404;
+            Response.message = 'Лот не найден!';
+            Response.data = lotID;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+        let mark = req.body.mark;
+
+        let lotMarkToUpdate = await LotMark.findOne({
+            receiver: lotID,
+            sender: userID
         });
 
-        Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
-        Response.data = ex;
-
-        res.status(Response.status);
-        res.send(Response);
-
-    }//catch
-
-
-};//UpdateLotMark
-
-module.exports.RemoveLotMark = async( req, res ) => {
-
-    try{
-
-        //достаём айди оценки определённого пользователя на определённом лоте
-        let lotMarkID = req.params.id;
-
+        let newLotMark = null;
+        let updateResult = null;
         let removedMark = null;
 
-        if(lotMarkID){
+        if( !lotMarkToUpdate ){
 
-            removedMark = await LotMark.findByIdAndRemove(lotMarkID);
+            newLotMark = new LotMark({
 
-            Response.status = 200;
-            Response.message = 'Оценка удалена';
-            Response.data = removedMark;
+                sender: userID,
+                receiver: lotID,
+                mark: mark
 
-            res.status(Response.status);
-            res.send(Response);
+            });
+
+            await newLotMark.save();
 
         }//if
+        else if(lotMarkToUpdate.mark !== mark){
+
+           updateResult = await LotMark.findByIdAndUpdate(lotMarkToUpdate._id, { mark: mark });
+
+        }//if
+        else{
+            removedMark = await LotMark.findByIdAndRemove(lotMarkToUpdate._id);
+        }//else
+
+        Response.status = 200;
+        Response.message = 'Оценка успешно изменена';
+
+        if( newLotMark !== null ){
+            Response.data = newLotMark;
+        }//if
+        else if(updateResult !== null){
+            Response.data = updateResult;
+        }//else
+        else{
+            Response.data = removedMark;
+        }//else
 
     }//try
     catch(ex){
@@ -190,12 +110,13 @@ module.exports.RemoveLotMark = async( req, res ) => {
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = ex;
 
-        res.status(Response.status);
-        res.send(Response);
-
     }//catch
 
-};//RemoveLotMark
+
+    res.status(Response.status);
+    res.send(Response);
+
+};//UpdateLotMark
 
 module.exports.GetLotMarkList = async ( req, res ) => {
 
@@ -213,9 +134,6 @@ module.exports.GetLotMarkList = async ( req, res ) => {
         Response.message = 'Список лотов';
         Response.data = lotMarks;
 
-        res.status(Response.status);
-        res.send(Response);
-
     }//try
     catch(ex){
 
@@ -232,9 +150,9 @@ module.exports.GetLotMarkList = async ( req, res ) => {
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = ex;
 
-        res.status(Response.status);
-        res.send(Response);
-
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
 
 };//GetLotMarkList
