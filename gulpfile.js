@@ -50,6 +50,7 @@ require('./tasks/clear-marks-titles');
 require('./tasks/insert-mark-titles');
 
 require('./tasks/insert-category');
+
 gulp.task( 'default' , gulpSync.sync([
     // 'clearDealStatuses',
     // 'InsertDefaultDealStatuses',
@@ -73,10 +74,11 @@ gulp.task( 'default' , gulpSync.sync([
      //'InsertDefaultCommentTypes',
     // 'clearCommentStatuses',
     // 'clearCommentTypes',
-    //'InsertCategory'
 
-    'clearMarkTitles',
-    'InsertDefaultMarkTitles',
+    'InsertCategory',
+
+    //'clearMarkTitles',
+    //'InsertDefaultMarkTitles',
 
 
 ]));
