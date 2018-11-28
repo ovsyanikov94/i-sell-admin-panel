@@ -1,12 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const AccessController = require('../controller/AccessController');
 
 const userRoleControler = require('../controller/RoleController');
 
-router.use( AccessController.CheckAccess );
 
-router.get('/list-users-role',userRoleControler.ListRoles );
+router.get('/listUsersRole',userRoleControler.ListRoles );
 router.get('/getRoleUserById',userRoleControler.GetRoleByID );
+router.post('/addRole',userRoleControler.AddUserRole );
 
 module.exports = router;

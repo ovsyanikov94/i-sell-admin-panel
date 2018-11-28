@@ -759,9 +759,9 @@ module.exports.AddUserWithRole = async( req , res ) => {
     let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
     let validPassword = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.password)||'';
     let userRole = req.body.role ||'';
-    let photo = req.body.photo ||'';
+    //let photo = req.body.photo ||'';
     try{
-
+        //console.log(req);
         if(!validLogin){
             Response.status = 400;
             Response.message = 'Логин не корректный!';
@@ -811,20 +811,20 @@ module.exports.AddUserWithRole = async( req , res ) => {
             res.send(Response);
             return;
         }
-        if(!photo){
-            Response.status = 400;
-            Response.message = 'Выберите фото пользователя!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
-        if(photo.length>1){
-            Response.status = 400;
-            Response.message = 'У пользователя должны быть только одна фотография!!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
+        //if(!photo){
+            //Response.status = 400;
+            //Response.message = 'Выберите фото пользователя!';
+            //res.status(Response.status);
+            //res.send(Response);
+            //return;
+        //}
+       // if(photo.length>1){
+           // Response.status = 400;
+            //Response.message = 'У пользователя должны быть только одна фотография!!';
+            //res.status(Response.status);
+           // res.send(Response);
+            //return;
+        //}
         let checkUser = await User.findOne(
             {
                 $or: [
@@ -902,11 +902,45 @@ module.exports.AddUserWithRole = async( req , res ) => {
                     break;
 
             };
+
+
+
+            try {
+
+
+
+                newUser = new User({
+                    userLogin: req.body.login,
+                    userPassword: hexPassword,
+                    userEmail: req.body.email,
+                    userName: req.body.firstName,
+                    userLastname: req.body.lastName,
+                    userPhone: req.body.phone,
+                    role: role._id,
+                    userStatus: status._id,
+                    //userPhoto:pathUserImage,
+                });
+                await newUser.save();
+            }//try
+            catch(ex){
+
+                let message = UtilsController.MakeMongooseMessageFromError(ex);
+
+                Response.status = 400;
+                Response.message = message;
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return ;
+
+            }//catch
+
             let pathUserImage=null;
 
             if(req.files){
 
-                let userImage = req.files.images;
+                let userImage = req.files.valueOf();
                 let path = `public/images/users/${newUser._id}`;
 
 
@@ -924,18 +958,28 @@ module.exports.AddUserWithRole = async( req , res ) => {
                 catch(ex){
                     console.log(ex)
                 }//try
+                console.log(userImage);
+                console.log(userImage.photo);
 
-                userImage.mv( `${path}/${userImage.name}`,async function(err){
-
-                    if (err){
-                        console.log('FILE UPLOAD ERROR:' , err);
-                        return;
-                    }//if
-
-                    pathUserImage = `images/users/${newUser._id}/${userImage.name}`;
+                fs.writeFileSync(`${path}/${userImage.photo.name}`, userImage.data);
 
 
-                })//lotImage.mv
+                let addUser = await User.findById(newUser._id);
+                addUser.userPhoto = `${path}/${userImage.photo.name}`;
+
+                await addUser.save();
+
+                Response.status = 200;
+                Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
+                Response.data = null;
+
+                res.status(Response.status);
+                res.send(Response);
+
+
+
+
+
 
 
 
@@ -943,41 +987,6 @@ module.exports.AddUserWithRole = async( req , res ) => {
 
 
             }//if req.files
-
-
-            try {
-
-
-
-                newUser = new User({
-                    userLogin: req.body.login,
-                    userPassword: hexPassword,
-                    userEmail: req.body.email,
-                    userName: req.body.firstName,
-                    userLastname: req.body.lastName,
-                    userPhone: req.body.phone,
-                    role: role._id,
-                    userStatus: status._id,
-                    userPhoto:pathUserImage,
-                });
-
-
-            }//try
-            catch(ex){
-
-                let message = UtilsController.MakeMongooseMessageFromError(ex);
-
-                Response.status = 400;
-                Response.message = message;
-
-                res.status(Response.status);
-                res.send(Response);
-
-                return ;
-
-            }//catch
-
-
 
 
 
@@ -1000,14 +1009,8 @@ module.exports.AddUserWithRole = async( req , res ) => {
 
         } // Catch
 
-        let createUserResult = await newUser.save();
 
-        Response.status = 200;
-        Response.message = `Добавление юзера успешно, проверьте email: ${createUserResult.userEmail}`;
-        Response.data = null;
 
-        res.status(Response.status);
-        res.send(Response);
 
     } // Try
     catch(ex){
