@@ -15,5 +15,6 @@ router.put('/updateLot/:id' , LotController.UpdateLot );
 
 //ADMIN PANEL
 router.get('/lotListPanel' , LotController.GetLotListInProcess );
+router.post('/lotApprovedPanel' , LotController.ApprovedLotById );
 
 module.exports = router;

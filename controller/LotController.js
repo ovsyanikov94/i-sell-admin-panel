@@ -960,3 +960,56 @@ module.exports.GetLotListInProcess = async (req, res) => {
 
 
 };
+
+module.exports.ApprovedLotById = async (req, res) => {
+
+    try{
+
+        let lotid = req.body.id;
+
+        let findLot = await Lot.findById(lotid);
+
+        let updateLot = null;
+        if(findLot.typeLot === LotTypeEnum.INSTANT){
+            let date = moment(new Date()).unix();
+
+            let newDate = moment.unix(date).add(findLot.countHourTrade, 'h');
+            let dateEndTrade = moment(newDate).unix();
+
+            updateLot = await Lot.findByIdAndUpdate(findLot._id, { statusLot: LotStatusEnum.ACTIVE, dateStartTrade: date, dateEndTrade: dateEndTrade});
+        }
+        else{
+            updateLot = await Lot.findByIdAndUpdate(findLot._id, { statusLot: LotStatusEnum.ACTIVE });
+        }
+
+
+console.log('updateLot', updateLot);
+        Response.status = 200;
+        Response.message = 'Смотрите обновленный лот!!!!';
+        Response.data = updateLot;
+
+
+    }//try
+    catch(ex){
+
+        console.log(ex);
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
+
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
+
+};
