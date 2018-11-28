@@ -556,7 +556,6 @@ module.exports.DeleteLot = async (req, res) => {
     res.send(Response);
 };
 
-
 module.exports.UpdateLot = async( req , res ) => {
 
     try{
