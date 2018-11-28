@@ -983,7 +983,6 @@ module.exports.ApprovedLotById = async (req, res) => {
         }
 
 
-console.log('updateLot', updateLot);
         Response.status = 200;
         Response.message = 'Смотрите обновленный лот!!!!';
         Response.data = updateLot;
