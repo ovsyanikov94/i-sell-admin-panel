@@ -547,7 +547,7 @@ module.exports.GetUser = async (req,res)=>{
 
     try {
 
-        let existUser = await User.findById(id);
+        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone');
 
         if(!existUser){
 
@@ -614,7 +614,7 @@ module.exports.GetUserBuyLot = async(req,res)=>{
     try{
 
         let Lots = await User
-            .findById(id)
+            .findOne({_id:id},'_id')
             .populate({
                 path: 'lots',
                 match: {
@@ -680,7 +680,7 @@ module.exports.GetUserSaleLot = async (req,res)=>{
     try{
 
         let Lots = await User
-            .findById(id)
+            .findOne({_id:id},'_id')
             .populate({
                 path: 'lots',
                 match: {
