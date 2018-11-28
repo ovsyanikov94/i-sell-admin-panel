@@ -388,13 +388,13 @@ module.exports.AddLot = async( req , res ) => {
 
 };
 
-module.exports.GetLotList = async (req, res) => {
+module.exports.GetLotListActive = async (req, res) => {
 
     try{
         let limit = +req.query.limit || 10;
         let offset = +req.query.offset || 0;
 
-        let lots = await Lot.find()
+        let lots = await Lot.find({statusLot: LotStatusEnum.ACTIVE})
             .limit(limit)
             .skip(offset)
             .populate('lotImagePath')
@@ -891,6 +891,49 @@ module.exports.GetLotById= async (req, res) => {
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
         Response.data = lot;
+
+
+    }//try
+    catch(ex){
+
+        console.log(ex);
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
+
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
+
+};
+
+
+//ADMIN PANEL
+module.exports.GetLotListInProcess = async (req, res) => {
+
+    try{
+
+        let lots = await Lot.find({statusLot: LotStatusEnum.IN_PROCESS})
+            .populate('lotImagePath')
+            .populate('mapLot')
+            .populate('seller', 'userLogin')
+            .populate('categories', 'title');
+
+
+        Response.status = 200;
+        Response.message = 'Смотрите ЛОТЫ!!!!';
+        Response.data = lots;
 
 
     }//try
