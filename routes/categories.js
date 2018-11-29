@@ -3,9 +3,9 @@
 const express = require('express');
 const router = express.Router();
 
-const CategoryController = require('../controller/CategoryController');
+const CategoryController = require('../controller/Lot/CategoryController');
 
-const AccessController = require('../controller/AccessController');
+const AccessController = require('../controller/User/AccessController');
 
 // router.use( AccessController.CheckAccess );
 

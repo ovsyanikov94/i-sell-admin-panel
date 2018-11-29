@@ -1,23 +1,23 @@
 "use strict";
 
-const Lot = require('../model/Lot');
-const Category = require('../model/Category');
-const User = require('../model/User');
-const CoordMap = require('../model/CoordMap');
-const LotType = require('../model/LotType');
-const LotStatus = require('../model/LotStatus');
-const LotImage = require('../model/LotImage');
-const Logger = require('../model/Logger');
-const ValidatorConstants = require('../model/Validation');
+const Lot = require('../../model/Lot');
+const Category = require('../../model/Category');
+const User = require('../../model/User');
+const CoordMap = require('../../model/CoordMap');
+const LotType = require('../../model/LotType');
+const LotStatus = require('../../model/LotStatus');
+const LotImage = require('../../model/LotImage');
+const Logger = require('../../model/Logger');
+const ValidatorConstants = require('../../model/Validation');
 const fs = require('fs');
 
-const LotTypeEnum = require('../model/Enums/LotType');
-const LotStatusEnum = require('../model/Enums/LotStatus');
+const LotTypeEnum = require('../../model/Enums/LotType');
+const LotStatusEnum = require('../../model/Enums/LotStatus');
 
 const moment = require('moment');
 
-const Response = require('../model/Response');
-const UtilsController = require('../controller/UtilsController');
+const Response = require('../../model/Response');
+const UtilsController = require('../UtilsController');
 
 module.exports.AddLot = async( req , res ) => {
 
@@ -515,7 +515,6 @@ module.exports.DeleteLot = async (req, res) => {
     res.status(Response.status);
     res.send(Response);
 };
-
 
 module.exports.UpdateLot = async( req , res ) => {
 

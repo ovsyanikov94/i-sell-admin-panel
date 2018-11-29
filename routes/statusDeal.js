@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const statusDealsController = require('../controller/StatusDealsController');
+const statusDealsController = require('../controller/Deals/StatusDealsController');
 
 router.post('/newStatusDeal', statusDealsController.createStatus);
 router.post('/removeStatusDeal', statusDealsController.removeStatusDeal);

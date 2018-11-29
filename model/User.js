@@ -54,14 +54,13 @@ const userSchema = new Schema({
     },
     userPhoto: {
         type: String, // Либо Image, хз
-        validate:{
-            validator: ( image )=>{
-                return image.maxSize = "6m" // Тут спорно, без теста не могу сделать :(
-            }, // Validator Image
-            message: props => `Ошибка. Размер фотографии не должен превышать 6 мб \n"${props.value}"`
-        },
+        //validate:{
+            //validator: ( image )=>{
+                //return image.maxSize = "1000m" // Тут спорно, без теста не могу сделать :(
+           // }, // Validator Image
+            //message: props => `Ошибка. Размер фотографии не должен превышать 6 мб \n"${props.value}"`
+       // },
     },
-
     rating: {
         type: Number,
         validate:{
@@ -71,12 +70,10 @@ const userSchema = new Schema({
             message: props => `Ошибка. Рейтинг не должен превышать 500! "${props.value}"`
         },
     },
-
     role: {
         type: Schema.Types.ObjectId,
         ref: 'roles'
     },
-
     userPhone: {
         type: String, // Не Number, потому что имеет символы
         validate:{
@@ -86,12 +83,10 @@ const userSchema = new Schema({
             message: props => `Ошибка. Неккоректный номер! "${props.value}"`
         },
     },
-
     userStatus: {
         type: Schema.Types.ObjectId,
         ref: 'userStatus'
     },
-
     blackList:{
         type: Schema.Types.ObjectId,
         ref: 'blackList'

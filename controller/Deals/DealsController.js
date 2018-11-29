@@ -1,15 +1,15 @@
 'use strict';
 
-const Logger = require('../model/Logger');
-const UtilsController = require('../controller/UtilsController');
-const Deals = require('../model/Deals');
-const DealsStatus = require('../model/DealsStatus');
+const Logger = require('../../model/Logger');
+const UtilsController = require('../UtilsController');
+const Deals = require('../../model/Deals');
+const DealsStatus = require('../../model/DealsStatus');
 const validator = require('validator');
-const evaluation = require('../model/evaluationDeals');
-const User = require('../model/User');
-const Response = require('../model/Response');
+const evaluation = require('../../model/evaluationDeals');
+const User = require('../../model/User');
+const Response = require('../../model/Response');
 
-const DealStatusesEnum = require('../model/Enums/DealStatus');
+const DealStatusesEnum = require('../../model/Enums/DealStatus');
 
 module.exports.createDeals = async(req,res)=>{
 
