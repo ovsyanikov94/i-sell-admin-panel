@@ -108,6 +108,16 @@ const userSchema = new Schema({
 
 });
 
+
+// const adminSchema = new Schema({
+//
+//     base: {
+//         type: Schema.Types.ObjectId,
+//         ref: 'users'
+//     },
+//
+// });
+
 userSchema.methods.verifyPassword = async function ( password ) {
 
     try{
