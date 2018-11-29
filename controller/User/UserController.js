@@ -183,7 +183,7 @@ module.exports.AddUser = async( req , res ) => {
 
 module.exports.updateUser = async(req,res)=>{
 
-    let id = req.session.passport.user;
+    let id = req.session.passport.user._id;
     let email = req.body.email||'';
     let firstName = req.body.firstName||'';
     let lastName =req.body.lastName||'';
@@ -323,7 +323,7 @@ module.exports.updateUser = async(req,res)=>{
 
 module.exports.addUserAvatar = async (req,res)=>{
 
-    if(req.session.passport.user === undefined){
+    if(req.session.passport.user._id === undefined){
         Response.status = 400;
         Response.message = 'не корректное значени!';
         res.status(Response.status);
@@ -331,7 +331,8 @@ module.exports.addUserAvatar = async (req,res)=>{
         return;
     }
 
-    let validIdUser = validator.isMongoId(req.session.passport.user)||'';
+    let userId = req.session.passport.user._id
+    let validIdUser = validator.isMongoId(userId);
 
     if(!validIdUser){
 
@@ -345,7 +346,7 @@ module.exports.addUserAvatar = async (req,res)=>{
     }//if
     try {
         let existUser = await User.find({
-            id:req.body.userId
+            id:userId
         });
 
         if(!existUser){
@@ -465,7 +466,7 @@ module.exports.addUserAvatar = async (req,res)=>{
 }//addUserAvatar
 
 module.exports.removeUserAvatar = async (req,res)=>{
-    let validIdUser = validator.isMongoId(req.body.userId)||'';
+    let validIdUser = validator.isMongoId(req.session.passport.user._id)||'';
 
     if(!validIdUser){
 
@@ -476,10 +477,12 @@ module.exports.removeUserAvatar = async (req,res)=>{
         return;
 
     }//if
+
+    let userId = req.session.passport.user._id;
     try {
 
         let existUser = await User.find({
-            id:req.body.userId
+            id:userId
         });
 
         if(!existUser){
@@ -526,7 +529,7 @@ module.exports.removeUserAvatar = async (req,res)=>{
 
 module.exports.GetUser = async (req,res)=>{
 
-    let id = req.session.passport.user;
+    let id = req.session.passport.user._id;
 
     if(req.session.passport === undefined){
         Response.status = 400;
@@ -548,7 +551,8 @@ module.exports.GetUser = async (req,res)=>{
 
     try {
 
-        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone');
+        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone')
+
 
         if(!existUser){
 
@@ -559,6 +563,7 @@ module.exports.GetUser = async (req,res)=>{
             return;
 
         }//if
+
 
 
         Response.status = 200;
@@ -586,7 +591,7 @@ module.exports.GetUser = async (req,res)=>{
 
 module.exports.GetUserBuyLot = async(req,res)=>{
 
-    let id = req.session.passport.user||'';
+    let id = req.session.passport.user._id||'';
 
     let lotStatus = +req.body.idStatus||'';
 
@@ -651,7 +656,7 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
 
 module.exports.GetUserSaleLot = async (req,res)=>{
-    let id = req.session.passport.user||'';
+    let id = req.session.passport.user._id||'';
 
     let lotStatus = +req.body.idStatus;
 
