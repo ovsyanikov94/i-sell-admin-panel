@@ -528,7 +528,7 @@ module.exports.removeUserAvatar = async (req,res)=>{
 
 module.exports.GetUser = async (req,res)=>{
 
-    let id = req.session.passport.user;
+    let id = req.session.passport.user._id;
 
     if(req.session.passport === undefined){
         Response.status = 400;
