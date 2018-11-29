@@ -6,7 +6,6 @@ const Lot = require('../model/Lot');
 
 const Logger = require('../model/Logger');
 const Response = require('../model/Response');
-const UtilsController = require('../controller/UtilsController');
 
 const LotMarkConstants = require('../model/LotMarkConstants');
 
