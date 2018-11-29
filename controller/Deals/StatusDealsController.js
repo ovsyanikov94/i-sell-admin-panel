@@ -1,11 +1,11 @@
 'use strict';
 
-const Logger = require('../model/Logger');
-const UtilsController = require('../controller/UtilsController');
+const Logger = require('../../model/Logger');
+const UtilsController = require('../UtilsController');
 const validator = require('validator');
-const DealsStatus = require('../model/DealsStatus');
-const constValidator = require('../model/Validation');
-const Response = require('../model/Response');
+const DealsStatus = require('../../model/DealsStatus');
+const constValidator = require('../../model/Validation');
+const Response = require('../../model/Response');
 
 
 module.exports.createStatus = async(req,res)=>{

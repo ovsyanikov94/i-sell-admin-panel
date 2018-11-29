@@ -1,19 +1,19 @@
 "use strict";
 
-const User = require('../model/User');
-const UserRole = require('../model/UserRole');
-const UserStatus = require('../model/UserStatus');
+const User = require('../../model/User');
+const UserRole = require('../../model/UserRole');
+const UserStatus = require('../../model/UserStatus');
 
-const UserRoleEnum = require('../model/Enums/UserRole');
-const UserStatusEnum = require('../model/Enums/UserStatus');
-const Category = require('../model/Category');
-const lotImagePath = require('../model/LotImage');
-const Logger = require('../model/Logger');
+const UserRoleEnum = require('../../model/Enums/UserRole');
+const UserStatusEnum = require('../../model/Enums/UserStatus');
+const Category = require('../../model/Category');
+const lotImagePath = require('../../model/LotImage');
+const Logger = require('../../model/Logger');
 
-const UtilsController = require('../controller/UtilsController');
+const UtilsController = require('../UtilsController');
 const bcrypt = require('bcrypt');
-const Response = require('../model/Response');
-const constValidator = require('../model/Validation');
+const Response = require('../../model/Response');
+const constValidator = require('../../model/Validation');
 const validator = require('validator');
 const fs = require('fs');
 const fe = require('fs-extra');

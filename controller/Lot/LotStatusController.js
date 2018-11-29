@@ -1,8 +1,8 @@
 "use strict";
 
-const LotStatus = require('../model/LotStatus');
-const Logger = require('../model/Logger');
-const Response = require('../model/Response');
+const LotStatus = require('../../model/LotStatus');
+const Logger = require('../../model/Logger');
+const Response = require('../../model/Response');
 
 module.exports.GetLotStatusById = async( req , res )=>{
 

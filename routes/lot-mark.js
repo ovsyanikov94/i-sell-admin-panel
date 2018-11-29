@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const LotMarkController = require('../controller/LotMarkController');
+const LotMarkController = require('../controller/Lot/LotMarkController');
 
 router.post('/update-lot-mark', LotMarkController.UpdateLotMark);
 

@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const LotStatusController = require('../controller/LotStatusController');
+const LotStatusController = require('../controller/Lot/LotStatusController');
 
 router.get('/lotStatusById' , LotStatusController.GetLotStatusById );
 router.get('/GetListLotStatusBuy',LotStatusController.GetListLotStatusBuy);

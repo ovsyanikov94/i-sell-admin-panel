@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const userRoleControler = require('../controller/RoleController');
+const userRoleControler = require('../controller/User/RoleController');
 
 
 router.get('/listUsersRole',userRoleControler.ListRoles );

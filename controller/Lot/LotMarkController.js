@@ -1,14 +1,14 @@
 "use strict";
 
-const LotMark = require('../model/LotMark');
-const User = require('../model/User');
-const Lot = require('../model/Lot');
+const LotMark = require('../../model/LotMark');
+const User = require('../../model/User');
+const Lot = require('../../model/Lot');
 
-const Logger = require('../model/Logger');
-const Response = require('../model/Response');
-const UtilsController = require('../controller/UtilsController');
+const Logger = require('../../model/Logger');
+const Response = require('../../model/Response');
+const UtilsController = require('../UtilsController');
 
-const LotMarkConstants = require('../model/LotMarkConstants');
+const LotMarkConstants = require('../../model/LotMarkConstants');
 
 module.exports.UpdateLotMark = async ( req, res ) => {
 

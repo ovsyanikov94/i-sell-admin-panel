@@ -1,6 +1,6 @@
 "use strict";
 
-const RoleEnums = require('../model/Enums/UserRole');
+const RoleEnums = require('../../model/Enums/UserRole');
 
 module.exports.CheckAccess = async function ( req , res , next ) {
 

@@ -1,10 +1,10 @@
 "use strict";
 
-const UserRole = require('../model/UserRole');
-const Logger = require('../model/Logger');
-const constValidator = require('../model/Validation');
-const UtilsController = require('../controller/UtilsController');
-const Response = require('../model/Response');
+const UserRole = require('../../model/UserRole');
+const Logger = require('../../model/Logger');
+const constValidator = require('../../model/Validation');
+const UtilsController = require('../UtilsController');
+const Response = require('../../model/Response');
 
 module.exports.ListRoles = async(req,res)=>{
     console.log('service');

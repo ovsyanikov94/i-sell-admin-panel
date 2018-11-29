@@ -3,8 +3,8 @@
 const express = require('express');
 const router = express.Router();
 
-const LotController = require('../controller/LotController');
-const AccessController = require( "../controller/AccessController");
+const LotController = require('../controller/Lot/LotController');
+const AccessController = require( "../controller/User/AccessController");
 
 
 router.post('/lot' ,  LotController.AddLot );
