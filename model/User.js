@@ -54,12 +54,12 @@ const userSchema = new Schema({
     },
     userPhoto: {
         type: String, // Либо Image, хз
-        validate:{
-            validator: ( image )=>{
-                return image.maxSize = "6m" // Тут спорно, без теста не могу сделать :(
-            }, // Validator Image
-            message: props => `Ошибка. Размер фотографии не должен превышать 6 мб \n"${props.value}"`
-        },
+        //validate:{
+            //validator: ( image )=>{
+                //return image.maxSize = "1000m" // Тут спорно, без теста не могу сделать :(
+           // }, // Validator Image
+            //message: props => `Ошибка. Размер фотографии не должен превышать 6 мб \n"${props.value}"`
+       // },
     },
     rating: {
         type: Number,

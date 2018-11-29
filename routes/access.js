@@ -2,6 +2,8 @@
 
 const passport = require('passport');
 
+const AccessController = require('../controller/AccessController');
+
 const express = require('express');
 const router = express.Router();
 
@@ -38,5 +40,6 @@ router.get('/access-denied' , function ( req , res ) {
 
 router.post('/auth-user' , passport.authenticate('local' , Options ) );;
 
+router.get('/check-admin-access' , AccessController.isAuth );
 
 module.exports = router; 
