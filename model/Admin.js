@@ -7,7 +7,7 @@ const bcrypt = require('bcrypt');
 
 const adminSchema = new Schema({
 
-    base: {
+    userBase: {
         type: Schema.Types.ObjectId,
         ref: 'users'
     },
