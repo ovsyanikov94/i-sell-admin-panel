@@ -527,6 +527,8 @@ module.exports.removeUserAvatar = async (req,res)=>{
 }
 
 module.exports.GetUser = async (req,res)=>{
+
+    console.log('START',req.body.userId);
     let id=null;
     if(req.body.userId){
         id = req.body.userId
@@ -534,7 +536,7 @@ module.exports.GetUser = async (req,res)=>{
     else{
         id= req.session.passport.user._id;
     }
-
+    console.log('START',id);
 
     if(req.session.passport === undefined){
         Response.status = 400;
