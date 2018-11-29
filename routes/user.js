@@ -9,7 +9,7 @@ const AccessController = require('../controller/User/AccessController');
 //router.use( AccessController.CheckAccess );
 
 
-router.get('/getUser',UserController.GetUser);
+router.post('/getUser',UserController.GetUser);
 router.post('/registryUser',UserController.AddUser);
 router.post('/updateUserInfo', AccessController.CheckAccess , UserController.updateUser);
 router.post('/addUserAvatar',AccessController.CheckAccess , UserController.addUserAvatar);
