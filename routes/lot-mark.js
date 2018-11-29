@@ -5,10 +5,11 @@ const router = express.Router();
 
 const LotMarkController = require('../controller/LotMarkController');
 
-router.post('/add-lot-mark', LotMarkController.AddLotMark);
-router.get('/lot-mark-list', LotMarkController.GetLotMarkList);
-router.delete('/remove-lot-mark', LotMarkController.RemoveLotMark);
-router.put('/update-lot-mark', LotMarkController.UpdateLotMark);
+router.post('/update-lot-mark', LotMarkController.UpdateLotMark);
+
+router.get('/users-list-by-mark', LotMarkController.GetUsersListWithMarks);
+
+router.get('/get-marked-lot-by-user', LotMarkController.GetCurrentLikeDislikeLotInfo);
 
 module.exports = router;
 

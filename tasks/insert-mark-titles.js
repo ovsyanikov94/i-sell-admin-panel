@@ -12,6 +12,7 @@ gulp.task('InsertDefaultMarkTitles', async ( done ) => {
         let markTitles = [
 
             new mark({
+                "_id": "39821938092138218309",
                 "markTitle": "Дизлайк",
                 "markValue": "0"
             }),

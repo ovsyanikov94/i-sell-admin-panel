@@ -7,18 +7,23 @@ const LocalStrategy = require('passport-local').Strategy;
 module.exports = function ( passport ) {
 
     passport.serializeUser(function(user, done) {
-        done(null, user._id);
+        done(null, user);
     });
 
-    passport.deserializeUser(async function(id, done) {
+    passport.deserializeUser(async function(user, done) {
 
-        console.log('DESERIALIZE: ' , id);
+        console.log('DESERIALIZE: ' , user);
 
         try{
 
-            let user = await User.findById(id , '_id');
+            let userCheck = await User.findById(
+                user._id ,
+                '_id'
+            );
 
-            done(null , user);
+            if(userCheck){
+                done(null , user);
+            }//if
 
         }//try
         catch(ex){
@@ -44,7 +49,8 @@ module.exports = function ( passport ) {
                             {userEmail: login }
                         ],
 
-                    } , 'userLogin userEmail userPassword');
+                    } , 'userLogin userEmail userPassword role')
+                    .populate('role');
 
                 console.log('user: ' , user);
 
@@ -68,5 +74,4 @@ module.exports = function ( passport ) {
         }// async fd
 
     ));
-
 };
