@@ -1,13 +1,12 @@
 'use strict'
 
-const Logger = require('../model/Logger');
-const UtilsController = require('../controller/UtilsController');
-const blockList = require('../model/blockList');
-const User = require('../model/User');
+const Logger = require('../../model/Logger');
+const UtilsController = require('../UtilsController');
+const blackList = require('../../model/blackListUser');
+const User = require('../../model/User');
 const validator = require('validator');
-const Response = require('../model/Response');
-
-module.exports.AddUserToBlockList=async(req,res)=>{
+const Response = require('../../model/Response');
+module.exports.AddUserToBlackList=async(req,res)=>{
 
     let validUser =  validator.isMongoId( req.body.UserID);
     let validUserInBlackList =  validator.isMongoId( req.body.UserIDInBlackList);
@@ -15,49 +14,49 @@ module.exports.AddUserToBlockList=async(req,res)=>{
     if(!validUser||
         !validUserInBlackList
     ){
-        Response.status = 400;
-        Response.message = 'значение уже существует!';
-        Response.data = statusTitleValid;
-        res.status(Response.status)
-        res.send(Response);
+        res.send( {
+            code: 400,
+            message: "не корректное значени!",
+            data: idStatusDeal
+        } );
         return;
     }//if
 
     try {
 
-        let existUser = await User.find({
+        let existUser = await User.findOne({
 
             id:req.body.UserID
         });
 
-        let existUserBlockList = await User.find({
+        let existUserBlackList = await User.findOne({
 
             id:req.body.UserIDInBlackList
         });
 
         if(!existUser||
-            !existUserBlockList
+            !existUserBlackList
         ){
-            Response.status = 400;
-            Response.message = 'значение уже существует!';
-            Response.data = statusTitleValid;
-            res.status(Response.status)
-            res.send(Response);
+            res.send( {
+                code: 400,
+                message: "не корректное значени!",
+                data: null
+            } );
             return;
         }//if
 
-        let blockListUser = await blockList({
+        let blackListUser = await blackList({
             user:req.body.UserID
         });
 
-        blockListUser.List.push(req.body.UserIDInBlackList);
+        blackListUser.List.push(req.body.UserIDInBlackList);
 
-        await blockListUser.save();
+        await blackListUser.save();
         res.status(200);
         res.send({
             code: 200,
             data: req.body.UserIDInBlackList,
-            message:  'пользователь добавлен в список блокированых'
+            message:  'пользователь добавлен в черный список'
         });// res.send
 
     }//try
@@ -70,17 +69,15 @@ module.exports.AddUserToBlockList=async(req,res)=>{
                 stack: ex.stack
             },
         });//Logger.error
-        res.status(500);
-
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
     }//catch
+    res.status(Response.status)
+    res.send(Response);
 }
 
-module.exports.RemoveUserToBlockList=async(req,res)=>{
+module.exports.RemoveUserToBlackList=async(req,res)=>{
 
     let validUser =  validator.isMongoId( req.body.UserID);
     let validUserInBlackList =  validator.isMongoId( req.body.UserIDInBlackList);
@@ -119,20 +116,15 @@ module.exports.RemoveUserToBlockList=async(req,res)=>{
             return;
         }//if
 
-        let blockListUser = await blockList({
+        let blackListUser = await blackList({
             user:req.body.UserID
         });
 
-        let idInBlackList = blockListUser.List.remove(req.body.UserIDInBlackList);
+       let idInBlackList =  blackListUser.List.remove(req.body.UserIDInBlackList);
 
-        await blockListUser.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data: req.body.UserIDInBlackList,
-            message:  'пользователь удален из списа блокированых'
-        });// res.send
-
+        await blackListUser.save();
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
     }//try
     catch (ex){
         Logger.error({
@@ -145,14 +137,15 @@ module.exports.RemoveUserToBlockList=async(req,res)=>{
         });//Logger.error
         res.status(500);
 
-        res.send( {
-            code: 500,
-            message: "Внутренняя ошибка сервера!",
-            data: ex
-        } );// res.send
-    }//catch
-}
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
 
+    }//catch
+
+    res.status(Response.status)
+    res.send(Response);
+}
 
 module.exports.getBlackListUser = async (req,res)=>{
 
@@ -186,7 +179,7 @@ module.exports.getBlackListUser = async (req,res)=>{
         let limit = +req.query.limit || 5;
         let offset = +req.query.offset || 0;
 
-        let blockListUser = await blockList.find( {
+        let blackListUser = await blackList.find( {
             id:existUser.id
         } , {
             limit: limit,
@@ -198,6 +191,7 @@ module.exports.getBlackListUser = async (req,res)=>{
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
+        Response.data = blackListUser;
 
     }//try
     catch (ex) {

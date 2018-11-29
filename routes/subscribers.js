@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 
-const SubscribersController = require('../controller/SubscribersController');
+const SubscribersController = require('../controller/User/SubscribersController');
 
 router.post('/addInSubscribers', SubscribersController.AddUserToSubscribers);
 router.post('/removeInSubscribers', SubscribersController.RemoveUserToSubscribers);

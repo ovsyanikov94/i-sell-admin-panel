@@ -7,8 +7,6 @@ const ValidationConstants = require('./Validation');
 
 const markSchema = new Schema({
 
-    id: Schema.ObjectId,
-
     markTitle: {
       type: String,
       required: [true, 'Название обязательно'],

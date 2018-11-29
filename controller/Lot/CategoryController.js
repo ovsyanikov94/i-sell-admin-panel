@@ -1,11 +1,11 @@
 "use strict";
 
-const Category = require('../model/Category');
-const Lot = require('../model/Lot');
+const Category = require('../../model/Category');
+const Lot = require('../../model/Lot');
 
-const Logger = require('../model/Logger');
-const ValidatorConstants = require('../model/Validation');
-const Response = require('../model/Response');
+const Logger = require('../../model/Logger');
+const ValidatorConstants = require('../../model/Validation');
+const Response = require('../../model/Response');
 
 module.exports = {
 

@@ -1,95 +1,25 @@
 'use strict'
 
-const Logger = require('../model/Logger');
-const UtilsController = require('../controller/UtilsController');
-const blackList = require('../model/blackListUser');
-const User = require('../model/User');
+const Logger = require('../../model/Logger');
+const UtilsController = require('../UtilsController');
+const subscribers = require('../../model/subscribersUser');
+const User = require('../../model/User');
 const validator = require('validator');
-const Response = require('../model/Response');
-module.exports.AddUserToBlackList=async(req,res)=>{
+const Response = require('../../model/Response');
+
+module.exports.AddUserToSubscribers=async(req,res)=>{
 
     let validUser =  validator.isMongoId( req.body.UserID);
-    let validUserInBlackList =  validator.isMongoId( req.body.UserIDInBlackList);
+    let validUserInSubscriberskList =  validator.isMongoId( req.body.UserIDInSubscribersList);
 
     if(!validUser||
-        !validUserInBlackList
+        !validUserInSubscriberskList
     ){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: idStatusDeal
-        } );
-        return;
-    }//if
-
-    try {
-
-        let existUser = await User.findOne({
-
-            id:req.body.UserID
-        });
-
-        let existUserBlackList = await User.findOne({
-
-            id:req.body.UserIDInBlackList
-        });
-
-        if(!existUser||
-            !existUserBlackList
-        ){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: null
-            } );
-            return;
-        }//if
-
-        let blackListUser = await blackList({
-            user:req.body.UserID
-        });
-
-        blackListUser.List.push(req.body.UserIDInBlackList);
-
-        await blackListUser.save();
-        res.status(200);
-        res.send({
-            code: 200,
-            data: req.body.UserIDInBlackList,
-            message:  'пользователь добавлен в черный список'
-        });// res.send
-
-    }//try
-    catch (ex){
-        Logger.error({
-            time: new Date().toISOString(),
-            status: 500,
-            data: {
-                message: ex.message,
-                stack: ex.stack
-            },
-        });//Logger.error
-        Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
-        Response.data = null;
-    }//catch
-    res.status(Response.status)
-    res.send(Response);
-}
-
-module.exports.RemoveUserToBlackList=async(req,res)=>{
-
-    let validUser =  validator.isMongoId( req.body.UserID);
-    let validUserInBlackList =  validator.isMongoId( req.body.UserIDInBlackList);
-
-    if(!validUser||
-        !validUserInBlackList
-    ){
-        res.send( {
-            code: 400,
-            message: "не корректное значени!",
-            data: null
-        } );
+        Response.status = 400;
+        Response.message = 'значение уже существует!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
         return;
     }//if
 
@@ -100,7 +30,7 @@ module.exports.RemoveUserToBlackList=async(req,res)=>{
             id:req.body.UserID
         });
 
-        let existUserBlackList = await User.find({
+        let existUserSubscriberskList = await User.find({
 
             id:req.body.UserIDInBlackList
         });
@@ -108,21 +38,21 @@ module.exports.RemoveUserToBlackList=async(req,res)=>{
         if(!existUser||
             !existUserBlackList
         ){
-            res.send( {
-                code: 400,
-                message: "не корректное значени!",
-                data: null
-            } );
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
             return;
         }//if
 
-        let blackListUser = await blackList({
+        let subscribersList = await subscribers({
             user:req.body.UserID
         });
 
-       let idInBlackList =  blackListUser.List.remove(req.body.UserIDInBlackList);
+        subscribersList.List.push(req.body.UserIDInSubscribersList);
 
-        await blackListUser.save();
+        await subscribersList.save();
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
     }//try
@@ -140,14 +70,81 @@ module.exports.RemoveUserToBlackList=async(req,res)=>{
         Response.status = 500;
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
+    }//catch
+}
+module.exports.RemoveUserToSubscribers=async(req,res)=>{
+
+    let validUser =  validator.isMongoId( req.body.UserID);
+    let validUserInSubscribersList =  validator.isMongoId( req.body.UserIDInSubscribersList);
+
+    if(!validUser||
+        !validUserInSubscribersList
+    ){
+        Response.status = 400;
+        Response.message = 'значение уже существует!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
+        return;
+    }//if
+
+    try {
+
+        let existUser = await User.find({
+
+            id:req.body.UserID
+        });
+
+        let existUserSubscribersList = await User.find({
+
+            id:req.body.UserIDInSubscribersList
+        });
+
+        if(!existUser||
+            !existUserSubscribersList
+        ){
+            Response.status = 400;
+            Response.message = 'значение уже существует!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
+            return;
+        }//if
+
+        let subscribersList = await subscribers({
+            user:req.body.UserID
+        });
+
+        let idInSubscribers =  subscribersList.List.remove(req.body.UserIDInSubscribersList);
+
+        await subscribersList.save();
+        Response.status = 200;
+        Response.message = 'обновления прошли успешно!';
+
+    }//try
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });//Logger.error
+        res.status(500);
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
 
     }//catch
-
     res.status(Response.status)
     res.send(Response);
 }
 
-module.exports.getBlackListUser = async (req,res)=>{
+module.exports.getSubscribersUser = async (req,res)=>{
 
     let validIdUser = validator.isMongoId(req.body.userId)||'';
 
@@ -179,9 +176,9 @@ module.exports.getBlackListUser = async (req,res)=>{
         let limit = +req.query.limit || 5;
         let offset = +req.query.offset || 0;
 
-        let blackListUser = await blackList.find( {
+        let subscribers = await subscribers.find( {
             id:existUser.id
-        } , {
+            } , {
             limit: limit,
             skip: offset
         });
@@ -191,7 +188,7 @@ module.exports.getBlackListUser = async (req,res)=>{
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = blackListUser;
+        Response.data = subscribers;
 
     }//try
     catch (ex) {

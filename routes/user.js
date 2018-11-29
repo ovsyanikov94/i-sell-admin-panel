@@ -3,8 +3,8 @@
 const express = require('express');
 const router = express.Router();
 
-const UserController = require('../controller/UserController');
-const AccessController = require('../controller/AccessController');
+const UserController = require('../controller/User/UserController');
+const AccessController = require('../controller/User/AccessController');
 
 //router.use( AccessController.CheckAccess );
 

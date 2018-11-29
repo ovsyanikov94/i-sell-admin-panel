@@ -1,15 +1,15 @@
 "use strict";
 
-const Lot = require('../model/Lot');
-const User = require('../model/User');
-const Comment = require('../model/Comment');
-const Logger = require('../model/Logger');
+const Lot = require('../../model/Lot');
+const User = require('../../model/User');
+const Comment = require('../../model/Comment');
+const Logger = require('../../model/Logger');
 
-const CommentType = require('../model/CommentType');
-const CommentStatus = require('../model/CommentStatus');
-const CommentTypeEnum = require('../model/Enums/CommentType');
-const ValidatorConstants = require('../model/Validation');
-const Response = require('../model/Response');
+const CommentType = require('../../model/CommentType');
+const CommentStatus = require('../../model/CommentStatus');
+const CommentTypeEnum = require('../../model/Enums/CommentType');
+const ValidatorConstants = require('../../model/Validation');
+const Response = require('../../model/Response');
 
 const moment = require('moment');
 const validator = require('validator');
