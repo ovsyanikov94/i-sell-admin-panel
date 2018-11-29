@@ -57,6 +57,10 @@ module.exports.UpdateLotMark = async ( req, res ) => {
         let updateResult = null;
         let removedMark = null;
 
+        let like = null;
+        let dislike = null;
+
+        //если оценки в базе нет - значит это новая оценка
         if( !lotMarkToUpdate ){
 
             newLotMark = new LotMark({
@@ -69,27 +73,67 @@ module.exports.UpdateLotMark = async ( req, res ) => {
 
             await newLotMark.save();
 
+            if(mark === LotMarkConstants.LOT_MARK_DISLIKE){
+                dislike = 1;
+                like = 0;
+            }//if
+            else{
+                dislike = 0;
+                like = 1;
+            }//else
+
         }//if
         else if(lotMarkToUpdate.mark !== mark){
 
            updateResult = await LotMark.findByIdAndUpdate(lotMarkToUpdate._id, { mark: mark });
 
+           if(mark === LotMarkConstants.LOT_MARK_DISLIKE){
+               like = -1;
+               dislike = 1;
+           }//if
+           else{
+               dislike = -1;
+               like = 1;
+           }//else
+
         }//if
         else{
             removedMark = await LotMark.findByIdAndRemove(lotMarkToUpdate._id);
+
+            if(mark === LotMarkConstants.LOT_MARK_DISLIKE){
+                dislike = -1;
+                like = 0;
+            }//if
+            else{
+                dislike = 0;
+                like = -1;
+            }//else
+
         }//else
 
         Response.status = 200;
         Response.message = 'Оценка успешно изменена';
 
         if( newLotMark !== null ){
-            Response.data = newLotMark;
+            Response.data = {
+                newLotMark: newLotMark,
+                like: like,
+                dislike: dislike
+            };
         }//if
         else if(updateResult !== null){
-            Response.data = updateResult;
+            Response.data = {
+                newLotMark: updateResult,
+                like: like,
+                dislike: dislike
+            }
         }//else
         else{
-            Response.data = removedMark;
+            Response.data = {
+                newLotMark: removedMark,
+                like: like,
+                dislike: dislike
+            }
         }//else
 
     }//try
@@ -109,28 +153,46 @@ module.exports.UpdateLotMark = async ( req, res ) => {
         Response.data = ex;
 
     }//catch
-
 
     res.status(Response.status);
     res.send(Response);
 
 };//UpdateLotMark
 
-module.exports.GetLotMarkList = async ( req, res ) => {
+module.exports.GetUsersListWithMarks = async ( req, res ) => {
 
     try{
-
         let limit = req.query.limit || LotMarkConstants.LOT_LIST_LIMIT;
         let offset = req.query.offset || LotMarkConstants.LOT_LIST_OFFSET;
 
-        let lotMarks = await LotMark.find()
+        let lotID = req.query.receiver;
+
+        let lotCheck = await Lot.findById(lotID);
+
+        if(!lotCheck){
+
+            Response.status = 404;
+            Response.message = 'Лот не найден!';
+            Response.data = lotID;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+        let mark = req.body.mark;
+
+        let usersWithMark = await LotMark.find().where({mark: mark})
             .limit(limit)
-            .skip(offset)
-            .populate('sender');
+            .skip(offset);
 
         Response.status = 200;
-        Response.message = 'Список лотов';
-        Response.data = lotMarks;
+        Response.message = 'Пользователи с оценками найдены!';
+        Response.data = usersWithMark;
+
+        res.status(Response.status);
+        res.send(Response);
 
     }//try
     catch(ex){
@@ -153,4 +215,44 @@ module.exports.GetLotMarkList = async ( req, res ) => {
     res.status(Response.status);
     res.send(Response);
 
-};//GetLotMarkList
+}//GetUsersListWithMarks
+
+module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
+
+    let lotId = req.query.receiver;
+    let userId = req.session.passport.user;
+
+    try{
+        let markedLot = await LotMark.findOne({sender: userId, receiver: lotId});
+
+        if(!markedLot){
+            Response.status = 200;
+            Response.message = 'Лот с оценкой пользователя не найден!';
+            Response.data = -1;
+        }//if
+        else{
+            Response.status = 200;
+            Response.message = 'Лот с оценкой пользователя найден!';
+            Response.data = markedLot.mark;
+        }//else
+
+        res.status(Response.status);
+        res.send(Response);
+
+    }//try
+    catch(ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex;
+    }//catch
+
+}//GetCurrentLikeDislikeLotInfo
