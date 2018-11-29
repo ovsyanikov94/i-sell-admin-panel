@@ -8,7 +8,7 @@ const UserStatusEnum = require('../model/Enums/UserStatus');
 const UserRoleEnum = require('../model/Enums/UserRole');
 const UserRole = require('../model/UserRole');
 const UserStatus = require('../model/UserStatus');
-
+const bcrypt = require('bcrypt');
 
 
 gulp.task('InsertRootAdmin' , async ( done )=> {
@@ -23,14 +23,18 @@ gulp.task('InsertRootAdmin' , async ( done )=> {
 
         let status = await UserStatus.findOne(
             {
-                userStatusId: UserStatusEnum.NOT_VERIFIED
+                userStatusId: UserStatusEnum.ACTIVE
             },
             '_id'
         );
 
-        let newUser =[new User({
+        let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
+        let saltStr = await bcrypt.genSalt(number);// создаем соль
+        let hexPassword = await bcrypt.hash('123456', saltStr); // получаем закодированный пароль
+
+        let newUser =new User({
             "userLogin": "rootAdmin",
-            "userPassword": "rootPassword",
+            "userPassword": hexPassword,
             "userEmail": "rootAdmin@gmail.com",
             "userName": "Root",
             "userLastname": "Admin",
@@ -38,16 +42,16 @@ gulp.task('InsertRootAdmin' , async ( done )=> {
             "role": role._id,
             "userStatus": status._id,
             //userPhoto:pathUserImage,
-        })];
+        });
 
 
-        let currentUser = await newUser[0].save();
+        let currentUser = await newUser.save();
 
 
-        let rootAdmin = [new Admin({
+        let rootAdmin = new Admin({
             userBase: currentUser._id
-        })];
-        await rootAdmin[0].save();
+        });
+        await rootAdmin.save();
 
         return rootAdmin;
 
