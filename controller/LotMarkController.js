@@ -162,8 +162,8 @@ module.exports.UpdateLotMark = async ( req, res ) => {
 module.exports.GetUsersListWithMarks = async ( req, res ) => {
 
     try{
-        let limit = req.query.limit || LotMarkConstants.LOT_LIST_LIMIT;
-        let offset = req.query.offset || LotMarkConstants.LOT_LIST_OFFSET;
+        let limit = +req.query.limit || LotMarkConstants.LOT_LIST_LIMIT;
+        let offset = +req.query.offset || LotMarkConstants.LOT_LIST_OFFSET;
 
         let lotID = req.query.receiver;
 
@@ -181,9 +181,9 @@ module.exports.GetUsersListWithMarks = async ( req, res ) => {
             return;
         }//if
 
-        let mark = req.body.mark;
+        let mark = +req.query.mark;
 
-        let usersWithMark = await LotMark.find().where({mark: mark})
+        let usersWithMark = await LotMark.find( { receiver: lotID, mark: mark } )
             .limit(limit)
             .skip(offset);
 
