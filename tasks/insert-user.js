@@ -8,7 +8,7 @@ const UserStatusEnum = require('../model/Enums/UserStatus');
 const UserRoleEnum = require('../model/Enums/UserRole');
 const UserRole = require('../model/UserRole');
 const UserStatus = require('../model/UserStatus');
-
+const bcrypt = require('bcrypt');
 
 
 gulp.task('InsertRootAdmin' , async ( done )=> {
@@ -27,10 +27,13 @@ gulp.task('InsertRootAdmin' , async ( done )=> {
             },
             '_id'
         );
+        let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
+        let saltStr = await bcrypt.genSalt(number);// создаем соль
+        let hexPassword = await bcrypt.hash("rootPassword", saltStr); // получаем закодированный пароль
 
         let newUser =[new User({
             "userLogin": "rootAdmin",
-            "userPassword": "rootPassword",
+            "userPassword": hexPassword,
             "userEmail": "rootAdmin@gmail.com",
             "userName": "Root",
             "userLastname": "Admin",
