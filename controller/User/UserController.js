@@ -1,6 +1,7 @@
 "use strict";
 
 const User = require('../../model/User');
+const Admin = require('../../model/Admin');
 const UserRole = require('../../model/UserRole');
 const UserStatus = require('../../model/UserStatus');
 
@@ -811,20 +812,7 @@ module.exports.AddUserWithRole = async( req , res ) => {
             res.send(Response);
             return;
         }
-        //if(!photo){
-            //Response.status = 400;
-            //Response.message = 'Выберите фото пользователя!';
-            //res.status(Response.status);
-            //res.send(Response);
-            //return;
-        //}
-       // if(photo.length>1){
-           // Response.status = 400;
-            //Response.message = 'У пользователя должны быть только одна фотография!!';
-            //res.status(Response.status);
-           // res.send(Response);
-            //return;
-        //}
+
         let checkUser = await User.findOne(
             {
                 $or: [
@@ -967,29 +955,48 @@ module.exports.AddUserWithRole = async( req , res ) => {
                 let addUser = await User.findById(newUser._id);
                 addUser.userPhoto = `${path}/${userImage.photo.name}`;
 
-                await addUser.save();
+                let user = await addUser.save();
 
-                Response.status = 200;
-                Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
-                Response.data = null;
+                if(userRole==1 || userRole==2){
 
-                res.status(Response.status);
-                res.send(Response);
+                    let currentUser = null;
 
+                    try{
+                        currentUser = new Admin({
+                            userBase: user._id
+                        });
+                        await currentUser.save();
 
+                        Response.status = 200;
+                        Response.message = `Добавление админа или модератора прошло успешно, проверьте email: ${currentUser.userEmail}`;
+                        Response.data = null;
 
+                        res.status(Response.status);
+                        res.send(Response);
+                    }
+                    catch(ex){
+                        let message = UtilsController.MakeMongooseMessageFromError(ex);
 
+                        Response.status = 400;
+                        Response.message = message;
 
+                        res.status(Response.status);
+                        res.send(Response);
 
+                        return ;
+                    }
 
+                }//if
+                else{
+                    Response.status = 200;
+                    Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
+                    Response.data = null;
 
-
-
+                    res.status(Response.status);
+                    res.send(Response);
+                }
 
             }//if req.files
-
-
-
 
         } // Try
         catch(ex){
