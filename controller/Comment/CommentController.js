@@ -81,22 +81,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let userSenderID = req.body.userSender;
-
-        let userSender =  await User.find({_id: userSenderID });
-
-        if ( userSender.length === 0){
-
-            Response.status = 400;
-            Response.message = 'Отправитель не найден!';
-            Response.data = userSender;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return ;
-
-        }//if
+        let userSenderID = req.session.passport.user._id;
 
         let newComment = null;
 
@@ -149,6 +134,7 @@ module.exports.AddComment = async( req , res ) => {
                 let lot = await Lot.findById( lotID , '_id');
 
                 newComment.lot = lot._id;
+                //lot.comments.push(  ) !!!!!
 
             }//try
             catch(ex){
@@ -378,12 +364,10 @@ module.exports.GetComments = async( req , res ) => {
 
         console.log(lotID);
 
-        let comments = await Comment.find({ lot : lotID }, 'commentStatus commentType commentSendDate userSender userReceiver lot ',{
+        let comments = await Comment.find({ lot : lotID }, 'commentStatus commentText commentType commentSendDate userReceiver ',{
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
-        }).populate('userSender')
-            .populate('lot')
-            .populate('userReceiver');
+        }).populate('userSender');
 
         Response.status = 200;
         Response.message = 'Список комментариев: ';

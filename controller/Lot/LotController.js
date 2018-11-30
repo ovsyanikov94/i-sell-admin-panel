@@ -875,14 +875,25 @@ module.exports.UpdateLot = async( req , res ) => {
 module.exports.GetLotById= async (req, res) => {
 
     try{
-        let idLot = req.query.id ;
 
-        let lot = await Lot.findOne({_id: idLot})
-            .populate('lotImagePath')
-            .populate('mapLot')
-            .populate('seller', 'userLogin')
-            .populate('categories', 'title')
-            .populate('comments');
+        let idLot = req.query.id ;
+        let lot = null;
+
+        if ( req.isAuthenticated() ){
+
+            lot = await Lot.findOne({_id: idLot})
+                .populate('lotImagePath')
+                .populate('mapLot')
+                .populate('seller', 'userLogin')
+                .populate('categories', 'title')
+                .populate('comments');
+
+        }//if
+        else{
+            lot = await Lot.findOne({_id: idLot})
+                .populate('lotImagePath')
+                .populate('categories', 'title')
+        }
 
         let countLikes = await lot.getLikes();
         let countDislikes = await lot.getDisLike();

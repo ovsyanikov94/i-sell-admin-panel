@@ -20,4 +20,6 @@ router.post('/GetUserSaleLot', AccessController.CheckAccess , UserController.Get
 
 router.post('/addUserWithRole', AccessController.CheckAdminAccess , UserController.AddUserWithRole);
 
+
+
 module.exports = router;
