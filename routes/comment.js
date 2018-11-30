@@ -8,7 +8,7 @@ const CommentController = require('../controller/Comment/CommentController');
 router.post('/comment' , CommentController.AddComment );
 router.put('/updateComment/:id',CommentController.UpdateComment);
 router.delete('/deleteComment/:id',CommentController.DeleteComment);
-router.get('/comment/list',CommentController.GetComments);
+router.get('/comment/:id',CommentController.GetComments);
 
 module.exports = router;
 

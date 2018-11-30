@@ -34,7 +34,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let commentStatusID = req.body.commentStatusID;
+        let commentStatusID = req.body.commentStatus;
 
         let commentStatus =  await CommentStatus.find({commentStatusID: commentStatusID });
 
@@ -50,7 +50,7 @@ module.exports.AddComment = async( req , res ) => {
             return ;
         }//if
 
-        let commentTypeID = req.body.commentTypeID;
+        let commentTypeID = +req.body.commentType;
 
         let commentType =  await CommentType.find({commentTypeID: commentTypeID });
 
@@ -81,7 +81,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let userSenderID = req.body.userSenderID;
+        let userSenderID = req.body.userSender;
 
         let userSender =  await User.find({_id: userSenderID });
 
@@ -131,7 +131,7 @@ module.exports.AddComment = async( req , res ) => {
 
             try{
 
-                let lotID = req.body.lotID;
+                let lotID = req.body.lot;
 
                 if(!validator.isMongoId(lotID)){
 
@@ -173,7 +173,7 @@ module.exports.AddComment = async( req , res ) => {
 
             try{
 
-                let userReceiverID = req.body.userReceiverID;
+                let userReceiverID = req.body.userReceiver;
 
                 if(!validator.isMongoId(userReceiverID)){
 
@@ -374,10 +374,16 @@ module.exports.GetComments = async( req , res ) => {
 
     try{
 
-        let comments = await Comment.find({commentType: CommentTypeEnum.LOT }, 'id commentStatus commentType commentSendDate userSender userReceiver lot ',{
+        let lotID = req.query.id;
+
+        console.log(lotID);
+
+        let comments = await Comment.find({ lot : lotID }, 'commentStatus commentType commentSendDate userSender userReceiver lot ',{
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
-        });
+        }).populate('userSender')
+            .populate('lot')
+            .populate('userReceiver');
 
         Response.status = 200;
         Response.message = 'Список комментариев: ';
