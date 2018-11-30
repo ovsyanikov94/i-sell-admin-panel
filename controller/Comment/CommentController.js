@@ -378,7 +378,7 @@ module.exports.GetComments = async( req , res ) => {
 
         console.log(lotID);
 
-        let comments = await Comment.find({ lot : lotID }, 'id commentStatus commentType commentSendDate userSender userReceiver lot ',{
+        let comments = await Comment.find({ lot : lotID }, 'commentStatus commentType commentSendDate userSender userReceiver lot ',{
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
         }).populate('userSender')
