@@ -528,23 +528,12 @@ module.exports.removeUserAvatar = async (req,res)=>{
 
 module.exports.GetUser = async (req,res)=>{
 
-    console.log('START',req.body.userId);
-    let id=null;
-    if(req.body.userId){
-        id = req.body.userId
-    }
-    else{
-        id= req.session.passport.user._id;
-    }
-    console.log('START',id);
+    let id = req.query.userId;
 
-    if(req.session.passport === undefined){
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-    }
+    if( !isNaN(+id) ){
+        id = req.session.passport.user._id;
+    }//if
+
     let validIdUser = validator.isMongoId(id)||'';
     if(!validIdUser){
 
@@ -594,6 +583,7 @@ module.exports.GetUser = async (req,res)=>{
 
     res.status(Response.status);
     res.send(Response);
+
 }//GetUser
 
 module.exports.GetUserBuyLot = async(req,res)=>{
