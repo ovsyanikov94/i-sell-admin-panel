@@ -21,12 +21,20 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
     ){
         Response.status = 400;
         Response.message = 'пользователь не найден!';
-        Response.data = statusTitleValid;
         res.status(Response.status)
         res.send(Response);
         return;
     }//if
-    let userIdSubscribers = req.body.UserIDInSubscribersList
+    let userIdSubscribers = req.body.UserIDInSubscribersList;
+
+    if(id===userIdSubscribers){
+        Response.status = 401;
+        Response.message = 'нельзя подписаться на самого себя!';
+        Response.data = null;
+        res.status(Response.status)
+        res.send(Response);
+        return;
+    }//if
     try {
 
         let existUser = await User.findOne({
@@ -43,7 +51,6 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         ){
             Response.status = 400;
             Response.message = 'пользователь не найден!';
-            Response.data = statusTitleValid;
             res.status(Response.status)
             res.send(Response);
             return;
@@ -84,6 +91,10 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         if(subscribersList.List.indexOf(userIdSubscribers)===-1){
             subscribersList.List.push(userIdSubscribers);
             await subscribersList.save();
+
+            existUser.subscribersList.ref = subscribersList._id
+
+            await existUser.save();
             Response.status = 200;
             Response.message = 'пользователь добавлен в подписчики';
             Response.data = true;
@@ -128,7 +139,6 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
     ){
         Response.status = 400;
         Response.message = 'пользователь не найден!';
-        Response.data = statusTitleValid;
         res.status(Response.status)
         res.send(Response);
         return;
@@ -151,7 +161,6 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
         ){
             Response.status = 400;
             Response.message = 'пользователь не найден!';
-            Response.data = statusTitleValid;
             res.status(Response.status)
             res.send(Response);
             return;

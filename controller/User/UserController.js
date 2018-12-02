@@ -520,6 +520,14 @@ module.exports.GetUser = async (req,res)=>{
 
     let id = req.query.userId;
 
+    if(id === req.session.passport.user._id){
+        Response.status = 200;
+        Response.message = 'запрос на себя!';
+        Response.data = null;
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }//if
     if( !isNaN(+id) ){
         id = req.session.passport.user._id;
     }//if
@@ -534,6 +542,7 @@ module.exports.GetUser = async (req,res)=>{
         return;
 
     }//if
+
 
     try {
 
