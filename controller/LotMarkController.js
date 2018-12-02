@@ -182,9 +182,11 @@ module.exports.GetUsersListWithMarks = async ( req, res ) => {
 
         let mark = +req.query.mark;
 
-        let usersWithMark = await LotMark.find( { receiver: lotID, mark: mark } )
+        let usersWithMark = await LotMark.find( { receiver: lotID, mark: mark }, 'sender' )
             .limit(limit)
             .skip(offset);
+
+        console.log('usersWithMark: ', usersWithMark);
 
         Response.status = 200;
         Response.message = 'Пользователи с оценками найдены!';
