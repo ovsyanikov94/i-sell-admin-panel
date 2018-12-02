@@ -648,7 +648,6 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
 }//GetUserBuyActiveLot
 
-
 module.exports.GetUserSaleLot = async (req,res)=>{
     let id = req.session.passport.user||'';
 

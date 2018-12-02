@@ -186,11 +186,21 @@ module.exports.GetUsersListWithMarks = async ( req, res ) => {
             .limit(limit)
             .skip(offset);
 
-        console.log('usersWithMark: ', usersWithMark);
+        let currentUsersWithMark = [];
+
+        let object = null;
+
+        for (let i = 0; i < usersWithMark.length; i++){
+
+            object = await User.findById( usersWithMark[i].sender, '_id userLogin userPhoto' );
+
+            currentUsersWithMark.push(object);
+
+        }//for i
 
         Response.status = 200;
         Response.message = 'Пользователи с оценками найдены!';
-        Response.data = usersWithMark;
+        Response.data = currentUsersWithMark;
 
         res.status(Response.status);
         res.send(Response);
