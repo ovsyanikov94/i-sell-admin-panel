@@ -191,6 +191,7 @@ module.exports.updateUser = async(req,res)=>{
     let oldPassword = req.body.oldPassword||'';
     let newPassword = req.body.newPassword||'';
 
+
     let errors = [];
 
     let role = req.body.role;
@@ -291,7 +292,57 @@ module.exports.updateUser = async(req,res)=>{
 
 
        }//if
+        if(req.files){
 
+            let userImage = req.files.valueOf();
+            let path = `public/images/users/${existUser._id}`;
+
+
+            if(!fs.existsSync('public/images')){
+                fs.mkdirSync('public/images');
+            }//if
+
+            if(!fs.existsSync('public/images/users')){
+                fs.mkdirSync('public/images/users');
+            }//if
+
+            try{
+                if(!fs.existsSync(path)) {
+                    fs.mkdirSync(path);
+
+                }
+            }//catch
+            catch(ex){
+                console.log(ex)
+            }//try
+
+
+
+            userImage.photo.mv(`${path}/${userImage.photo.name}`, async function(err) {
+
+                if (err) {
+                    console.log('FILE UPLOAD ERROR:', err);
+                    return;
+                }//if
+
+                let addUser = await User.findById(existUser._id);
+                addUser.userPhoto = `/i-sell-admin-api/images/users/${existUser._id}/${userImage.photo.name}`;
+
+                let user = await addUser.save();
+
+
+                    Response.status = 200;
+                    Response.message = `Изменение юзера прошло успешно`;
+                    Response.data = null;
+
+                    res.status(Response.status);
+                    res.send(Response);
+
+            });
+
+
+
+        }//if req.files
         let updateUser = await existUser.save();
 
         Response.status = 200;
@@ -531,7 +582,7 @@ module.exports.GetUser = async (req,res)=>{
 
     let id = req.query.userId;
 
-    if( !isNaN(+id) ){
+    if( isNaN(+id) ){
         id = req.session.passport.user._id;
     }//if
 
@@ -548,8 +599,8 @@ module.exports.GetUser = async (req,res)=>{
 
     try {
 
-        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone')
 
+        let existUser = await User.findOne({_id: id});
 
         if(!existUser){
 
@@ -561,11 +612,22 @@ module.exports.GetUser = async (req,res)=>{
 
         }//if
 
+        let roleUser = await UserRole.findOne({_id: existUser.role});
 
+        if(roleUser.userRoleId==1 || roleUser.userRoleId==2){
 
-        Response.status = 200;
-        Response.message = 'OK!';
-        Response.data = existUser;
+            let curentAdmin = await Admin.findOne({userBase: existUser._id});
+            console.log(curentAdmin);
+            Response.status = 200;
+            Response.message = 'OK!';
+            Response.data = {"curentAdmin":curentAdmin, "userAdmin":existUser};
+        }//if
+        else{
+            Response.status = 200;
+            Response.message = 'OK!';
+            Response.data = existUser;
+        }
+
     }
     catch (ex){
         Logger.error({
@@ -952,52 +1014,60 @@ module.exports.AddUserWithRole = async( req , res ) => {
                 console.log(userImage);
                 console.log(userImage.photo);
 
-                fs.writeFileSync(`${path}/${userImage.photo.name}`, userImage.data);
 
+                userImage.photo.mv(`${path}/${userImage.photo.name}`, async function(err) {
 
-                let addUser = await User.findById(newUser._id);
-                addUser.userPhoto = `${path}/${userImage.photo.name}`;
+                    if (err) {
+                        console.log('FILE UPLOAD ERROR:', err);
+                        return;
+                    }//if
 
-                let user = await addUser.save();
+                    let addUser = await User.findById(newUser._id);
+                    addUser.userPhoto = `/i-sell-admin-api/images/users/${newUser._id}/${userImage.photo.name}`;
 
-                if(userRole==1 || userRole==2){
+                    let user = await addUser.save();
 
-                    let currentUser = null;
+                    if (userRole == 1 || userRole == 2) {
 
-                    try{
-                        currentUser = new Admin({
-                            userBase: user._id
-                        });
-                        await currentUser.save();
+                        let currentUser = null;
 
+                        try {
+                            currentUser = new Admin({
+                                userBase: user._id
+                            });
+                            await currentUser.save();
+
+                            Response.status = 200;
+                            Response.message = `Добавление админа или модератора прошло успешно, проверьте email: ${currentUser.userEmail}`;
+                            Response.data = null;
+
+                            res.status(Response.status);
+                            res.send(Response);
+                        }
+                        catch (ex) {
+                            let message = UtilsController.MakeMongooseMessageFromError(ex);
+
+                            Response.status = 400;
+                            Response.message = message;
+
+                            res.status(Response.status);
+                            res.send(Response);
+
+                            return;
+                        }
+
+                    }//if
+                    else {
                         Response.status = 200;
-                        Response.message = `Добавление админа или модератора прошло успешно, проверьте email: ${currentUser.userEmail}`;
+                        Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
                         Response.data = null;
 
                         res.status(Response.status);
                         res.send(Response);
                     }
-                    catch(ex){
-                        let message = UtilsController.MakeMongooseMessageFromError(ex);
+                });
 
-                        Response.status = 400;
-                        Response.message = message;
 
-                        res.status(Response.status);
-                        res.send(Response);
-
-                        return ;
-                    }
-
-                }//if
-                else{
-                    Response.status = 200;
-                    Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
-                    Response.data = null;
-
-                    res.status(Response.status);
-                    res.send(Response);
-                }
 
             }//if req.files
 
