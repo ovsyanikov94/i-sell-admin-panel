@@ -34,7 +34,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let commentStatusID = req.body.commentStatusID;
+        let commentStatusID = req.body.commentStatus;
 
         let commentStatus =  await CommentStatus.find({commentStatusID: commentStatusID });
 
@@ -50,7 +50,7 @@ module.exports.AddComment = async( req , res ) => {
             return ;
         }//if
 
-        let commentTypeID = req.body.commentTypeID;
+        let commentTypeID = +req.body.commentType;
 
         let commentType =  await CommentType.find({commentTypeID: commentTypeID });
 
@@ -81,22 +81,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let userSenderID = req.body.userSenderID;
-
-        let userSender =  await User.find({_id: userSenderID });
-
-        if ( userSender.length === 0){
-
-            Response.status = 400;
-            Response.message = 'Отправитель не найден!';
-            Response.data = userSender;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return ;
-
-        }//if
+        let userSenderID = req.session.passport.user._id;
 
         let newComment = null;
 
@@ -131,7 +116,7 @@ module.exports.AddComment = async( req , res ) => {
 
             try{
 
-                let lotID = req.body.lotID;
+                let lotID = req.body.lot;
 
                 if(!validator.isMongoId(lotID)){
 
@@ -149,6 +134,7 @@ module.exports.AddComment = async( req , res ) => {
                 let lot = await Lot.findById( lotID , '_id');
 
                 newComment.lot = lot._id;
+                //lot.comments.push(  ) !!!!!
 
             }//try
             catch(ex){
@@ -173,7 +159,7 @@ module.exports.AddComment = async( req , res ) => {
 
             try{
 
-                let userReceiverID = req.body.userReceiverID;
+                let userReceiverID = req.body.userReceiver;
 
                 if(!validator.isMongoId(userReceiverID)){
 
@@ -374,10 +360,14 @@ module.exports.GetComments = async( req , res ) => {
 
     try{
 
-        let comments = await Comment.find({commentType: CommentTypeEnum.LOT }, 'id commentStatus commentType commentSendDate userSender userReceiver lot ',{
+        let lotID = req.query.id;
+
+        console.log(lotID);
+
+        let comments = await Comment.find({ lot : lotID }, 'commentStatus commentText commentType commentSendDate userReceiver ',{
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
-        });
+        }).populate('userSender');
 
         Response.status = 200;
         Response.message = 'Список комментариев: ';
