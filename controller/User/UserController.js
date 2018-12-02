@@ -85,8 +85,6 @@ module.exports.AddUser = async( req , res ) => {
 
             }, 'userLogin userEmail');
 
-        console.log('checkUser: ' , checkUser);
-
         if(checkUser){
 
             Response.status = 400;
@@ -322,13 +320,7 @@ module.exports.updateUser = async(req,res)=>{
 
 module.exports.addUserAvatar = async (req,res)=>{
 
-    if(req.session.passport.user._id === undefined){
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-    }
+    console.log('image', req.files);
 
     let userId = req.session.passport.user._id
     let validIdUser = validator.isMongoId(userId);
@@ -344,9 +336,9 @@ module.exports.addUserAvatar = async (req,res)=>{
 
     }//if
     try {
-        let existUser = await User.find({
-            id:userId
-        });
+        let existUser = await User.findOne({
+            _id:userId
+        },'_id');
 
         if(!existUser){
 
@@ -359,7 +351,6 @@ module.exports.addUserAvatar = async (req,res)=>{
         }//if
 
         if(req.files){
-
             let userAvatar = req.files.image;
             let path = `public/images/avatar/${existUser._id}`;
 
@@ -374,10 +365,10 @@ module.exports.addUserAvatar = async (req,res)=>{
 
             try{
 
-                if(!fs.existsSync(`public/images/avatar/${path}`)){
-                    fs.mkdirSync(`public/images/avatar/${path}`);
+                if(!fs.existsSync(`public/images/avatar/${existUser._id}`)){
+                    fs.mkdirSync(`public/images/avatar/${existUser._id}`);
                 }
-                if(!fs.existsSync(existUser.image)) {
+                if(!fs.existsSync(existUser.userPhoto)) {
                     userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
                         if (error){
                             let message = UtilsController.MakeMongooseMessageFromError(error);
@@ -388,16 +379,15 @@ module.exports.addUserAvatar = async (req,res)=>{
                             return;
                         }//if
 
-                        existUser.set({
-                            image:`${path}/${userAvatar.name}`
-                        });
+                        existUser.userPhoto =`${path}/${userAvatar.name}`
+
                         await existUser.save();
 
                     });
 
                 }//if
                 else{
-                    fe.remove(existUser.image, async function (err) {
+                    fe.remove(existUser.userPhoto, async function (err) {
                         if (!err) {
 
                             userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
@@ -410,15 +400,15 @@ module.exports.addUserAvatar = async (req,res)=>{
                                     return;
                                 }//if
 
-                                existUser.image = `${path}/${userAvatar.name}`
-                                await existUser.save();
-
+                                existUser.userPhoto = `${path}/${userAvatar.name}`
+                               let eu = await existUser.save();
+                                console.log(eu);
                             });
                         }
 
                     });
                 }//else
-
+                console.log( 'USER',existUser);
                 Response.status = 200;
                 Response.message = 'добавление прошли успешно!';
                 Response.data = `${path}/${userAvatar.name}`;
@@ -436,7 +426,7 @@ module.exports.addUserAvatar = async (req,res)=>{
 
         }//if
         else {
-            Response.status = 400;
+            Response.status = 401;
             Response.message = 'не корректное значени!';
             res.status(Response.status);
             res.send(Response);

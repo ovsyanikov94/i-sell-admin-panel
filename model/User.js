@@ -53,7 +53,7 @@ const userSchema = new Schema({
         },
     },
     userPhoto: {
-        type: String, // Либо Image, хз
+        type: String // Либо Image, хз
         //validate:{
             //validator: ( image )=>{
                 //return image.maxSize = "1000m" // Тут спорно, без теста не могу сделать :(

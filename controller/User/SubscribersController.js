@@ -1,5 +1,5 @@
 'use strict'
-
+const mongoose = require('mongoose');
 const Logger = require('../../model/Logger');
 const UtilsController = require('../UtilsController');
 const subscribers = require('../../model/subscribersUser');
@@ -20,7 +20,7 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         !validUserInSubscriberskList
     ){
         Response.status = 400;
-        Response.message = 'значение уже существует!';
+        Response.message = 'пользователь не найден!';
         Response.data = statusTitleValid;
         res.status(Response.status)
         res.send(Response);
@@ -29,37 +29,72 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
     let userIdSubscribers = req.body.UserIDInSubscribersList
     try {
 
-        let existUser = await User.find({
-
+        let existUser = await User.findOne({
             _id:id
         });
 
-        let existUserSubscriberskList = await User.find({
+        let existUserSubscriberskList = await User.findOne({
 
             _id:userIdSubscribers
         });
 
         if(!existUser||
-            !existUserBlackList
+            !existUserSubscriberskList
         ){
             Response.status = 400;
-            Response.message = 'значение уже существует!';
+            Response.message = 'пользователь не найден!';
             Response.data = statusTitleValid;
             res.status(Response.status)
             res.send(Response);
             return;
         }//if
 
-        let subscribersList = await subscribers({
-            user:req.body.UserID
+        try{
+
+            let r = mongoose.model('subscribers');
+            console.log(r);
+            if( r){
+                let newSubscribers = new subscribers({
+                    user: id
+                });
+                await newSubscribers.save();
+            }//if
+
+
+        }//try
+        catch (ex){
+
+            let message = UtilsController.MakeMongooseMessageFromError(ex);
+
+            Response.status = 400;
+            Response.message = message;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return ;
+
+        }
+
+
+        let subscribersList = await subscribers.findOne({
+            user: id
         });
 
-        subscribersList.List.push(userIdSubscribers);
+        if(subscribersList.List.indexOf(userIdSubscribers)===-1){
+            subscribersList.List.push(userIdSubscribers);
+            await subscribersList.save();
+            Response.status = 200;
+            Response.message = 'пользователь добавлен в подписчики';
+            Response.data = true;
+        }//if
+        else{
+            Response.status = 200;
+            Response.message = 'вы уже подписаны на пользователя';
+            Response.data = true;
+        }//else
 
-        await subscribersList.save();
-        Response.status = 200;
-        Response.message = 'обновления прошли успешно!';
-        Response.data = true;
+
     }//try
     catch (ex){
         Logger.error({
@@ -75,9 +110,10 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         Response.status = 500;
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = null;
-        res.status(Response.status)
-        res.send(Response);
+
     }//catch
+    res.status(Response.status)
+    res.send(Response);
 }
 module.exports.RemoveUserToSubscribers=async(req,res)=>{
 
@@ -85,52 +121,64 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
     let validUser =  validator.isMongoId( userId);
     let validUserInSubscribersList =  validator.isMongoId( req.body.UserIDInSubscribersList);
 
-    let userIdSubscribers = req.body.UserIDInSubscribersList;
+
 
     if(!validUser||
         !validUserInSubscribersList
     ){
         Response.status = 400;
-        Response.message = 'значение уже существует!';
+        Response.message = 'пользователь не найден!';
         Response.data = statusTitleValid;
         res.status(Response.status)
         res.send(Response);
         return;
     }//if
-
+    let userIdSubscribers = req.body.UserIDInSubscribersList;
     try {
 
-        let existUser = await User.find({
+        let existUser = await User.findOne({
 
             _id:userId
-        });
+        },'_id');
 
-        let existUserSubscribersList = await User.find({
+        let existUserSubscribersList = await User.findOne({
 
             _id:userIdSubscribers
-        });
+        },'_id');
 
         if(!existUser||
             !existUserSubscribersList
         ){
             Response.status = 400;
-            Response.message = 'значение уже существует!';
+            Response.message = 'пользователь не найден!';
             Response.data = statusTitleValid;
             res.status(Response.status)
             res.send(Response);
             return;
         }//if
 
-        let subscribersList = await subscribers({
-            user:req.body.UserID
+        let subscribersList = await subscribers.findOne({
+            user:userId
         });
 
-        let idInSubscribers =  subscribersList.List.remove(userIdSubscribers);
+        console.log('user', subscribersList);
 
-        await subscribersList.save();
-        Response.status = 200;
-        Response.message = 'обновления прошли успешно!';
-        Response.data = false;
+        console.log('of', subscribersList.List.indexOf(userIdSubscribers));
+
+        if(subscribersList.List.indexOf(userIdSubscribers)===0){
+            let idInSubscribers =  subscribersList.List.remove(userIdSubscribers);
+
+            await subscribersList.save();
+            Response.status = 200;
+            Response.message = 'пользователь удален из списка!';
+            Response.data = false;
+        }//if
+        else{
+            Response.status = 400;
+            Response.message = 'пользователь не найден';
+            Response.data = false;
+        }//elsr
+
     }//try
     catch (ex){
         Logger.error({
