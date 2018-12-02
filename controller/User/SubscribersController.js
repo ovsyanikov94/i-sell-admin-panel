@@ -200,6 +200,83 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
     res.send(Response);
 }
 
+module.exports.InListSubscribers = async(req,res)=>{
+    let id= req.session.passport.user._id;
+
+
+    let validUser =  validator.isMongoId( id);
+    let validUserInSubscriberskList =  validator.isMongoId( req.body.UserIDInSubscribersList);
+
+
+    if(!validUser||
+        !validUserInSubscriberskList
+    ){
+        Response.status = 400;
+        Response.message = 'пользователь не найден!';
+        Response.data = statusTitleValid;
+        res.status(Response.status)
+        res.send(Response);
+        return;
+    }//if
+    let userIdSubscribers = req.body.UserIDInSubscribersList
+    try {
+
+        let existUser = await User.findOne({
+            _id: id
+        });
+
+        let existUserSubscriberskList = await User.findOne({
+
+            _id: userIdSubscribers
+        });
+
+        if (!existUser ||
+            !existUserSubscriberskList
+        ) {
+            Response.status = 400;
+            Response.message = 'пользователь не найден!';
+            Response.data = statusTitleValid;
+            res.status(Response.status)
+            res.send(Response);
+            return;
+        }//if
+
+        let subscribersList = await subscribers.findOne({
+            List: userIdSubscribers
+        });
+
+        if (subscribersList){
+            Response.status = 200;
+            Response.message = 'пользователь найден';
+            Response.data = true;
+        }//if
+        else{
+            Response.status = 200;
+            Response.message = 'пользователь не найден';
+            Response.data = false;
+        }//else
+
+    }
+    catch (ex){
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });//Logger.error
+        res.status(500);
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = null;
+
+    }//catch
+    res.status(Response.status)
+    res.send(Response);
+}//getInListSubscribers
+
 module.exports.getSubscribersUser = async (req,res)=>{
     let id=null;
     if(req.body.userId){
