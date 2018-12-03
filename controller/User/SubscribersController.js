@@ -414,16 +414,23 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
         let limit = +req.query.limit || 5;
         let offset = +req.query.offset || 0;
 
-        let Subscriptions = await User.find()
+        let Subscriptions = await subscribers.find()
             .populate({
-            path:'subscribersList',
+            path:'List',
             match:{
                 _id : id
-            }
-        });
+            },
+            options:{
+                limit: limit,
+                skip: offset
+            },
+            select:'userLogin userName userLastname userPhoto'
+    });
 
 
-        //console.log('categories' , categories);
+
+        console.log('Subscriptions', Subscriptions);
+        console.log('Subscriptions List', Subscriptions.List);
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
