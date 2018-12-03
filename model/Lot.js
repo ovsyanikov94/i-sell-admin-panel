@@ -184,7 +184,6 @@ lotSchema.methods.getLikes = async function (  ) {
 };
 
 let like = lotSchema.virtual('lotMark');
-
 like.get = function ( userID ) {
 
     return this.getMark( userID )
@@ -200,7 +199,6 @@ like.set = function ( value ) {
   this.lotMark = value;
 
 };
-
 lotSchema.methods.getMark = async function ( userID ) {
 
     let lotID = this._id;

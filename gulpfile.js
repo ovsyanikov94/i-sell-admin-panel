@@ -43,6 +43,9 @@ require('./tasks/clear-comment-statuses');
 //Очистка типов комментария
 require('./tasks/clear-comment-types');
 
+//Добавление главного администратора
+require('./tasks/insert-user');
+
 gulp.task( 'default' , gulpSync.sync([
     // 'clearDealStatuses',
     //'InsertDefaultDealStatuses',
@@ -51,12 +54,12 @@ gulp.task( 'default' , gulpSync.sync([
     //'clearUserRoles',
     //'InsertDefaultUserRoles',
     //'clearLotType',
-    'InsertLotType',
+    //'InsertLotType',
     //'clearLotStatuses',
-    'InsertDefaultLotStatuses',
+    // 'InsertDefaultLotStatuses',
     //'InsertDefaultCommentStatuses',
     //'InsertDefaultCommentTypes',
     //'clearCommentStatuses',
     //'clearCommentTypes',
-
+    'InsertRootAdmin',
 ]));
