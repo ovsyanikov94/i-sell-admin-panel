@@ -547,8 +547,7 @@ module.exports.GetUser = async (req,res)=>{
 
     try {
 
-        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone')
-
+        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone');
 
         if(!existUser){
 
