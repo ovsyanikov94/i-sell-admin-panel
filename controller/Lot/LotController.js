@@ -348,7 +348,6 @@ module.exports.AddLot = async( req , res ) => {
                     await addLot.save();
 
 
-
                 })//lotImage.mv
             } //for
 
