@@ -66,6 +66,7 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
                 });
                 await newSubscribers.save();
                 existUser.subscribersList = (newSubscribers._id);
+                await existUser.save();
             }//if
 
 
@@ -89,13 +90,16 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
             user: id
         });
 
+        console.log('subscribersList',subscribersList);
+        console.log('subscribersList!!!!!!!!!!!!!!!!!!!!!',subscribersList.List);
+        console.log('indexOf' ,subscribersList.List.indexOf(userIdSubscribers));
         if(subscribersList.List.indexOf(userIdSubscribers)===-1){
             subscribersList.List.push(userIdSubscribers);
             await subscribersList.save();
 
 
 
-            await existUser.save();
+
             Response.status = 200;
             Response.message = 'пользователь добавлен в подписчики';
             Response.data = true;
@@ -245,7 +249,7 @@ module.exports.InListSubscribers = async(req,res)=>{
         ) {
             Response.status = 400;
             Response.message = 'пользователь не найден!';
-            Response.data = statusTitleValid;
+
             res.status(Response.status)
             res.send(Response);
             return;
@@ -260,6 +264,8 @@ module.exports.InListSubscribers = async(req,res)=>{
                 },
                 select:'userLogin userName userLastname userPhoto'
             });
+
+        console.log('subscribersList',subscribersList);
         if(subscribersList.List.length === 0){
             Response.status = 200;
             Response.message = 'OK';
@@ -338,9 +344,6 @@ module.exports.getSubscribersUser = async (req,res)=>{
         let subscribers = await User.findOne({
             _id: existUser._id
             },'_id')
-            // .limit(limit)
-            // .skip(offset)
-            //.populate('subscribersList','userLogin userName userLastname userPhoto');
             .populate({
                 path:'subscribersList',
                 populate:{
@@ -354,7 +357,7 @@ module.exports.getSubscribersUser = async (req,res)=>{
 
             });
 
-
+        console.log('subscribers', subscribers);
         let List = subscribers.subscribersList.List;
 
         Response.status = 200;
