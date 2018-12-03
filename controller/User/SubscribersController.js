@@ -245,7 +245,7 @@ module.exports.InListSubscribers = async(req,res)=>{
         ) {
             Response.status = 400;
             Response.message = 'пользователь не найден!';
-
+            Response.data = statusTitleValid;
             res.status(Response.status)
             res.send(Response);
             return;
@@ -325,7 +325,7 @@ module.exports.getSubscribersUser = async (req,res)=>{
 
         let limit = +req.query.limit || 5;
         let offset = +req.query.offset || 0;
-        console.log('subscribers');
+
         let subscribers = await User.findOne({
             _id: existUser._id
             },'_id')
