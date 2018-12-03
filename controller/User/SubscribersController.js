@@ -251,19 +251,28 @@ module.exports.InListSubscribers = async(req,res)=>{
             return;
         }//if
 
-        let subscribersList = await subscribers.findOne({
-            List: userIdSubscribers
-        });
+        let subscribersList = await subscribers.findOne({user:  existUser._id})
+            .populate({
+                path:'List',
 
-        if (subscribersList){
+                math:{
+                    _id: userIdSubscribers
+                },
+                select:'userLogin userName userLastname userPhoto'
+            });
+        if(subscribersList.List.length === 0){
             Response.status = 200;
-            Response.message = 'пользователь найден';
+            Response.message = 'OK';
+            Response.data = false;
+            return;
+        }
+        if (subscribersList.List.length>0 && subscribersList.List[0]._id == userIdSubscribers ){
+            Response.status = 200;
+            Response.message = 'OK';
             Response.data = true;
         }//if
         else{
-            Response.status = 200;
-            Response.message = 'пользователь не найден';
-            Response.data = false;
+
         }//else
 
     }
@@ -375,13 +384,11 @@ module.exports.getSubscribersUser = async (req,res)=>{
 }//getSubscribersUser
 
 module.exports.getSubscriptionsUser = async (req,res)=>{
-    let id=null;
-    if(req.body.userId){
-        id = req.body.userId
-    }
-    else{
-        id= req.session.passport.user._id;
-    }
+    let id = req.query.userId;
+
+    if( !isNaN(+id) ){
+        id = req.session.passport.user._id;
+    }//if
 
 
     let validIdUser = validator.isMongoId(id)||'';
@@ -428,9 +435,10 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
     });
 
 
-        let resultUserId = Subscriptions.map((s)=>{
-            return s.user
-        });
+        // let resultUserId = Subscriptions.map((s)=>{
+        //     return s.user
+        // });
+        let resultUserId=[];
         for(let i = 0; i< Subscriptions.length;i++) {
             if(Subscriptions[i].List.length>0){
                 let user = Subscriptions[i].List;
@@ -439,7 +447,7 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
 
         }//for
 
-        console.log(resultUserId);
+        console.log('USER ID',resultUserId);
         let resultUserList = [];
 
 
