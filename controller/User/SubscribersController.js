@@ -92,12 +92,13 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
             subscribersList.List.push(userIdSubscribers);
             await subscribersList.save();
 
-            existUser.subscribersList.ref = subscribersList._id
+            existUser.subscribersList = subscribersList._id;
 
             await existUser.save();
             Response.status = 200;
             Response.message = 'пользователь добавлен в подписчики';
-            Response.data = true;
+            Response.data = existUser;
+
         }//if
         else{
             Response.status = 200;
@@ -324,15 +325,13 @@ module.exports.getSubscribersUser = async (req,res)=>{
 
         let limit = +req.query.limit || 5;
         let offset = +req.query.offset || 0;
-        console.log('subscribers');
+
         let subscribers = await User.findOne({
             _id: existUser._id
-            })
-            .limit(limit)
-            .skip(offset)
-            .populate({
-                path:'subscribersList'
-            },'userLogin userName userLastname userPhoto');
+        })
+        .limit(limit)
+        .skip(offset)
+        .populate('subscribersList');
 
 
         //console.log('categories' , categories);
