@@ -886,7 +886,15 @@ module.exports.GetLotById= async (req, res) => {
                 .populate('mapLot')
                 .populate('seller', 'userLogin')
                 .populate('categories', 'title')
-                .populate('comments');
+                .populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'userSender',
+                        select: 'userLogin userPhoto'
+                    }
+                });
+
+            console.log('lot: ' , lot);
 
         }//if
         else{
