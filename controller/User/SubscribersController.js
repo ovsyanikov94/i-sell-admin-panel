@@ -58,13 +58,14 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
 
         try{
 
-            let r = mongoose.model('subscribers');
-            console.log(r);
-            if( r){
+
+
+            if(!existUser.subscribersList ){
                 let newSubscribers = new subscribers({
                     user: id
                 });
                 await newSubscribers.save();
+                existUser.subscribersList = (newSubscribers._id);
             }//if
 
 
@@ -92,7 +93,7 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
             subscribersList.List.push(userIdSubscribers);
             await subscribersList.save();
 
-            existUser.subscribersList.ref = subscribersList._id
+
 
             await existUser.save();
             Response.status = 200;
@@ -244,7 +245,7 @@ module.exports.InListSubscribers = async(req,res)=>{
         ) {
             Response.status = 400;
             Response.message = 'пользователь не найден!';
-            Response.data = statusTitleValid;
+
             res.status(Response.status)
             res.send(Response);
             return;
@@ -327,19 +328,29 @@ module.exports.getSubscribersUser = async (req,res)=>{
         console.log('subscribers');
         let subscribers = await User.findOne({
             _id: existUser._id
-            })
-            .limit(limit)
-            .skip(offset)
+            },'_id')
+            // .limit(limit)
+            // .skip(offset)
+            //.populate('subscribersList','userLogin userName userLastname userPhoto');
             .populate({
-                path:'subscribersList'
-            },'userLogin userName userLastname userPhoto');
+                path:'subscribersList',
+                populate:{
+                    path:'List',
+                    options:{
+                        limit: limit,
+                        skip: offset
+                    },
+                    select:'userLogin userName userLastname userPhoto'
+                },
+
+            });
 
 
-        //console.log('categories' , categories);
+        let List = subscribers.subscribersList.List;
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = subscribers;
+        Response.data = List;
 
     }//try
     catch (ex) {

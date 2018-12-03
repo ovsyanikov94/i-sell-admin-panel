@@ -379,7 +379,7 @@ module.exports.addUserAvatar = async (req,res)=>{
                             return;
                         }//if
 
-                        existUser.userPhoto =`${path}/${userAvatar.name}`
+                        existUser.userPhoto =`i-sell-admin-api/${path}/${userAvatar.name}`
 
                         await existUser.save();
 
@@ -400,9 +400,11 @@ module.exports.addUserAvatar = async (req,res)=>{
                                     return;
                                 }//if
 
-                                existUser.userPhoto = `${path}/${userAvatar.name}`
+                                console.log(path);
+
+                                console.log(userAvatar.name);
+                                existUser.userPhoto = `i-sell-admin-api/${path}/${userAvatar.name}`
                                let eu = await existUser.save();
-                                console.log(eu);
                             });
                         }
 
