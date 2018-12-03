@@ -1,10 +1,10 @@
 "use strict";
 
-const Logger = require('../model/Logger');
+const Logger = require('../../model/Logger');
 
-const CommentStatus = require('../model/CommentStatus');
-const ValidatorConstants = require('../model/Validation');
-const Response = require('../model/Response');
+const CommentStatus = require('../../model/CommentStatus');
+const ValidatorConstants = require('../../model/Validation');
+const Response = require('../../model/Response');
 
 module.exports.GetCommentStatus = async( req , res ) => {
 

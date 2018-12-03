@@ -11,7 +11,7 @@ const userRoleSchema = new Schema({
             validator: ( role )=>{
                 return  constValidator.TITLE_VALIDATOR.test(role)
             }, // Validator Login
-            message: props => `Ошибка. Введите корректный статус! \n"${props.value}"`
+            message: props => `Ошибка. Введите корректную роль! \n"${props.value}"`
         },
     },
     userRoleId:Number,

@@ -25,6 +25,7 @@ const lotSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'users'
     },
+
     lotDescription:{
         type: String,
         required: [true, 'Описание лота обязательно'],
@@ -179,6 +180,37 @@ lotSchema.methods.getLikes = async function (  ) {
         return false;
 
     }//catch
+
+};
+
+let like = lotSchema.virtual('lotMark');
+
+like.get = function ( userID ) {
+
+    return this.getMark( userID )
+        .then( result => result )
+        .catch( error => {
+            console.log(error);
+            return null;
+        } );
+
+};
+like.set = function ( value ) {
+
+  this.lotMark = value;
+
+};
+
+lotSchema.methods.getMark = async function ( userID ) {
+
+    let lotID = this._id;
+
+    let mark = await lotMarks.findOne({
+        sender: userID,
+        receiver: lotID
+    } , 'mark');
+
+    return mark;
 
 };
 

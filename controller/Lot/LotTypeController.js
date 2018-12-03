@@ -1,8 +1,8 @@
 "use strict";
 
-const LotType = require('../model/LotType');
-const Logger = require('../model/Logger');
-const Response = require('../model/Response');
+const LotType = require('../../model/LotType');
+const Logger = require('../../model/Logger');
+const Response = require('../../model/Response');
 
 module.exports.LotTypeList = async( req , res )=>{
 
