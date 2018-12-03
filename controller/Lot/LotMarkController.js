@@ -1,13 +1,13 @@
 "use strict";
 
-const LotMark = require('../model/LotMark');
-const User = require('../model/User');
-const Lot = require('../model/Lot');
+const LotMark = require('../../model/LotMark');
+const User = require('../../model/User');
+const Lot = require('../../model/Lot');
 
-const Logger = require('../model/Logger');
-const Response = require('../model/Response');
+const Logger = require('../../model/Logger');
+const Response = require('../../model/Response');
 
-const LotMarkConstants = require('../model/LotMarkConstants');
+const LotMarkConstants = require('../../model/LotMarkConstants');
 
 module.exports.UpdateLotMark = async ( req, res ) => {
 
@@ -230,6 +230,18 @@ module.exports.GetUsersListWithMarks = async ( req, res ) => {
 
 module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
 
+    if( !req.isAuthenticated() ){
+
+        res.status(200);
+
+        return res.send({
+            status: 200,
+            message: 'Лот с оценкой пользователя не найден!',
+            data: -1
+        });
+
+    }//if
+
     let lotId = req.query.receiver;
     let userId = req.session.passport.user;
 
@@ -247,8 +259,7 @@ module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
             Response.data = markedLot.mark;
         }//else
 
-        res.status(Response.status);
-        res.send(Response);
+
 
     }//try
     catch(ex){
@@ -265,5 +276,9 @@ module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = ex;
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
 
 }//GetCurrentLikeDislikeLotInfo

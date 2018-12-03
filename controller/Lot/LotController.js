@@ -898,13 +898,22 @@ module.exports.GetLotById= async (req, res) => {
 
         }//if
         else{
+
             lot = await Lot.findOne({_id: idLot})
                 .populate('lotImagePath')
-                .populate('categories', 'title')
-        }
+                .populate('categories', 'title');
+
+            lot.comments = [];
+
+        }//else
+
 
         let countLikes = await lot.getLikes();
         let countDislikes = await lot.getDisLike();
+
+        if(req.isAuthenticated()){
+            lot.lotMark = await lot.getMark( req.session.passport.user._id );
+        }//if
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
