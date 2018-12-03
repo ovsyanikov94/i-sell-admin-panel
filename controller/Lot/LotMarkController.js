@@ -6,7 +6,6 @@ const Lot = require('../../model/Lot');
 
 const Logger = require('../../model/Logger');
 const Response = require('../../model/Response');
-const UtilsController = require('../UtilsController');
 
 const LotMarkConstants = require('../../model/LotMarkConstants');
 
@@ -162,8 +161,8 @@ module.exports.UpdateLotMark = async ( req, res ) => {
 module.exports.GetUsersListWithMarks = async ( req, res ) => {
 
     try{
-        let limit = req.query.limit || LotMarkConstants.LOT_LIST_LIMIT;
-        let offset = req.query.offset || LotMarkConstants.LOT_LIST_OFFSET;
+        let limit = +req.query.limit || LotMarkConstants.LOT_LIST_LIMIT;
+        let offset = +req.query.offset || LotMarkConstants.LOT_LIST_OFFSET;
 
         let lotID = req.query.receiver;
 
@@ -181,15 +180,27 @@ module.exports.GetUsersListWithMarks = async ( req, res ) => {
             return;
         }//if
 
-        let mark = req.body.mark;
+        let mark = +req.query.mark;
 
-        let usersWithMark = await LotMark.find().where({mark: mark})
+        let usersWithMark = await LotMark.find( { receiver: lotID, mark: mark }, 'sender' )
             .limit(limit)
             .skip(offset);
 
+        let currentUsersWithMark = [];
+
+        let object = null;
+
+        for (let i = 0; i < usersWithMark.length; i++){
+
+            object = await User.findById( usersWithMark[i].sender, '_id userLogin userPhoto' );
+
+            currentUsersWithMark.push(object);
+
+        }//for i
+
         Response.status = 200;
         Response.message = 'Пользователи с оценками найдены!';
-        Response.data = usersWithMark;
+        Response.data = currentUsersWithMark;
 
         res.status(Response.status);
         res.send(Response);
@@ -219,6 +230,18 @@ module.exports.GetUsersListWithMarks = async ( req, res ) => {
 
 module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
 
+    if( !req.isAuthenticated() ){
+
+        res.status(200);
+
+        return res.send({
+            status: 200,
+            message: 'Лот с оценкой пользователя не найден!',
+            data: -1
+        });
+
+    }//if
+
     let lotId = req.query.receiver;
     let userId = req.session.passport.user;
 
@@ -236,8 +259,7 @@ module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
             Response.data = markedLot.mark;
         }//else
 
-        res.status(Response.status);
-        res.send(Response);
+
 
     }//try
     catch(ex){
@@ -254,5 +276,9 @@ module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = ex;
     }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
 
 }//GetCurrentLikeDislikeLotInfo

@@ -874,17 +874,45 @@ module.exports.UpdateLot = async( req , res ) => {
 module.exports.GetLotById= async (req, res) => {
 
     try{
-        let idLot = req.query.id ;
 
-        let lot = await Lot.findOne({_id: idLot})
-            .populate('lotImagePath')
-            .populate('mapLot')
-            .populate('seller', 'userLogin')
-            .populate('categories', 'title')
-            .populate('comments');
+        let idLot = req.query.id ;
+        let lot = null;
+
+        if ( req.isAuthenticated() ){
+
+            lot = await Lot.findOne({_id: idLot})
+                .populate('lotImagePath')
+                .populate('mapLot')
+                .populate('seller', 'userLogin')
+                .populate('categories', 'title')
+                .populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'userSender',
+                        select: 'userLogin userPhoto'
+                    }
+                });
+
+            console.log('lot: ' , lot);
+
+        }//if
+        else{
+
+            lot = await Lot.findOne({_id: idLot})
+                .populate('lotImagePath')
+                .populate('categories', 'title');
+
+            lot.comments = [];
+
+        }//else
+
 
         let countLikes = await lot.getLikes();
         let countDislikes = await lot.getDisLike();
+
+        if(req.isAuthenticated()){
+            lot.lotMark = await lot.getMark( req.session.passport.user._id );
+        }//if
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';

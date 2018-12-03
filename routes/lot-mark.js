@@ -5,7 +5,9 @@ const router = express.Router();
 
 const LotMarkController = require('../controller/Lot/LotMarkController');
 
-router.post('/update-lot-mark', LotMarkController.UpdateLotMark);
+const AccessController = require('../controller/User/AccessController');
+
+router.post('/update-lot-mark', AccessController.CheckAccess ,LotMarkController.UpdateLotMark);
 
 router.get('/users-list-by-mark', LotMarkController.GetUsersListWithMarks);
 

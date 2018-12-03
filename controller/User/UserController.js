@@ -529,15 +529,12 @@ module.exports.removeUserAvatar = async (req,res)=>{
 
 module.exports.GetUser = async (req,res)=>{
 
-    let id = req.session.passport.user._id;
+    let id = req.query.userId;
 
-    if(req.session.passport === undefined){
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-    }
+    if( !isNaN(+id) ){
+        id = req.session.passport.user._id;
+    }//if
+
     let validIdUser = validator.isMongoId(id)||'';
     if(!validIdUser){
 
@@ -551,8 +548,7 @@ module.exports.GetUser = async (req,res)=>{
 
     try {
 
-        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone')
-
+        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone');
 
         if(!existUser){
 
@@ -587,6 +583,7 @@ module.exports.GetUser = async (req,res)=>{
 
     res.status(Response.status);
     res.send(Response);
+
 }//GetUser
 
 module.exports.GetUserBuyLot = async(req,res)=>{
@@ -653,7 +650,6 @@ module.exports.GetUserBuyLot = async(req,res)=>{
     res.send(Response);
 
 }//GetUserBuyActiveLot
-
 
 module.exports.GetUserSaleLot = async (req,res)=>{
     let id = req.session.passport.user._id||'';
