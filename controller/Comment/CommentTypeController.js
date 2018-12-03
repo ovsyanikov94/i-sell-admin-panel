@@ -1,10 +1,10 @@
 "use strict";
 
-const Logger = require('../model/Logger');
+const Logger = require('../../model/Logger');
 
-const CommentType = require('../model/CommentType');
-const ValidatorConstants = require('../model/Validation')
-const Response = require('../model/Response');
+const CommentType = require('../../model/CommentType');
+const ValidatorConstants = require('../../model/Validation')
+const Response = require('../../model/Response');
 
 module.exports.GetCommentsType = async( req , res ) => {
 

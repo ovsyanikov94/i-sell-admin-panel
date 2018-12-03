@@ -25,6 +25,7 @@ const lotSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'users'
     },
+
     lotDescription:{
         type: String,
         required: [true, 'Описание лота обязательно'],

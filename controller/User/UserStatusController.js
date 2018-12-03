@@ -1,10 +1,10 @@
 "use strict";
 
-const UserStatus = require('../model/UserStatus');
-const Logger = require('../model/Logger');
-const constValidator = require('../model/Validation');
-const UtilsController = require('../controller/UtilsController');
-const Response = require('../model/Response');
+const UserStatus = require('../../model/UserStatus');
+const Logger = require('../../model/Logger');
+const constValidator = require('../../model/Validation');
+const UtilsController = require('../UtilsController');
+const Response = require('../../model/Response');
 
 module.exports.AddUserStatus = async( req , res ) => {
 

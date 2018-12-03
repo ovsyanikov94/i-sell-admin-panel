@@ -1,15 +1,15 @@
 "use strict";
 
-const Lot = require('../model/Lot');
-const User = require('../model/User');
-const Comment = require('../model/Comment');
-const Logger = require('../model/Logger');
+const Lot = require('../../model/Lot');
+const User = require('../../model/User');
+const Comment = require('../../model/Comment');
+const Logger = require('../../model/Logger');
 
-const CommentType = require('../model/CommentType');
-const CommentStatus = require('../model/CommentStatus');
-const CommentTypeEnum = require('../model/Enums/CommentType');
-const ValidatorConstants = require('../model/Validation');
-const Response = require('../model/Response');
+const CommentType = require('../../model/CommentType');
+const CommentStatus = require('../../model/CommentStatus');
+const CommentTypeEnum = require('../../model/Enums/CommentType');
+const ValidatorConstants = require('../../model/Validation');
+const Response = require('../../model/Response');
 
 const moment = require('moment');
 const validator = require('validator');
@@ -34,7 +34,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let commentStatusID = req.body.commentStatusID;
+        let commentStatusID = req.body.commentStatus;
 
         let commentStatus =  await CommentStatus.find({commentStatusID: commentStatusID });
 
@@ -50,7 +50,7 @@ module.exports.AddComment = async( req , res ) => {
             return ;
         }//if
 
-        let commentTypeID = req.body.commentTypeID;
+        let commentTypeID = +req.body.commentType;
 
         let commentType =  await CommentType.find({commentTypeID: commentTypeID });
 
@@ -81,22 +81,7 @@ module.exports.AddComment = async( req , res ) => {
 
         }//if
 
-        let userSenderID = req.body.userSenderID;
-
-        let userSender =  await User.find({_id: userSenderID });
-
-        if ( userSender.length === 0){
-
-            Response.status = 400;
-            Response.message = 'Отправитель не найден!';
-            Response.data = userSender;
-
-            res.status(Response.status);
-            res.send(Response);
-
-            return ;
-
-        }//if
+        let userSenderID = req.session.passport.user._id;
 
         let newComment = null;
 
@@ -127,53 +112,12 @@ module.exports.AddComment = async( req , res ) => {
 
         }//catch
 
-        if (+commentTypeID === CommentTypeEnum.LOT){
+
+        if(+commentTypeID === CommentTypeEnum.PERSONAL ){
 
             try{
 
-                let lotID = req.body.lotID;
-
-                if(!validator.isMongoId(lotID)){
-
-                    Response.status = 400;
-                    Response.message = 'Неверный ID лота !';
-                    Response.data = lotID;
-
-                    res.status(Response.status);
-                    res.send(Response);
-
-                    return;
-
-                }//if
-
-                let lot = await Lot.findById( lotID , '_id');
-
-                newComment.lot = lot._id;
-
-            }//try
-            catch(ex){
-
-                Response.status = 400;
-                Response.message = 'Ошибка при добавлении лота к комментарию!';
-                Response.data = ex;
-
-                console.log(ex);
-
-                res.status(Response.status);
-                res.send(Response);
-
-                return;
-
-            }//catch
-
-
-        }//else
-
-        else if(+commentTypeID === CommentTypeEnum.PERSONAL ){
-
-            try{
-
-                let userReceiverID = req.body.userReceiverID;
+                let userReceiverID = req.body.userReceiver;
 
                 if(!validator.isMongoId(userReceiverID)){
 
@@ -209,6 +153,51 @@ module.exports.AddComment = async( req , res ) => {
             }//catch
 
         }//if
+        else if (+commentTypeID === CommentTypeEnum.LOT){
+
+            try{
+
+                let lotID = req.body.lot;
+
+                if(!validator.isMongoId(lotID)){
+
+                    Response.status = 400;
+                    Response.message = 'Неверный ID лота !';
+                    Response.data = lotID;
+
+                    res.status(Response.status);
+                    res.send(Response);
+
+                    return;
+
+                }//if
+
+                let lot = await Lot.findById( lotID );
+
+                newComment.lot = lot._id;
+
+                lot.comments.push(newComment);
+
+                lot.save();
+
+            }//try
+            catch(ex){
+
+                Response.status = 400;
+                Response.message = 'Ошибка при добавлении лота к комментарию!';
+                Response.data = ex;
+
+                console.log(ex);
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+
+            }//catch
+
+
+        }//else
 
         let createResult = await newComment.save();
 
@@ -374,10 +363,14 @@ module.exports.GetComments = async( req , res ) => {
 
     try{
 
-        let comments = await Comment.find({commentType: CommentTypeEnum.LOT }, 'id commentStatus commentType commentSendDate userSender userReceiver lot ',{
+        let lotID = req.query.id;
+
+        console.log(lotID);
+
+        let comments = await Comment.find({ lot : lotID }, 'commentStatus commentText commentType commentSendDate userReceiver ',{
             limit: +req.query.limit || ValidatorConstants.COMMENT_DEFAULT_LIMIT,
             skip: +req.query.offset || ValidatorConstants.COMMENT_DEFAULT_SKIP
-        });
+        }).populate('userSender');
 
         Response.status = 200;
         Response.message = 'Список комментариев: ';
