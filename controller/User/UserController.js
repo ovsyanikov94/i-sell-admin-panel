@@ -379,7 +379,7 @@ module.exports.addUserAvatar = async (req,res)=>{
                             return;
                         }//if
 
-                        existUser.userPhoto =`i-sell-admin-api/${path}/${userAvatar.name}`
+                        existUser.userPhoto =`/i-sell-admin-api/images/avatar/${existUser._id}/${userAvatar.name}`
 
                         await existUser.save();
 

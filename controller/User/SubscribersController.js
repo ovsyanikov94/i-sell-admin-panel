@@ -428,13 +428,36 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
     });
 
 
+        let resultUserId = Subscriptions.map((s)=>{
+            return s.user
+        });
+        for(let i = 0; i< Subscriptions.length;i++) {
+            if(Subscriptions[i].List.length>0){
+                let user = Subscriptions[i].List;
+                resultUserId.push(user);
+            }//if
 
-        console.log('Subscriptions', Subscriptions);
-        console.log('Subscriptions List', Subscriptions.List);
+        }//for
+
+        console.log(resultUserId);
+        let resultUserList = [];
+
+
+        for(let i = 0; i<resultUserId.length; i++){
+            console.log('USER',resultUserId[i]);
+            let user = await User.findOne(
+                {_id:resultUserId[i]},'_id userLogin  userName userLastname userPhoto ');
+
+            resultUserList.push(user);
+
+            console.log('USER',user);
+        }
+
+
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = Subscriptions;
+        Response.data = resultUserList;
 
     }//try
     catch (ex) {
