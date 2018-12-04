@@ -280,5 +280,4 @@ module.exports.GetCurrentLikeDislikeLotInfo = async (req, res) =>{
     res.status(Response.status);
     res.send(Response);
 
-
 }//GetCurrentLikeDislikeLotInfo

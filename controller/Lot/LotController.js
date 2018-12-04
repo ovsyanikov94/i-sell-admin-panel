@@ -407,6 +407,10 @@ module.exports.GetLotListActive = async (req, res) => {
             let countLikes = await lots[i].getLikes();
             let countDislikes = await lots[i].getDisLike();
 
+            if(req.isAuthenticated()){
+                lots[i].lotMark = await lots[i].getMark( req.session.passport.user._id );
+            }//if
+
         }//for
 
         Response.status = 200;
