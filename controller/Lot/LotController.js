@@ -409,6 +409,13 @@ module.exports.GetLotListActive = async (req, res) => {
             let countLikes = await lots[i].getLikes();
             let countDislikes = await lots[i].getDisLike();
 
+            if(req.isAuthenticated()){
+                lots[i].lotMark = await lots[i].getMark( req.session.passport.user._id );
+            }//if
+            else{
+                lots[i].lotMark = null;
+            }//else
+
         }//for
 
         Response.status = 200;
@@ -886,17 +893,35 @@ module.exports.GetLotById= async (req, res) => {
                 .populate('mapLot')
                 .populate('seller', 'userLogin')
                 .populate('categories', 'title')
-                .populate('comments');
+                .populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'userSender',
+                        select: 'userLogin userPhoto'
+                    }
+                });
 
         }//if
         else{
+
             lot = await Lot.findOne({_id: idLot})
                 .populate('lotImagePath')
-                .populate('categories', 'title')
-        }
+                .populate('categories', 'title');
+
+            lot.comments = [];
+
+        }//else
+
 
         let countLikes = await lot.getLikes();
         let countDislikes = await lot.getDisLike();
+
+        if(req.isAuthenticated()){
+            lot.lotMark = await lot.getMark( req.session.passport.user._id );
+        }//if
+        else{
+            lot.lotMark = null;
+        }//else
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';

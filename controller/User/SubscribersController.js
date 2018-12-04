@@ -25,6 +25,7 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         res.send(Response);
         return;
     }//if
+
     let userIdSubscribers = req.body.UserIDInSubscribersList;
 
     if(id===userIdSubscribers){
@@ -42,7 +43,6 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         });
 
         let existUserSubscriberskList = await User.findOne({
-
             _id:userIdSubscribers
         });
 
@@ -58,17 +58,21 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
 
         try{
 
-
-
+            //Если добавляем первый раз
             if(!existUser.subscribersList ){
-                let newSubscribers = new subscribers({
-                    user: id
-                });
-                await newSubscribers.save();
-                existUser.subscribersList = (newSubscribers._id);
-                await existUser.save();
-            }//if
 
+                let newSubscribers = new subscribers({
+                    user: id,
+                    List: [ userIdSubscribers ]
+                });
+
+                await newSubscribers.save();
+
+                existUser.subscribersList = newSubscribers._id;
+
+                await existUser.save();
+
+            }//if
 
         }//try
         catch (ex){
@@ -93,21 +97,23 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         console.log('subscribersList',subscribersList);
         console.log('subscribersList!!!!!!!!!!!!!!!!!!!!!',subscribersList.List);
         console.log('indexOf' ,subscribersList.List.indexOf(userIdSubscribers));
-        if(subscribersList.List.indexOf(userIdSubscribers)===-1){
+
+        if(subscribersList.List.indexOf(userIdSubscribers) === -1){
+
             subscribersList.List.push(userIdSubscribers);
             await subscribersList.save();
-
-
-
 
             Response.status = 200;
             Response.message = 'пользователь добавлен в подписчики';
             Response.data = true;
+
         }//if
         else{
+
             Response.status = 200;
             Response.message = 'вы уже подписаны на пользователя';
             Response.data = true;
+
         }//else
 
 
@@ -130,7 +136,8 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
     }//catch
     res.status(Response.status)
     res.send(Response);
-}
+};
+
 module.exports.RemoveUserToSubscribers=async(req,res)=>{
 
     let userId = req.session.passport.user._id;
@@ -212,7 +219,7 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
     }//catch
     res.status(Response.status)
     res.send(Response);
-}
+};
 
 module.exports.InListSubscribers = async(req,res)=>{
     let id= req.session.passport.user._id;
@@ -232,7 +239,9 @@ module.exports.InListSubscribers = async(req,res)=>{
         res.send(Response);
         return;
     }//if
-    let userIdSubscribers = req.body.UserIDInSubscribersList
+
+    let userIdSubscribers = req.body.UserIDInSubscribersList;
+
     try {
 
         let existUser = await User.findOne({
@@ -250,39 +259,37 @@ module.exports.InListSubscribers = async(req,res)=>{
             Response.status = 400;
             Response.message = 'пользователь не найден!';
 
-            res.status(Response.status)
+            res.status(Response.status);
             res.send(Response);
             return;
         }//if
 
-        let subscribersList = await subscribers.findOne({user:  existUser._id})
-            .populate({
-                path:'List',
-
-                math:{
-                    _id: userIdSubscribers
-                },
-                select:'userLogin userName userLastname userPhoto'
-            });
+        let subscribersList = await subscribers.findOne(
+            {
+                user:  existUser._id
+            }
+        );
 
         console.log('subscribersList',subscribersList);
-        if(subscribersList.List.length === 0){
-            Response.status = 200;
-            Response.message = 'OK';
-            Response.data = false;
-            return;
-        }
-        if (subscribersList.List.length>0 && subscribersList.List[0]._id == userIdSubscribers ){
-            Response.status = 200;
-            Response.message = 'OK';
-            Response.data = true;
-        }//if
-        else{
 
+        Response.status = 200;
+        Response.message = 'OK';
+
+        if(subscribersList && subscribersList.List.indexOf(userIdSubscribers) === -1){
+            Response.data = false;
+        }//if
+        else if(subscribersList && subscribersList.List.indexOf(userIdSubscribers) !== -1 ){
+            Response.data = true;
+        }//else
+        else{
+            Response.data = false;
         }//else
 
-    }
+
+
+    }//try
     catch (ex){
+
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -291,6 +298,7 @@ module.exports.InListSubscribers = async(req,res)=>{
                 stack: ex.stack
             },
         });//Logger.error
+
         res.status(500);
 
         Response.status = 500;
@@ -298,8 +306,10 @@ module.exports.InListSubscribers = async(req,res)=>{
         Response.data = null;
 
     }//catch
-    res.status(Response.status)
+
+    res.status(Response.status);
     res.send(Response);
+
 }//getInListSubscribers
 
 module.exports.getSubscribersUser = async (req,res)=>{
@@ -387,7 +397,8 @@ module.exports.getSubscribersUser = async (req,res)=>{
 }//getSubscribersUser
 
 module.exports.getSubscriptionsUser = async (req,res)=>{
-    let id = req.query.userId;
+
+    let id = req.body.userId;
 
     if( !isNaN(+id) ){
         id = req.session.passport.user._id;
@@ -426,49 +437,52 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
 
         let Subscriptions = await subscribers.find()
             .populate({
-            path:'List',
-            match:{
-                _id : id
-            },
-            options:{
-                limit: limit,
-                skip: offset
-            },
-            select:'userLogin userName userLastname userPhoto'
-    });
+                path:'List',
+                match:{
+                    _id : id
+                },
+                options:{
+                    limit: limit,
+                    skip: offset
+                },
+                select:'userLogin userName userLastname userPhoto'
+            });
 
 
         // let resultUserId = Subscriptions.map((s)=>{
         //     return s.user
         // });
-        let resultUserId=[];
-        for(let i = 0; i< Subscriptions.length;i++) {
-            if(Subscriptions[i].List.length>0){
-                let user = Subscriptions[i].List;
-                resultUserId.push(user);
-            }//if
 
-        }//for
-
-        console.log('USER ID',resultUserId);
-        let resultUserList = [];
-
-
-        for(let i = 0; i<resultUserId.length; i++){
-            console.log('USER',resultUserId[i]);
-            let user = await User.findOne(
-                {_id:resultUserId[i]},'_id userLogin  userName userLastname userPhoto ');
-
-            resultUserList.push(user);
-
-            console.log('USER',user);
-        }
-
+        // let resultUserId=[];
+        //
+        // for(let i = 0; i< Subscriptions.length;i++) {
+        //
+        //     if(Subscriptions[i].List.length>0){
+        //         let user = Subscriptions[i].List;
+        //         resultUserId.push(user);
+        //     }//if
+        //
+        // }//for
+        //
+        // console.log('USER ID',resultUserId);
+        // let resultUserList = [];
+        //
+        //
+        // for(let i = 0; i<resultUserId.length; i++){
+        //     console.log('USER',resultUserId[i]);
+        //     let user = await User.findOne(
+        //         {_id:resultUserId[i]},'_id userLogin  userName userLastname userPhoto ');
+        //
+        //     resultUserList.push(user);
+        //
+        //     console.log('USER',user);
+        // }
+        //
 
 
         Response.status = 200;
         Response.message = 'обновления прошли успешно!';
-        Response.data = resultUserList;
+        Response.data = Subscriptions;
 
     }//try
     catch (ex) {
@@ -488,7 +502,8 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
 
 
     }//catch
-    res.status(Response.status)
+
+    res.status(Response.status);
     res.send(Response);
 
  }//getSubscriptionsUser
