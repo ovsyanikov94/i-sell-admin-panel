@@ -129,6 +129,7 @@ module.exports.AddUser = async( req , res ) => {
                 userPhone: req.body.phone,
                 role: role._id,
                 userStatus: status._id,
+                userCountSum: 0
             });
 
 
@@ -548,7 +549,7 @@ module.exports.GetUser = async (req,res)=>{
 
     try {
 
-        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone');
+        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone userCountSum');
 
         if(!existUser){
 

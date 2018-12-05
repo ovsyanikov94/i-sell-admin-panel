@@ -15,7 +15,7 @@ const ValidatorConst = {
     USER_FIRSTNAME_VALIDATOR: /^[a-zа-я\s\-.]{1,12}$/i,
     USER_LASTNAME_VALIDATOR: /^[a-zа-я\s\-.]{1,20}$/i,
     USER_PHONE_VALIDATOR: /^\+\d{2}\(\d{3}\)\d{3}-\d{2}-\d{2}$/i,
-
+    USER_COUNT_MONEY: 0,
     //LOT
     LOT_DESCRIPTION_VALIDATOR: /^.*$/i,
     LOT_START_PRICE: 0,
