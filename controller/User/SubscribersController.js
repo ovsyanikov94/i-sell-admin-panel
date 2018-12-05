@@ -63,7 +63,7 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
 
                 let newSubscribers = new subscribers({
                     user: id,
-                    List: [ userIdSubscribers ]
+                    MySubscribersList: [ userIdSubscribers ]
                 });
 
                 await newSubscribers.save();
@@ -72,8 +72,21 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
 
                 await existUser.save();
 
-            }//if
+            }//if добавляем id пользователя на странице которого находимся
 
+            if(existUserSubscriberskList.subscribersList){
+
+                let newSubscribers = new subscribers({
+                    user: userIdSubscribers,
+                    MySubscriptionsList: [ id ]
+                });
+
+                await newSubscribers.save();
+
+                existUserSubscriberskList.subscribersList = newSubscribers._id;
+
+                await existUserSubscriberskList.save();
+            }//if добавляем id текушего авторизированного пользователя в список подписок пользователя на странице которого находимся
         }//try
         catch (ex){
 
@@ -90,18 +103,23 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
         }
 
 
-        let subscribersList = await subscribers.findOne({
+        let subscribersListAuthorizedUser = await subscribers.findOne({
             user: id
-        });
+        });//получаем авторезированного пользователя
 
-        console.log('subscribersList',subscribersList);
-        console.log('subscribersList!!!!!!!!!!!!!!!!!!!!!',subscribersList.List);
-        console.log('indexOf' ,subscribersList.List.indexOf(userIdSubscribers));
+        let  subscribersListInProfileUser = await subscribers.findOne({
+            user: userIdSubscribers
+        });// получаем пользователя на странице профиля которого находимся
 
-        if(subscribersList.List.indexOf(userIdSubscribers) === -1){
+        if (subscribersListAuthorizedUser.MySubscribersList.indexOf(userIdSubscribers) === -1
+            //проверяем наличие юзера на странице профиля которого находимся в списке подписок авторезированного юзера
+            && subscribersListInProfileUser.MySubscriptionsList.indexOf(id) === -1){
+            // проверяем наличие авторезированного юзера в списке подписок юзера на странице профиля которого находимся
+            subscribersListAuthorizedUser.MySubscribersList.push(userIdSubscribers);
+            await subscribersListAuthorizedUser.save();
 
-            subscribersList.List.push(userIdSubscribers);
-            await subscribersList.save();
+            subscribersListInProfileUser.MySubscriptionsList.push(id);
+            await subscribersListInProfileUser.save();
 
             Response.status = 200;
             Response.message = 'пользователь добавлен в подписчики';
@@ -178,21 +196,36 @@ module.exports.RemoveUserToSubscribers=async(req,res)=>{
             return;
         }//if
 
-        let subscribersList = await subscribers.findOne({
-            user:userId
-        });
 
-        console.log('user', subscribersList);
+        let subscribersListAuthorizedUser = await subscribers.findOne({
+            user: userId
+        });//получаем авторезированного пользователя
 
-        console.log('of', subscribersList.List.indexOf(userIdSubscribers));
+        let  subscribersListInProfileUser = await subscribers.findOne({
+            user: userIdSubscribers
+        });// получаем пользователя на странице профиля которого находимся
 
-        if(subscribersList.List.indexOf(userIdSubscribers)===0){
-            let idInSubscribers =  subscribersList.List.remove(userIdSubscribers);
+        if(subscribersListAuthorizedUser!==null &&
+            subscribersListInProfileUser !== null&&
+            subscribersListAuthorizedUser.MySubscribersList !==null&&
+            subscribersListInProfileUser.MySubscriptionsList != null
+        ){
+            if (subscribersListAuthorizedUser.MySubscribersList.indexOf(userIdSubscribers) !== -1
+                //проверяем наличие юзера на странице профиля которого находимся в списке подписок авторезированного юзера
+                && subscribersListInProfileUser.MySubscriptionsList.indexOf(userId) !== -1){
+                // проверяем наличие авторезированного юзера в списке подписок юзера на странице профиля которого находимся
+                subscribersListAuthorizedUser.MySubscribersList.remove(userIdSubscribers);
+                await subscribersListAuthorizedUser.save();
 
-            await subscribersList.save();
-            Response.status = 200;
-            Response.message = 'пользователь удален из списка!';
-            Response.data = false;
+                subscribersListInProfileUser.MySubscriptionsList.remove(userId);
+                await subscribersListInProfileUser.save();
+
+                Response.status = 200;
+                Response.message = 'пользователь удален из списка!';
+                Response.data = true;
+
+            }//if
+
         }//if
         else{
             Response.status = 400;
@@ -240,7 +273,7 @@ module.exports.InListSubscribers = async(req,res)=>{
         return;
     }//if
 
-    let userIdSubscribers = req.body.UserIDInSubscribersList;
+    let userIdSubscribers = req.query.UserIDInSubscribersList;
 
     try {
 
@@ -275,10 +308,10 @@ module.exports.InListSubscribers = async(req,res)=>{
         Response.status = 200;
         Response.message = 'OK';
 
-        if(subscribersList && subscribersList.List.indexOf(userIdSubscribers) === -1){
+        if(subscribersList && subscribersList.MySubscribersList.indexOf(userIdSubscribers) === -1){
             Response.data = false;
         }//if
-        else if(subscribersList && subscribersList.List.indexOf(userIdSubscribers) !== -1 ){
+        else if(subscribersList && subscribersList.MySubscribersList.indexOf(userIdSubscribers) !== -1 ){
             Response.data = true;
         }//else
         else{
@@ -313,13 +346,12 @@ module.exports.InListSubscribers = async(req,res)=>{
 }//getInListSubscribers
 
 module.exports.getSubscribersUser = async (req,res)=>{
-    let id=null;
-    if(req.body.userId){
-        id = req.body.userId
-    }
-    else{
-        id= req.session.passport.user._id;
-    }
+    let id = req.query.userId;
+
+    if( !isNaN(+id) ){
+        id = req.session.passport.user._id;
+    }//if
+
     console.log('id',id);
     let validIdUser = validator.isMongoId(id);
 
@@ -357,7 +389,7 @@ module.exports.getSubscribersUser = async (req,res)=>{
             .populate({
                 path:'subscribersList',
                 populate:{
-                    path:'List',
+                    path:'MySubscribersList',
                     options:{
                         limit: limit,
                         skip: offset
@@ -368,11 +400,15 @@ module.exports.getSubscribersUser = async (req,res)=>{
             });
 
         console.log('subscribers', subscribers);
-        let List = subscribers.subscribersList.List;
-
+        if(subscribers.subscribersList !== null){
+            let List = subscribers.subscribersList.MySubscribersList;
+            Response.data = List;
+        }//if
+        else{
+            Response.data = null;
+        }
         Response.status = 200;
-        Response.message = 'обновления прошли успешно!';
-        Response.data = List;
+        Response.message = 'OK';
 
     }//try
     catch (ex) {
@@ -397,20 +433,19 @@ module.exports.getSubscribersUser = async (req,res)=>{
 }//getSubscribersUser
 
 module.exports.getSubscriptionsUser = async (req,res)=>{
-
-    let id = req.body.userId;
+    let id = req.query.userId;
 
     if( !isNaN(+id) ){
         id = req.session.passport.user._id;
     }//if
 
-
-    let validIdUser = validator.isMongoId(id)||'';
+    console.log('id',id);
+    let validIdUser = validator.isMongoId(id);
 
     if(!validIdUser){
 
         Response.status = 400;
-        Response.message = 'не корректное значени!';
+        Response.message = 'переданы не корректное значени!';
         res.status(Response.status);
         res.send(Response);
         return;
@@ -419,9 +454,9 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
     try {
 
         let existUser = await User.findOne({
-            _id:id
+            _id: id
         });
-
+        console.log('existUser',existUser);
         if(!existUser){
 
             Response.status = 400;
@@ -435,54 +470,32 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
         let limit = +req.query.limit || 5;
         let offset = +req.query.offset || 0;
 
-        let Subscriptions = await subscribers.find()
+        let subscribers = await User.findOne({
+            _id: existUser._id
+        },'_id')
             .populate({
-                path:'List',
-                match:{
-                    _id : id
+                path:'subscribersList',
+                populate:{
+                    path:'MySubscriptionsList',
+                    options:{
+                        limit: limit,
+                        skip: offset
+                    },
+                    select:'userLogin userName userLastname userPhoto'
                 },
-                options:{
-                    limit: limit,
-                    skip: offset
-                },
-                select:'userLogin userName userLastname userPhoto'
+
             });
 
-
-        // let resultUserId = Subscriptions.map((s)=>{
-        //     return s.user
-        // });
-
-        // let resultUserId=[];
-        //
-        // for(let i = 0; i< Subscriptions.length;i++) {
-        //
-        //     if(Subscriptions[i].List.length>0){
-        //         let user = Subscriptions[i].List;
-        //         resultUserId.push(user);
-        //     }//if
-        //
-        // }//for
-        //
-        // console.log('USER ID',resultUserId);
-        // let resultUserList = [];
-        //
-        //
-        // for(let i = 0; i<resultUserId.length; i++){
-        //     console.log('USER',resultUserId[i]);
-        //     let user = await User.findOne(
-        //         {_id:resultUserId[i]},'_id userLogin  userName userLastname userPhoto ');
-        //
-        //     resultUserList.push(user);
-        //
-        //     console.log('USER',user);
-        // }
-        //
-
-
+        console.log('subscribers', subscribers);
+        if(subscribers.subscribersList !== null){
+            let List = subscribers.subscribersList.MySubscriptionsList;
+            Response.data = List;
+        }//if
+        else{
+            Response.data = null;
+        }
         Response.status = 200;
-        Response.message = 'обновления прошли успешно!';
-        Response.data = Subscriptions;
+        Response.message = 'OK';
 
     }//try
     catch (ex) {
@@ -502,8 +515,118 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
 
 
     }//catch
-
-    res.status(Response.status);
+    res.status(Response.status)
     res.send(Response);
+}//getSubscribersUser
 
- }//getSubscriptionsUser
+// module.exports.getSubscriptionsUser = async (req,res)=>{
+//
+//     let id = req.body.userId;
+//
+//     if( !isNaN(+id) ){
+//         id = req.session.passport.user._id;
+//     }//if
+//
+//
+//     let validIdUser = validator.isMongoId(id)||'';
+//
+//     if(!validIdUser){
+//
+//         Response.status = 400;
+//         Response.message = 'не корректное значени!';
+//         res.status(Response.status);
+//         res.send(Response);
+//         return;
+//
+//     }//if
+//     try {
+//
+//         let existUser = await User.findOne({
+//             _id:id
+//         });
+//
+//         if(!existUser){
+//
+//             Response.status = 400;
+//             Response.message = 'не корректное значени!';
+//             res.status(Response.status);
+//             res.send(Response);
+//             return;
+//
+//         }//if
+//
+//         let limit = +req.query.limit || 5;
+//         let offset = +req.query.offset || 0;
+//
+//         let Subscriptions = await subscribers.find()
+//             .populate({
+//                 path:'List',
+//                 match:{
+//                     _id : id
+//                 },
+//                 options:{
+//                     limit: limit,
+//                     skip: offset
+//                 },
+//                 select:'userLogin userName userLastname userPhoto'
+//             });
+//
+//
+//         // let resultUserId = Subscriptions.map((s)=>{
+//         //     return s.user
+//         // });
+//
+//         // let resultUserId=[];
+//         //
+//         // for(let i = 0; i< Subscriptions.length;i++) {
+//         //
+//         //     if(Subscriptions[i].List.length>0){
+//         //         let user = Subscriptions[i].List;
+//         //         resultUserId.push(user);
+//         //     }//if
+//         //
+//         // }//for
+//         //
+//         // console.log('USER ID',resultUserId);
+//         // let resultUserList = [];
+//         //
+//         //
+//         // for(let i = 0; i<resultUserId.length; i++){
+//         //     console.log('USER',resultUserId[i]);
+//         //     let user = await User.findOne(
+//         //         {_id:resultUserId[i]},'_id userLogin  userName userLastname userPhoto ');
+//         //
+//         //     resultUserList.push(user);
+//         //
+//         //     console.log('USER',user);
+//         // }
+//         //
+//
+//
+//         Response.status = 200;
+//         Response.message = 'обновления прошли успешно!';
+//         Response.data = Subscriptions;
+//
+//     }//try
+//     catch (ex) {
+//         Logger.error({
+//             time: new Date().toISOString(),
+//             status: 500,
+//             data: {
+//                 message: ex.message,
+//                 stack: ex.stack
+//             },
+//         });//Logger.error
+//         res.status(500);
+//
+//         Response.status = 500;
+//         Response.message = 'Внутренняя ошибка сервера!';
+//         Response.data = null;
+//
+//
+//     }//catch
+//
+//     res.status(Response.status);
+//     res.send(Response);
+//
+//  }//getSubscriptionsUser

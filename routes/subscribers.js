@@ -10,7 +10,7 @@ router.use( AccessController.CheckAccess );
 
 router.post('/addInSubscribers', SubscribersController.AddUserToSubscribers);
 router.post('/removeInSubscribers', SubscribersController.RemoveUserToSubscribers);
-router.post('/InListSubscribers',SubscribersController.InListSubscribers);
-router.post('/getSubscribers',SubscribersController.getSubscribersUser);
-router.post('/getSubscriptions',SubscribersController.getSubscriptionsUser);
+router.get('/InListSubscribers',SubscribersController.InListSubscribers);
+router.get('/getSubscribers',SubscribersController.getSubscribersUser);
+router.get('/getSubscriptions',SubscribersController.getSubscriptionsUser);
 module.exports = router;
