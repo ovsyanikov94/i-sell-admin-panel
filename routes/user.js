@@ -19,7 +19,7 @@ router.post('/GetUserSaleLot', AccessController.CheckAccess , UserController.Get
 
 
 router.post('/addUserWithRole', AccessController.CheckAdminAccess , UserController.AddUserWithRole);
-
+router.get('/getUserList' , AccessController.CheckAccess ,UserController.GetUserList);
 
 
 module.exports = router;

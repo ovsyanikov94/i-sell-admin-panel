@@ -1113,3 +1113,49 @@ module.exports.AddUserWithRole = async( req , res ) => {
     } // Catch
 
 }; // AddUser
+
+module.exports.GetUserList = async (req,res)=>{
+
+    try{
+        let limit = +req.query.limit || 10;
+        let offset = +req.query.offset || 0;
+
+        let status =await UserStatus.findOne({userStatusId: UserStatusEnum.NOT_VERIFIED});
+
+
+
+        let users = await User.find({userStatus: status._id}, 'userName userLastname userPhoto userLogin')
+            .limit(limit)
+            .skip(offset);
+
+
+
+        Response.status = 200;
+        Response.message = 'Смотрите ЛОТЫ!!!!';
+        Response.data = users;
+
+
+    }//try
+    catch(ex){
+
+        console.log(ex);
+        Logger.error({
+            time: new Date().toISOString(),
+            status: 500,
+            data: {
+                message: ex.message,
+                stack: ex.stack
+            },
+        });
+
+        Response.status = 500;
+        Response.message = 'Внутренняя ошибка сервера!';
+        Response.data = ex.message;
+
+    }//catch
+
+    res.status(Response.status);
+    res.send(Response);
+
+
+};
