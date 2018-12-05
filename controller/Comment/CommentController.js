@@ -112,50 +112,8 @@ module.exports.AddComment = async( req , res ) => {
 
         }//catch
 
-        if (+commentTypeID === CommentTypeEnum.LOT){
 
-            try{
-
-                let lotID = req.body.lot;
-
-                if(!validator.isMongoId(lotID)){
-
-                    Response.status = 400;
-                    Response.message = 'Неверный ID лота !';
-                    Response.data = lotID;
-
-                    res.status(Response.status);
-                    res.send(Response);
-
-                    return;
-
-                }//if
-
-                let lot = await Lot.findById( lotID , '_id');
-
-                newComment.lot = lot._id;
-                //lot.comments.push(  ) !!!!!
-
-            }//try
-            catch(ex){
-
-                Response.status = 400;
-                Response.message = 'Ошибка при добавлении лота к комментарию!';
-                Response.data = ex;
-
-                console.log(ex);
-
-                res.status(Response.status);
-                res.send(Response);
-
-                return;
-
-            }//catch
-
-
-        }//else
-
-        else if(+commentTypeID === CommentTypeEnum.PERSONAL ){
+        if(+commentTypeID === CommentTypeEnum.PERSONAL ){
 
             try{
 
@@ -195,6 +153,51 @@ module.exports.AddComment = async( req , res ) => {
             }//catch
 
         }//if
+        else if (+commentTypeID === CommentTypeEnum.LOT){
+
+            try{
+
+                let lotID = req.body.lot;
+
+                if(!validator.isMongoId(lotID)){
+
+                    Response.status = 400;
+                    Response.message = 'Неверный ID лота !';
+                    Response.data = lotID;
+
+                    res.status(Response.status);
+                    res.send(Response);
+
+                    return;
+
+                }//if
+
+                let lot = await Lot.findById( lotID );
+
+                newComment.lot = lot._id;
+
+                lot.comments.push(newComment);
+
+                lot.save();
+
+            }//try
+            catch(ex){
+
+                Response.status = 400;
+                Response.message = 'Ошибка при добавлении лота к комментарию!';
+                Response.data = ex;
+
+                console.log(ex);
+
+                res.status(Response.status);
+                res.send(Response);
+
+                return;
+
+            }//catch
+
+
+        }//else
 
         let createResult = await newComment.save();
 

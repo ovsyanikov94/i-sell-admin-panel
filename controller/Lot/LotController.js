@@ -6,6 +6,7 @@ const User = require('../../model/User');
 const CoordMap = require('../../model/CoordMap');
 const LotType = require('../../model/LotType');
 const LotStatus = require('../../model/LotStatus');
+const Admin = require('../../model/Admin');
 const LotImage = require('../../model/LotImage');
 const Logger = require('../../model/Logger');
 const ValidatorConstants = require('../../model/Validation');
@@ -96,7 +97,7 @@ module.exports.AddLot = async( req , res ) => {
         }//if
 
 
-        let sellerLotID = req.session.passport.user;
+        let sellerLotID = req.session.passport.user._id;
 
         let sellerLot = await User.findById(sellerLotID);
 
@@ -111,8 +112,6 @@ module.exports.AddLot = async( req , res ) => {
             return;
 
         }//if
-
-
 
         let lotDescription = req.body.lotDescription;
 
@@ -347,7 +346,6 @@ module.exports.AddLot = async( req , res ) => {
                     let addLot = await Lot.findById(newLot._id);
                     addLot.lotImagePath.push(newImage._id);
                     await addLot.save();
-
 
 
                 })//lotImage.mv
@@ -886,17 +884,34 @@ module.exports.GetLotById= async (req, res) => {
                 .populate('mapLot')
                 .populate('seller', 'userLogin')
                 .populate('categories', 'title')
-                .populate('comments');
+                .populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'userSender',
+                        select: 'userLogin userPhoto'
+                    }
+                });
+
+            console.log('lot: ' , lot);
 
         }//if
         else{
+
             lot = await Lot.findOne({_id: idLot})
                 .populate('lotImagePath')
-                .populate('categories', 'title')
-        }
+                .populate('categories', 'title');
+
+            lot.comments = [];
+
+        }//else
+
 
         let countLikes = await lot.getLikes();
         let countDislikes = await lot.getDisLike();
+
+        if(req.isAuthenticated()){
+            lot.lotMark = await lot.getMark( req.session.passport.user._id );
+        }//if
 
         Response.status = 200;
         Response.message = 'Смотрите ЛОТЫ!!!!';
@@ -971,27 +986,63 @@ module.exports.GetLotListInProcess = async (req, res) => {
 
 };
 
-module.exports.ApprovedLotById = async (req, res) => {
+module.exports.UpdateLotStatus = async (req, res) => {
 
     try{
 
         let lotid = req.body.id;
+        let lotStatus = +req.body.status;
+
+        let idUser = req.session.passport.user._id;
 
         let findLot = await Lot.findById(lotid);
 
+        if(!findLot){
+            Response.status = 400;
+            Response.message = 'лот не найден';
+            Response.data = null;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
+        let adminUpdate = await Admin.findOne({ userBase:  idUser});
+
+        if(!adminUpdate){
+            Response.status = 400;
+            Response.message = 'админ не найден';
+            Response.data = null;
+
+            res.status(Response.status);
+            res.send(Response);
+
+            return;
+        }//if
+
         let updateLot = null;
+
         if(findLot.typeLot === LotTypeEnum.INSTANT){
             let date = moment(new Date()).unix();
 
             let newDate = moment.unix(date).add(findLot.countHourTrade, 'h');
             let dateEndTrade = moment(newDate).unix();
 
-            updateLot = await Lot.findByIdAndUpdate(findLot._id, { statusLot: LotStatusEnum.ACTIVE, dateStartTrade: date, dateEndTrade: dateEndTrade});
-        }
+            updateLot = await Lot.findByIdAndUpdate(findLot._id, { statusLot: lotStatus, dateStartTrade: date, dateEndTrade: dateEndTrade});
+        }//if
         else{
-            updateLot = await Lot.findByIdAndUpdate(findLot._id, { statusLot: LotStatusEnum.ACTIVE });
-        }
+            updateLot = await Lot.findByIdAndUpdate(findLot._id, { statusLot: lotStatus });
+        }//else
 
+        if(lotStatus === LotStatusEnum.REJECTED){
+            adminUpdate.rejectedLot.push(updateLot._id);
+        }//if
+        else{
+            adminUpdate.approvedLot.push(updateLot._id);
+        }//else
+
+        await adminUpdate.save();
 
         Response.status = 200;
         Response.message = 'Смотрите обновленный лот!!!!';

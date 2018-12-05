@@ -11,18 +11,18 @@ const adminSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'users'
     },
-    approvedLot: {
+    approvedLot: [{
         type: Schema.Types.ObjectId,
         ref: 'lots'
-    },
-    rejectedLot: {
+    }],
+    rejectedLot: [{
         type: Schema.Types.ObjectId,
         ref: 'lots'
-    },
-    blockList:{
+    }],
+    blockList:[{
         type: Schema.Types.ObjectId,
         ref: 'users'
-    },
+    }],
 
 
 });
