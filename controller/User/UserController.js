@@ -607,7 +607,7 @@ module.exports.GetUser = async (req,res)=>{
     try {
 
 
-        let existUser = await User.findOne({_id: id});
+        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone');
 
         if(!existUser){
 
@@ -627,7 +627,11 @@ module.exports.GetUser = async (req,res)=>{
             console.log(curentAdmin);
             Response.status = 200;
             Response.message = 'OK!';
-            Response.data = {"curentAdmin":curentAdmin, "userAdmin":existUser};
+            Response.data = {
+                "curentAdmin":curentAdmin,
+                "userAdmin":existUser
+            };
+
         }//if
         else{
             Response.status = 200;
@@ -1028,6 +1032,7 @@ module.exports.AddUserWithRole = async( req , res ) => {
                         console.log('FILE UPLOAD ERROR:', err);
                         return;
                     }//if
+                });
 
                 let addUser = await User.findById(newUser._id);
                 addUser.userPhoto = `${path}/${userImage.photo.name}`;
