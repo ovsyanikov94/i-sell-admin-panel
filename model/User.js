@@ -104,7 +104,18 @@ const userSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'lots'
         }
-    ]
+    ],
+    userCountSum:{
+        type: Number,
+        validate:{
+            validator: ( userCountSum )=>{
+                return userCountSum >= constValidator.USER_COUNT_MONEY;
+            },//validator
+            message: props => `Количество денег задано неверно: "${props.value}"`
+        },
+    }
+
+
 
 });
 
