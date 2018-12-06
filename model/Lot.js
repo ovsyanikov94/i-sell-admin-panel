@@ -147,6 +147,12 @@ const lotSchema = new Schema({
             type: Number,
 
         },
+    biddings:[
+        {
+        type: Schema.Types.ObjectId,
+        ref: 'biddings'
+    }
+    ]
 
 },{
     toObject: { virtuals: true },

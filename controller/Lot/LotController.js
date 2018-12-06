@@ -895,6 +895,13 @@ module.exports.GetLotById= async (req, res) => {
                         path: 'userSender',
                         select: 'userLogin userPhoto'
                     }
+                })
+                .populate({
+                    path: 'biddings',
+                    populate: {
+                        path: 'user',
+                        select: 'userLogin userPhoto'
+                    }
                 });
 
             console.log('lot: ' , lot);

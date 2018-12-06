@@ -28,6 +28,7 @@ const commentRouter = require('./routes/comment');
 const commentTypeRouter = require('./routes/commentType');
 const commentStatusRouter = require('./routes/commentStatus');
 const userRoleRouter = require('./routes/userRole');
+const biddingRouter = require('./routes/biddings');
 //access routes
 const accessRoutes = require('./routes/access');
 
@@ -82,6 +83,7 @@ app.use('/api', commentRouter);
 app.use('/api', commentStatusRouter);
 app.use('/api', commentTypeRouter);
 app.use('/api', userRoleRouter);
+app.use('/api', biddingRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
