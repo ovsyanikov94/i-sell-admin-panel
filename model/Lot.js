@@ -230,3 +230,4 @@ lotSchema.methods.getDisLike = async function (  ) {
 };
 
 module.exports = mongoose.model('lots' , lotSchema);
+
