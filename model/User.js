@@ -53,7 +53,7 @@ const userSchema = new Schema({
         },
     },
     userPhoto: {
-        type: String, // Либо Image, хз
+        type: String // Либо Image, хз
         //validate:{
             //validator: ( image )=>{
                 //return image.maxSize = "1000m" // Тут спорно, без теста не могу сделать :(
@@ -104,7 +104,16 @@ const userSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'lots'
         }
-    ]
+    ],
+    userCountSum:{
+        type: Number,
+        validate:{
+            validator: ( userCountSum )=>{
+                return userCountSum >= constValidator.USER_COUNT_MONEY;
+            },//validator
+            message: props => `Количество денег задано неверно: "${props.value}"`
+        },
+    }
 
 });
 

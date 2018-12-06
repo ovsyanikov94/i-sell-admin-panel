@@ -289,7 +289,7 @@ module.exports.updateUser = async(req,res)=>{
             }//if
 
 
-        }//if
+       }//if
 
         let updateUser = await existUser.save();
 
@@ -353,6 +353,7 @@ module.exports.addUserAvatar = async (req,res)=>{
         }//if
 
         if(req.files){
+
             let userAvatar = req.files.image;
             let path = `public/images/avatar/${existUser._id}`;
 
@@ -404,9 +405,6 @@ module.exports.addUserAvatar = async (req,res)=>{
 
                                 console.log(path);
 
-                                console.log(userAvatar.name);
-                                existUser.userPhoto = `i-sell-admin-api/${path}/${userAvatar.name}`
-                                let eu = await existUser.save();
                             });
                         }
 
@@ -492,7 +490,7 @@ module.exports.removeUserAvatar = async (req,res)=>{
                 if (!err) {
 
                     existUser.image = null;
-                    await existUser.save();
+                   await existUser.save();
                 }//if
 
             });
@@ -546,7 +544,6 @@ module.exports.GetUser = async (req,res)=>{
         return;
 
     }//if
-
 
     try {
 
@@ -726,8 +723,8 @@ module.exports.GetUserSaleLot = async (req,res)=>{
                 Lots.lots[i].lotImagePath = imagePath;
             }//if
 
-            await Lots.lots[i].getLikes();
-            await Lots.lots[i].getDisLike();
+             await Lots.lots[i].getLikes();
+             await Lots.lots[i].getDisLike();
         }//for
 
 

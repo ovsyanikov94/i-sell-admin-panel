@@ -15,7 +15,7 @@ const ValidatorConst = {
     USER_FIRSTNAME_VALIDATOR: /^[a-zа-я\s\-.]{1,12}$/i,
     USER_LASTNAME_VALIDATOR: /^[a-zа-я\s\-.]{1,20}$/i,
     USER_PHONE_VALIDATOR: /^\+\d{2}\(\d{3}\)\d{3}-\d{2}-\d{2}$/i,
-
+    USER_COUNT_MONEY: 0,
     //LOT
     LOT_DESCRIPTION_VALIDATOR: /^.*$/i,
     LOT_START_PRICE: 0,
@@ -24,6 +24,7 @@ const ValidatorConst = {
     LOT_COUNTHOUR_MAX_VALIDATOR: 48,
     LOT_DATE_VALIDATOR: 0,
     LOT_COUNTHOUR_VALIDATOR:0,
+
     //COMMENTS
     COMMENT_MIN_LENGTH: 5,
     COMMENT_MAX_LENGTH: 500,
