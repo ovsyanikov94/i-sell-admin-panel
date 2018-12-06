@@ -86,8 +86,6 @@ module.exports.AddUser = async( req , res ) => {
 
             }, 'userLogin userEmail');
 
-        console.log('checkUser: ' , checkUser);
-
         if(checkUser){
 
             Response.status = 400;
@@ -396,9 +394,9 @@ module.exports.addUserAvatar = async (req,res)=>{
 
     }//if
     try {
-        let existUser = await User.find({
-            id:userId
-        });
+        let existUser = await User.findOne({
+            _id:userId
+        },'_id');
 
         if(!existUser){
 
@@ -411,7 +409,6 @@ module.exports.addUserAvatar = async (req,res)=>{
         }//if
 
         if(req.files){
-
             let userAvatar = req.files.image;
             let path = `public/images/avatar/${existUser._id}`;
 
@@ -426,10 +423,10 @@ module.exports.addUserAvatar = async (req,res)=>{
 
             try{
 
-                if(!fs.existsSync(`public/images/avatar/${path}`)){
-                    fs.mkdirSync(`public/images/avatar/${path}`);
+                if(!fs.existsSync(`public/images/avatar/${existUser._id}`)){
+                    fs.mkdirSync(`public/images/avatar/${existUser._id}`);
                 }
-                if(!fs.existsSync(existUser.image)) {
+                if(!fs.existsSync(existUser.userPhoto)) {
                     userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
                         if (error){
                             let message = UtilsController.MakeMongooseMessageFromError(error);
@@ -440,16 +437,15 @@ module.exports.addUserAvatar = async (req,res)=>{
                             return;
                         }//if
 
-                        existUser.set({
-                            image:`${path}/${userAvatar.name}`
-                        });
+                        existUser.userPhoto =`/i-sell-admin-api/images/avatar/${existUser._id}/${userAvatar.name}`
+
                         await existUser.save();
 
                     });
 
                 }//if
                 else{
-                    fe.remove(existUser.image, async function (err) {
+                    fe.remove(existUser.userPhoto, async function (err) {
                         if (!err) {
 
                             userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
@@ -462,15 +458,18 @@ module.exports.addUserAvatar = async (req,res)=>{
                                     return;
                                 }//if
 
-                                existUser.image = `${path}/${userAvatar.name}`
-                                await existUser.save();
-
+                               //  existUser.image = `${path}/${userAvatar.name}`
+                               //  await existUser.save();
+                               //
+                               //  console.log(userAvatar.name);
+                               //  existUser.userPhoto = `i-sell-admin-api/${path}/${userAvatar.name}`
+                               // let eu = await existUser.save();
                             });
                         }
 
                     });
                 }//else
-
+                console.log( 'USER',existUser);
                 Response.status = 200;
                 Response.message = 'добавление прошли успешно!';
                 Response.data = `${path}/${userAvatar.name}`;
@@ -582,7 +581,15 @@ module.exports.GetUser = async (req,res)=>{
 
     let id = req.query.userId;
 
-    if( isNaN(+id) ){
+    if(id === req.session.passport.user._id){
+        Response.status = 200;
+        Response.message = 'запрос на себя!';
+        Response.data = null;
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }//if
+    if( !isNaN(+id) ){
         id = req.session.passport.user._id;
     }//if
 
@@ -713,7 +720,6 @@ module.exports.GetUserBuyLot = async(req,res)=>{
     res.send(Response);
 
 }//GetUserBuyActiveLot
-
 
 module.exports.GetUserSaleLot = async (req,res)=>{
     let id = req.session.passport.user._id||'';
@@ -1014,6 +1020,7 @@ module.exports.AddUserWithRole = async( req , res ) => {
                 console.log(userImage);
                 console.log(userImage.photo);
 
+                fs.writeFileSync(`${path}/${userImage.photo.name}`, userImage.data);
 
                 userImage.photo.mv(`${path}/${userImage.photo.name}`, async function(err) {
 
@@ -1022,52 +1029,49 @@ module.exports.AddUserWithRole = async( req , res ) => {
                         return;
                     }//if
 
-                    let addUser = await User.findById(newUser._id);
-                    addUser.userPhoto = `/i-sell-admin-api/images/users/${newUser._id}/${userImage.photo.name}`;
+                let addUser = await User.findById(newUser._id);
+                addUser.userPhoto = `${path}/${userImage.photo.name}`;
 
-                    let user = await addUser.save();
+                let user = await addUser.save();
 
-                    if (userRole == 1 || userRole == 2) {
+                if(userRole==1 || userRole==2){
 
-                        let currentUser = null;
+                    let currentUser = null;
 
-                        try {
-                            currentUser = new Admin({
-                                userBase: user._id
-                            });
-                            await currentUser.save();
+                    try{
+                        currentUser = new Admin({
+                            userBase: user._id
+                        });
+                        await currentUser.save();
 
-                            Response.status = 200;
-                            Response.message = `Добавление админа или модератора прошло успешно, проверьте email: ${currentUser.userEmail}`;
-                            Response.data = null;
-
-                            res.status(Response.status);
-                            res.send(Response);
-                        }
-                        catch (ex) {
-                            let message = UtilsController.MakeMongooseMessageFromError(ex);
-
-                            Response.status = 400;
-                            Response.message = message;
-
-                            res.status(Response.status);
-                            res.send(Response);
-
-                            return;
-                        }
-
-                    }//if
-                    else {
                         Response.status = 200;
-                        Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
+                        Response.message = `Добавление админа или модератора прошло успешно, проверьте email: ${currentUser.userEmail}`;
                         Response.data = null;
 
                         res.status(Response.status);
                         res.send(Response);
                     }
-                });
+                    catch(ex){
+                        let message = UtilsController.MakeMongooseMessageFromError(ex);
 
+                        Response.status = 400;
+                        Response.message = message;
 
+                        res.status(Response.status);
+                        res.send(Response);
+
+                        return ;
+                    }
+
+                }//if
+                else{
+                    Response.status = 200;
+                    Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
+                    Response.data = null;
+
+                    res.status(Response.status);
+                    res.send(Response);
+                }
 
             }//if req.files
 
