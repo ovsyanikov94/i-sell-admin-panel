@@ -74,7 +74,7 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
 
             }//if добавляем id пользователя на странице которого находимся
 
-            if(existUserSubscriberskList.subscribersList){
+            if(!existUserSubscriberskList.subscribersList){
 
                 let newSubscribers = new subscribers({
                     user: userIdSubscribers,
@@ -369,7 +369,6 @@ module.exports.getSubscribersUser = async (req,res)=>{
         let existUser = await User.findOne({
             _id: id
         });
-        console.log('existUser',existUser);
         if(!existUser){
 
             Response.status = 400;
@@ -399,7 +398,6 @@ module.exports.getSubscribersUser = async (req,res)=>{
 
             });
 
-        console.log('subscribers', subscribers);
         if(subscribers.subscribersList !== null){
             let List = subscribers.subscribersList.MySubscribersList;
             Response.data = List;
