@@ -86,8 +86,6 @@ module.exports.AddUser = async( req , res ) => {
 
             }, 'userLogin userEmail');
 
-        console.log('checkUser: ' , checkUser);
-
         if(checkUser){
 
             Response.status = 400;
@@ -129,6 +127,7 @@ module.exports.AddUser = async( req , res ) => {
                 userPhone: req.body.phone,
                 role: role._id,
                 userStatus: status._id,
+                userCountSum: 0
             });
 
 
@@ -191,7 +190,6 @@ module.exports.updateUser = async(req,res)=>{
     let oldPassword = req.body.oldPassword||'';
     let newPassword = req.body.newPassword||'';
 
-
     let errors = [];
 
     let role = req.body.role;
@@ -221,7 +219,7 @@ module.exports.updateUser = async(req,res)=>{
         }//if
 
         if(validEmail && existUser.userEmail !== email){
-           existUser.userEmail = email;
+            existUser.userEmail = email;
 
         }//if
 
@@ -291,58 +289,8 @@ module.exports.updateUser = async(req,res)=>{
             }//if
 
 
-       }//if
-        if(req.files){
+        }//if
 
-            let userImage = req.files.valueOf();
-            let path = `public/images/users/${existUser._id}`;
-
-
-            if(!fs.existsSync('public/images')){
-                fs.mkdirSync('public/images');
-            }//if
-
-            if(!fs.existsSync('public/images/users')){
-                fs.mkdirSync('public/images/users');
-            }//if
-
-            try{
-                if(!fs.existsSync(path)) {
-                    fs.mkdirSync(path);
-
-                }
-            }//catch
-            catch(ex){
-                console.log(ex)
-            }//try
-
-
-
-            userImage.photo.mv(`${path}/${userImage.photo.name}`, async function(err) {
-
-                if (err) {
-                    console.log('FILE UPLOAD ERROR:', err);
-                    return;
-                }//if
-
-                let addUser = await User.findById(existUser._id);
-                addUser.userPhoto = `/i-sell-admin-api/images/users/${existUser._id}/${userImage.photo.name}`;
-
-                let user = await addUser.save();
-
-
-                    Response.status = 200;
-                    Response.message = `Изменение юзера прошло успешно`;
-                    Response.data = null;
-
-                    res.status(Response.status);
-                    res.send(Response);
-
-            });
-
-
-
-        }//if req.files
         let updateUser = await existUser.save();
 
         Response.status = 200;
@@ -374,13 +322,7 @@ module.exports.updateUser = async(req,res)=>{
 
 module.exports.addUserAvatar = async (req,res)=>{
 
-    if(req.session.passport.user._id === undefined){
-        Response.status = 400;
-        Response.message = 'не корректное значени!';
-        res.status(Response.status);
-        res.send(Response);
-        return;
-    }
+    console.log('image', req.files);
 
     let userId = req.session.passport.user._id
     let validIdUser = validator.isMongoId(userId);
@@ -396,9 +338,9 @@ module.exports.addUserAvatar = async (req,res)=>{
 
     }//if
     try {
-        let existUser = await User.find({
-            id:userId
-        });
+        let existUser = await User.findOne({
+            _id:userId
+        },'_id');
 
         if(!existUser){
 
@@ -411,7 +353,6 @@ module.exports.addUserAvatar = async (req,res)=>{
         }//if
 
         if(req.files){
-
             let userAvatar = req.files.image;
             let path = `public/images/avatar/${existUser._id}`;
 
@@ -426,10 +367,10 @@ module.exports.addUserAvatar = async (req,res)=>{
 
             try{
 
-                if(!fs.existsSync(`public/images/avatar/${path}`)){
-                    fs.mkdirSync(`public/images/avatar/${path}`);
+                if(!fs.existsSync(`public/images/avatar/${existUser._id}`)){
+                    fs.mkdirSync(`public/images/avatar/${existUser._id}`);
                 }
-                if(!fs.existsSync(existUser.image)) {
+                if(!fs.existsSync(existUser.userPhoto)) {
                     userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
                         if (error){
                             let message = UtilsController.MakeMongooseMessageFromError(error);
@@ -440,16 +381,15 @@ module.exports.addUserAvatar = async (req,res)=>{
                             return;
                         }//if
 
-                        existUser.set({
-                            image:`${path}/${userAvatar.name}`
-                        });
+                        existUser.userPhoto =`/i-sell-admin-api/images/avatar/${existUser._id}/${userAvatar.name}`
+
                         await existUser.save();
 
                     });
 
                 }//if
                 else{
-                    fe.remove(existUser.image, async function (err) {
+                    fe.remove(existUser.userPhoto, async function (err) {
                         if (!err) {
 
                             userAvatar.mv(`${path}/${userAvatar.name}`, async function (error) {
@@ -462,15 +402,17 @@ module.exports.addUserAvatar = async (req,res)=>{
                                     return;
                                 }//if
 
-                                existUser.image = `${path}/${userAvatar.name}`
-                                await existUser.save();
+                                console.log(path);
 
+                                console.log(userAvatar.name);
+                                existUser.userPhoto = `i-sell-admin-api/${path}/${userAvatar.name}`
+                                let eu = await existUser.save();
                             });
                         }
 
                     });
                 }//else
-
+                console.log( 'USER',existUser);
                 Response.status = 200;
                 Response.message = 'добавление прошли успешно!';
                 Response.data = `${path}/${userAvatar.name}`;
@@ -488,7 +430,7 @@ module.exports.addUserAvatar = async (req,res)=>{
 
         }//if
         else {
-            Response.status = 400;
+            Response.status = 401;
             Response.message = 'не корректное значени!';
             res.status(Response.status);
             res.send(Response);
@@ -550,7 +492,7 @@ module.exports.removeUserAvatar = async (req,res)=>{
                 if (!err) {
 
                     existUser.image = null;
-                   await existUser.save();
+                    await existUser.save();
                 }//if
 
             });
@@ -582,7 +524,15 @@ module.exports.GetUser = async (req,res)=>{
 
     let id = req.query.userId;
 
-    if( isNaN(+id) ){
+    if(id === req.session.passport.user._id){
+        Response.status = 200;
+        Response.message = 'запрос на себя!';
+        Response.data = null;
+        res.status(Response.status);
+        res.send(Response);
+        return;
+    }//if
+    if( !isNaN(+id) ){
         id = req.session.passport.user._id;
     }//if
 
@@ -597,10 +547,10 @@ module.exports.GetUser = async (req,res)=>{
 
     }//if
 
+
     try {
 
-
-        let existUser = await User.findOne({_id: id});
+        let existUser = await User.findOne({_id:id},'_id userLogin userEmail userName userLastname userPhoto userPhone userCountSum');
 
         if(!existUser){
 
@@ -612,22 +562,11 @@ module.exports.GetUser = async (req,res)=>{
 
         }//if
 
-        let roleUser = await UserRole.findOne({_id: existUser.role});
 
-        if(roleUser.userRoleId==1 || roleUser.userRoleId==2){
 
-            let curentAdmin = await Admin.findOne({userBase: existUser._id});
-            console.log(curentAdmin);
-            Response.status = 200;
-            Response.message = 'OK!';
-            Response.data = {"curentAdmin":curentAdmin, "userAdmin":existUser};
-        }//if
-        else{
-            Response.status = 200;
-            Response.message = 'OK!';
-            Response.data = existUser;
-        }
-
+        Response.status = 200;
+        Response.message = 'OK!';
+        Response.data = existUser;
     }
     catch (ex){
         Logger.error({
@@ -714,7 +653,6 @@ module.exports.GetUserBuyLot = async(req,res)=>{
 
 }//GetUserBuyActiveLot
 
-
 module.exports.GetUserSaleLot = async (req,res)=>{
     let id = req.session.passport.user._id||'';
 
@@ -788,8 +726,8 @@ module.exports.GetUserSaleLot = async (req,res)=>{
                 Lots.lots[i].lotImagePath = imagePath;
             }//if
 
-             await Lots.lots[i].getLikes();
-             await Lots.lots[i].getDisLike();
+            await Lots.lots[i].getLikes();
+            await Lots.lots[i].getDisLike();
         }//for
 
 
@@ -816,346 +754,5 @@ module.exports.GetUserSaleLot = async (req,res)=>{
     res.send(Response);
 }//GetUserSaleActiveLot
 
-module.exports.AddUserWithRole = async( req , res ) => {
 
-    let validLogin =constValidator.USER_LOGIN_VALIDATOR.test( req.body.login)||'';
-    let validEmail = constValidator.USER_EMAIL_VALIDATOR.test(req.body.email)||'';
-    let validFirstName = constValidator.USER_FIRSTNAME_VALIDATOR.test(req.body.firstName)||'';
-    let validLastName = constValidator.USER_LASTNAME_VALIDATOR.test(req.body.lastName)||'';
-    let validPhone = constValidator.USER_PHONE_VALIDATOR.test(req.body.phone)||'';
-    let validPassword = constValidator.USER_PASSWORD_VALIDATOR.test(req.body.password)||'';
-    let userRole = req.body.role ||'';
-    //let photo = req.body.photo ||'';
-    try{
-        //console.log(req);
-        if(!validLogin){
-            Response.status = 400;
-            Response.message = 'Логин не корректный!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
-        if(!validEmail){
-            Response.status = 400;
-            Response.message = 'Email не корректный!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
-        if(!validFirstName){
-            Response.status = 400;
-            Response.message = 'Имя не корректно!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
-        if(!validLastName){
-            Response.status = 400;
-            Response.message = 'Фамилия не корректна!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
-        if( !validPhone){
-            Response.status = 400;
-            Response.message = 'Телефон не корректен!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
-        if( !validPassword){
-            Response.status = 400;
-            Response.message = 'Пароль не корректен!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
-        if(!userRole){
-            Response.status = 400;
-            Response.message = 'Вы не выбрали роль пользователя!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-        }
 
-        let checkUser = await User.findOne(
-            {
-                $or: [
-                    {userLogin: req.body.login},
-                    {userEmail: req.body.email}
-                ]
-
-            }, 'userLogin userEmail');
-
-        console.log('checkUser: ' , checkUser);
-
-        if(checkUser){
-
-            Response.status = 400;
-            Response.message = 'Данный логин или email уже используется!';
-            res.status(Response.status);
-            res.send(Response);
-            return;
-
-        }//if
-
-        let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
-        let saltStr = await bcrypt.genSalt(number);// создаем соль
-        let hexPassword = await bcrypt.hash(req.body.password, saltStr); // получаем закодированный пароль
-
-        let newUser = null;
-
-        try {
-
-            let status = await UserStatus.findOne(
-                {
-                    userStatusId: UserStatusEnum.NOT_VERIFIED
-                },
-                '_id'
-            );
-            let role = null;
-
-            switch(userRole) {
-                case '1':
-                     role = await UserRole.findOne(
-                        {
-                            userRoleId: UserRoleEnum.ADMIN
-                        },
-                        '_id'
-                    );
-
-                    break;
-                case '2':
-                    role = await UserRole.findOne(
-                        {
-                            userRoleId: UserRoleEnum.MODERATOR
-                        },
-                        '_id'
-                    );
-
-                    break;
-
-                case '3':
-                    role = await UserRole.findOne(
-                        {
-                            userRoleId: UserRoleEnum.REGISTERED
-                        },
-                        '_id'
-                    );
-
-                    break;
-                case '4':
-                    role = await UserRole.findOne(
-                        {
-                            userRoleId: UserRoleEnum.ANONYMOUS
-                        },
-                        '_id'
-                    );
-
-                    break;
-
-            };
-
-
-
-            try {
-
-
-
-                newUser = new User({
-                    userLogin: req.body.login,
-                    userPassword: hexPassword,
-                    userEmail: req.body.email,
-                    userName: req.body.firstName,
-                    userLastname: req.body.lastName,
-                    userPhone: req.body.phone,
-                    role: role._id,
-                    userStatus: status._id,
-                    //userPhoto:pathUserImage,
-                });
-                await newUser.save();
-            }//try
-            catch(ex){
-
-                let message = UtilsController.MakeMongooseMessageFromError(ex);
-
-                Response.status = 400;
-                Response.message = message;
-
-                res.status(Response.status);
-                res.send(Response);
-
-                return ;
-
-            }//catch
-
-            let pathUserImage=null;
-
-            if(req.files){
-
-                let userImage = req.files.valueOf();
-                let path = `public/images/users/${newUser._id}`;
-
-
-                if(!fs.existsSync('public/images')){
-                    fs.mkdirSync('public/images');
-                }//if
-
-                if(!fs.existsSync('public/images/users')){
-                    fs.mkdirSync('public/images/users');
-                }//if
-
-                try{
-                    fs.mkdirSync(path);
-                }//catch
-                catch(ex){
-                    console.log(ex)
-                }//try
-                console.log(userImage);
-                console.log(userImage.photo);
-
-
-                userImage.photo.mv(`${path}/${userImage.photo.name}`, async function(err) {
-
-                    if (err) {
-                        console.log('FILE UPLOAD ERROR:', err);
-                        return;
-                    }//if
-
-                    let addUser = await User.findById(newUser._id);
-                    addUser.userPhoto = `/i-sell-admin-api/images/users/${newUser._id}/${userImage.photo.name}`;
-
-                    let user = await addUser.save();
-
-                    if (userRole == 1 || userRole == 2) {
-
-                        let currentUser = null;
-
-                        try {
-                            currentUser = new Admin({
-                                userBase: user._id
-                            });
-                            await currentUser.save();
-
-                            Response.status = 200;
-                            Response.message = `Добавление админа или модератора прошло успешно, проверьте email: ${currentUser.userEmail}`;
-                            Response.data = null;
-
-                            res.status(Response.status);
-                            res.send(Response);
-                        }
-                        catch (ex) {
-                            let message = UtilsController.MakeMongooseMessageFromError(ex);
-
-                            Response.status = 400;
-                            Response.message = message;
-
-                            res.status(Response.status);
-                            res.send(Response);
-
-                            return;
-                        }
-
-                    }//if
-                    else {
-                        Response.status = 200;
-                        Response.message = `Добавление юзера успешно, проверьте email: ${addUser.userEmail}`;
-                        Response.data = null;
-
-                        res.status(Response.status);
-                        res.send(Response);
-                    }
-                });
-
-
-
-            }//if req.files
-
-        } // Try
-        catch(ex){
-
-            console.log('Eeception: ' , ex);
-
-            //let message = UtilsController.MakeMongooseMessageFromError(ex);
-
-            res.status(400);
-            res.send( {
-                status: 400,
-                message: ex
-            } );
-
-            return;
-
-
-        } // Catch
-
-
-
-
-    } // Try
-    catch(ex){
-
-        Logger.error({
-            time: new Date().toISOString(),
-            status: 500,
-            data: {
-                message: ex.message,
-                stack: ex.stack
-            },
-        });
-
-        Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
-        Response.data = null;
-        res.status(Response.status);
-        res.send(Response);
-
-    } // Catch
-
-}; // AddUser
-
-module.exports.GetUserList = async (req,res)=>{
-
-    try{
-        let limit = +req.query.limit || 10;
-        let offset = +req.query.offset || 0;
-
-        let status =await UserStatus.findOne({userStatusId: UserStatusEnum.NOT_VERIFIED});
-
-
-
-        let users = await User.find({userStatus: status._id}, 'userName userLastname userPhoto userLogin')
-            .limit(limit)
-            .skip(offset);
-
-
-
-        Response.status = 200;
-        Response.message = 'Смотрите ЛОТЫ!!!!';
-        Response.data = users;
-
-
-    }//try
-    catch(ex){
-
-        console.log(ex);
-        Logger.error({
-            time: new Date().toISOString(),
-            status: 500,
-            data: {
-                message: ex.message,
-                stack: ex.stack
-            },
-        });
-
-        Response.status = 500;
-        Response.message = 'Внутренняя ошибка сервера!';
-        Response.data = ex.message;
-
-    }//catch
-
-    res.status(Response.status);
-    res.send(Response);
-
-
-};
