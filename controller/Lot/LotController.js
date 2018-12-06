@@ -872,6 +872,7 @@ module.exports.UpdateLot = async( req , res ) => {
 
 };
 
+
 module.exports.GetLotById= async (req, res) => {
 
     try{
