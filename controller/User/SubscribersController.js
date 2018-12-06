@@ -111,19 +111,12 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
             user: userIdSubscribers
         });// получаем пользователя на странице профиля которого находимся
 
-        if (subscribersListAuthorizedUser.MySubscribersList.indexOf(userIdSubscribers) === -1
-            //проверяем наличие юзера на странице профиля которого находимся в списке подписок авторезированного юзера
-            && subscribersListInProfileUser.MySubscriptionsList.indexOf(id) === -1){
-            // проверяем наличие авторезированного юзера в списке подписок юзера на странице профиля которого находимся
+        console.log('subscribersListAuthorizedUser.MySubscribersList: ' , subscribersListAuthorizedUser.MySubscribersList);
+
+        if(subscribersListAuthorizedUser.MySubscribersList.indexOf(userIdSubscribers) === -1){
+
             subscribersListAuthorizedUser.MySubscribersList.push(userIdSubscribers);
             await subscribersListAuthorizedUser.save();
-
-            subscribersListInProfileUser.MySubscriptionsList.push(id);
-            await subscribersListInProfileUser.save();
-
-            Response.status = 200;
-            Response.message = 'пользователь добавлен в подписчики';
-            Response.data = true;
 
         }//if
         else{
@@ -133,6 +126,21 @@ module.exports.AddUserToSubscribers=async(req,res)=>{
             Response.data = true;
 
         }//else
+
+        if(subscribersListInProfileUser.MySubscriptionsList.indexOf(id) === -1){
+
+            subscribersListInProfileUser.MySubscriptionsList.push(id);
+            await subscribersListInProfileUser.save();
+
+        }//if
+        else{
+
+            Response.status = 200;
+            Response.message = 'вы уже подписаны на пользователя';
+            Response.data = true;
+
+        }//else
+
 
 
     }//try
@@ -259,7 +267,7 @@ module.exports.InListSubscribers = async(req,res)=>{
 
 
     let validUser =  validator.isMongoId( id);
-    let validUserInSubscriberskList =  validator.isMongoId( req.body.UserIDInSubscribersList);
+    let validUserInSubscriberskList =  validator.isMongoId( req.query.UserIDInSubscribersList);
 
 
     if(!validUser||
@@ -332,8 +340,6 @@ module.exports.InListSubscribers = async(req,res)=>{
             },
         });//Logger.error
 
-        res.status(500);
-
         Response.status = 500;
         Response.message = 'Внутренняя ошибка сервера!';
         Response.data = null;
@@ -398,7 +404,7 @@ module.exports.getSubscribersUser = async (req,res)=>{
 
             });
 
-        if(subscribers.subscribersList !== null){
+        if(subscribers && subscribers.subscribersList && subscribers.subscribersList.MySubscribersList){
             let List = subscribers.subscribersList.MySubscribersList;
             Response.data = List;
         }//if
@@ -431,6 +437,7 @@ module.exports.getSubscribersUser = async (req,res)=>{
 }//getSubscribersUser
 
 module.exports.getSubscriptionsUser = async (req,res)=>{
+
     let id = req.query.userId;
 
     if( !isNaN(+id) ){
@@ -485,7 +492,7 @@ module.exports.getSubscriptionsUser = async (req,res)=>{
             });
 
         console.log('subscribers', subscribers);
-        if(subscribers.subscribersList !== null){
+        if(subscribers && subscribers.subscribersList && subscribers.subscribersList.MySubscriptionsList ){
             let List = subscribers.subscribersList.MySubscriptionsList;
             Response.data = List;
         }//if
