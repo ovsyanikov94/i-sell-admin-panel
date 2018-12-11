@@ -273,7 +273,7 @@ module.exports.AddLot = async( req , res ) => {
 
         let createLotResult = await newLot.save();
 
-        console.log('req.files', req.files);
+        //console.log('req.files', req.files);
 
         if(req.files){
 
@@ -293,10 +293,10 @@ module.exports.AddLot = async( req , res ) => {
                 fs.mkdirSync(path);
             }//catch
             catch(ex){
-                console.log(ex)
+                //console.log(ex)
             }//try
 
-            console.log('lotImages.length',lotImages.length);
+            //console.log('lotImages.length',lotImages.length);
 
             if(lotImages.length === undefined){
                 let lotImage = lotImages;
@@ -304,7 +304,7 @@ module.exports.AddLot = async( req , res ) => {
                 lotImage.mv( `${path}/${lotImage.name}`, async function(err){
 
                     if (err){
-                        console.log('FILE UPLOAD ERROR:' , err);
+                        //console.log('FILE UPLOAD ERROR:' , err);
                         return;
                     }//if
 
@@ -331,7 +331,7 @@ module.exports.AddLot = async( req , res ) => {
                 lotImage.mv( `${path}/${lotImage.name}`, async function(err){
 
                     if (err){
-                        console.log('FILE UPLOAD ERROR:' , err);
+                        //console.log('FILE UPLOAD ERROR:' , err);
                         return;
                     }//if
 
@@ -421,7 +421,7 @@ module.exports.GetLotListActive = async (req, res) => {
     }//try
     catch(ex){
 
-        console.log(ex);
+        //console.log(ex);
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -800,10 +800,10 @@ module.exports.UpdateLot = async( req , res ) => {
                 fs.mkdirSync(path);
             }//catch
             catch(ex){
-                console.log(ex)
+                //console.log(ex)
             }//try
 
-            console.log('lotImages.length', lotImages.length);
+            //console.log('lotImages.length', lotImages.length);
             for (let i=0; i<lotImages.length; i++){
 
                 let lotImage = lotImages[i];
@@ -811,7 +811,7 @@ module.exports.UpdateLot = async( req , res ) => {
                 lotImage.mv( `${path}/${lotImage.name}`,async function(err){
 
                     if (err){
-                        console.log('FILE UPLOAD ERROR:' , err);
+                        //console.log('FILE UPLOAD ERROR:' , err);
                         return;
                     }//if
 
@@ -851,7 +851,7 @@ module.exports.UpdateLot = async( req , res ) => {
     }//try
     catch(ex){
 
-        console.log(ex);
+        //console.log(ex);
 
         Logger.error({
             time: new Date().toISOString(),
@@ -897,7 +897,7 @@ module.exports.GetLotById= async (req, res) => {
                     }
                 });
 
-            console.log('lot: ' , lot);
+            //console.log('lot: ' , lot);
 
         }//if
         else{
@@ -926,7 +926,7 @@ module.exports.GetLotById= async (req, res) => {
     }//try
     catch(ex){
 
-        console.log(ex);
+        //console.log(ex);
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -969,7 +969,7 @@ module.exports.GetLotListInProcess = async (req, res) => {
     }//try
     catch(ex){
 
-        console.log(ex);
+        //console.log(ex);
         Logger.error({
             time: new Date().toISOString(),
             status: 500,
@@ -1057,7 +1057,7 @@ module.exports.UpdateLotStatus = async (req, res) => {
     }//try
     catch(ex){
 
-        console.log(ex);
+        //console.log(ex);
         Logger.error({
             time: new Date().toISOString(),
             status: 500,

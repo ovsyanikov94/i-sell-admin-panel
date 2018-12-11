@@ -12,7 +12,7 @@ module.exports = function ( passport ) {
 
     passport.deserializeUser(async function(user, done) {
 
-        console.log('DESERIALIZE: ' , user);
+       // console.log('DESERIALIZE: ' , user);
 
         try{
 
@@ -52,7 +52,7 @@ module.exports = function ( passport ) {
                     } , 'userLogin userEmail userPassword role')
                     .populate('role');
 
-                console.log('user: ' , user);
+                //console.log('user: ' , user);
 
                 if(!user){
                     return done(null, false);

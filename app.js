@@ -46,6 +46,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/socket.io' , express.static(path.join(__dirname, 'node_modules/socket.io')));
 
 app.use(require('express-session')(
     {
