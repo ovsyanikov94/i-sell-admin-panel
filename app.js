@@ -28,6 +28,7 @@ const commentRouter = require('./routes/comment');
 const commentTypeRouter = require('./routes/commentType');
 const commentStatusRouter = require('./routes/commentStatus');
 const userRoleRouter = require('./routes/userRole');
+const adminRouter = require('./routes/admin');
 //access routes
 const accessRoutes = require('./routes/access');
 
@@ -71,7 +72,7 @@ app.use('/api', lotRoutes);
 app.use('/api', lotStatusRoutes);
 app.use('/api', lotTypeRoutes);
 app.use('/api', lotMarkRouter);
-
+app.use('/api', adminRouter);
 app.use('/api', dealRouter);
 app.use('/api', statusDealRouter);
 app.use('/api', statusUserRouter);

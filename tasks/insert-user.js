@@ -27,6 +27,9 @@ gulp.task('InsertRootAdmin' , async ( done )=> {
             },
             '_id'
         );
+        let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
+        let saltStr = await bcrypt.genSalt(number);// создаем соль
+        let hexPassword = await bcrypt.hash("rootPassword", saltStr); // получаем закодированный пароль
 
         let number = Math.floor(Math.random() * (19 - 9+1) ) + 5; //генерируем случайное число символов от 9 до 19
         let saltStr = await bcrypt.genSalt(number);// создаем соль

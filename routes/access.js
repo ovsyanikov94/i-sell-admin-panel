@@ -38,7 +38,7 @@ router.get('/access-denied' , function ( req , res ) {
 
 });
 
-router.post('/auth-user' , passport.authenticate('local' , Options ) );;
+router.post('/auth-user' , passport.authenticate('local' , Options ) );
 
 router.get('/check-admin-access' , AccessController.isAuth );
 router.get('/check-user-access' , AccessController.isAuthUser );
